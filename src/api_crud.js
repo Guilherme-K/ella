@@ -1,26 +1,43 @@
-import express from 'express';
-import { v4 as uuidv4 } from 'uuid';
+// CRUD local para manter os cadastros disponíveis neste navegador.
+// Quando a coleção/contrato Bruno estiver disponível, BASE_URL pode apontar
+// para o backend e estas operações podem ser substituídas por fetch REST.
+const STORAGE_KEY = 'ella:usuarios'
 
-const app = express();
-app.use(express.json());
+function readUsers() {
+  try {
+    const users = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
+    return Array.isArray(users) ? users : []
+  } catch {
+    return []
+  }
+}
 
-const usuarios = {};
+function writeUsers(users) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(users))
+}
 
-app.post('/usuarios', (req, res) => {
-  const { nome, email } = req.body;
-  const id = uuidv4();
-  if (usuarios.nome === undefined || usuarios.email === undefined) {
-        res.status(400).json({msg: "informação faltando"});
-    }
-  usuarios[id] = { id, nome, email };
-  res.status(201).json(usuarios[id]);
-});
+export function getUsers() {
+  return readUsers()
+}
 
-app.get('/usuarios', (req, res) => {
-  res.json(Object.values(usuarios));
-});
+export function createUser(data) {
+  const user = { id: crypto.randomUUID(), ...data, createdAt: new Date().toISOString() }
+  writeUsers([...readUsers(), user])
+  return user
+}
 
-const PORT = 3000;
-app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta http://127.0.0.1:${PORT}`);
-});
+export function updateUser(id, changes) {
+  const users = readUsers()
+  const updated = users.find((user) => user.id === id)
+  if (!updated) return null
+  const nextUsers = users.map((user) => user.id === id ? { ...user, ...changes } : user)
+  writeUsers(nextUsers)
+  return { ...updated, ...changes }
+}
+
+export function deleteUser(id) {
+  const users = readUsers()
+  const nextUsers = users.filter((user) => user.id !== id)
+  writeUsers(nextUsers)
+  return nextUsers.length !== users.length
+}
