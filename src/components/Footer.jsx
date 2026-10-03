@@ -1,4 +1,5 @@
 import Brand from "./Brand";
+import { Link } from "react-router-dom";
 
 export default function Footer() {
   return (
@@ -42,19 +43,19 @@ export default function Footer() {
           <h2 className="mb-2 font-semibold">Links úteis</h2>
           <ul className="space-y-1.5 text-purple-100">
             <li>
-              <a href="#inicio">Início</a>
+              <Link to="/">Início</Link>
             </li>
             <li>
-              <a href="#sobre">Sobre nós</a>
+              <Link to="/sobre">Sobre nós</Link>
             </li>
             <li>
-              <a href="#informacoes">Informações</a>
+              <Link to="/informacoes">Informações</Link>
             </li>
             <li>
-              <a href="#apoio">Rede de apoio</a>
+              <Link to="/apoio">Rede de apoio</Link>
             </li>
             <li>
-              <a href="#contato">Contato</a>
+              <Link to="/apoio#contato">Contato</Link>
             </li>
           </ul>
         </div>
