@@ -1,22 +1,22 @@
-import Brand from "./Brand";
-import { Link } from "react-router-dom";
+import { Link } from 'react-router-dom'
+import Brand from './Brand'
 
 export default function Footer() {
   return (
-    <footer className="relative isolate overflow-hidden bg-[#321653] px-6 py-7 text-white sm:px-10">
-      <div className="absolute -bottom-16 right-0 -z-10 h-32 w-[34%] -rotate-6 rounded-tl-[100%] bg-linear-to-r from-pink-400 via-fuchsia-400 to-violet-400" />
-      <div className="mx-auto flex max-w-6xl flex-col gap-7 text-[10px] sm:flex-row sm:items-start sm:justify-between">
-        <div className="sm:basis-[32%]">
+    <footer className="relative isolate overflow-hidden bg-violet-950 px-6 py-7 text-white sm:px-10">
+      <div className="absolute -bottom-16 right-0 -z-10 h-32 w-1/3 -rotate-6 rounded-tl-full bg-linear-to-r from-pink-400 via-fuchsia-400 to-violet-400" />
+      <div className="mx-auto flex max-w-6xl flex-col gap-7 text-xs sm:flex-row sm:items-start sm:justify-between">
+        <div className="sm:basis-1/3">
           <div className="mb-4 flex items-center gap-2.5">
             <Brand className="h-9 w-9" />
             <div>
               <strong className="text-pink-300">ELLA</strong>
-              <p className="text-[8px] text-purple-100">
+              <p className="text-xs text-purple-100">
                 Educação, Liberdade, Laços e Assistência
               </p>
             </div>
           </div>
-          <p className="max-w-64 leading-[1.35] text-purple-50">
+          <p className="max-w-64 leading-relaxed text-purple-50">
             Um site de conscientização e apoio
             <br className="hidden sm:block" /> no combate à violência contra a
             mulher.
@@ -39,7 +39,8 @@ export default function Footer() {
             </a>
           </div>
         </div>
-        <div className="sm:basis-[15%]">
+
+        <div className="sm:basis-1/6">
           <h2 className="mb-2 font-semibold">Links úteis</h2>
           <ul className="space-y-1.5 text-purple-100">
             <li>
@@ -59,26 +60,28 @@ export default function Footer() {
             </li>
           </ul>
         </div>
-        <div className="sm:basis-[28%]">
+
+        <div className="sm:basis-1/4">
           <h2 className="mb-2 font-semibold">Atendimento</h2>
           <div className="space-y-3 text-purple-100">
             <p>
-              <i className="fa-solid fa-phone mr-2" aria-hidden="true" /> Disque
-              180
+              <i className="fa-solid fa-phone mr-2" aria-hidden="true" />
+              Disque 180
               <br />
               <span className="pl-6 text-purple-200">
                 Central de Atendimento à Mulher
               </span>
             </p>
             <p>
-              <i className="fa-solid fa-phone mr-2" aria-hidden="true" /> Polícia
-              Militar
+              <i className="fa-solid fa-phone mr-2" aria-hidden="true" />
+              Polícia Militar
               <br />
               <span className="pl-6 text-purple-200">190</span>
             </p>
           </div>
         </div>
-        <p className="self-start text-left font-serif text-lg italic leading-tight text-pink-200 sm:basis-[18%] sm:text-right">
+
+        <p className="self-start text-left font-serif text-lg italic leading-tight text-pink-200 sm:basis-1/5 sm:text-right">
           A sua voz
           <br />
           também é proteção
@@ -87,5 +90,5 @@ export default function Footer() {
         </p>
       </div>
     </footer>
-  );
+  )
 }
