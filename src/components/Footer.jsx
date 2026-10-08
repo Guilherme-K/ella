@@ -26,16 +26,16 @@ export default function Footer() {
           </p>
           <div className="mt-4 flex gap-4 text-base font-bold text-fuchsia-500">
             <a href="#facebook" aria-label="Facebook">
-              f
+              <i className="fa-brands fa-facebook" aria-hidden="true" />
             </a>
             <a href="#youtube" aria-label="YouTube">
-              ▶
+              <i className="fa-brands fa-youtube" aria-hidden="true" />
             </a>
             <a href="#instagram" aria-label="Instagram">
-              ◎
+              <i className="fa-brands fa-instagram" aria-hidden="true" />
             </a>
             <a href="#x" aria-label="X">
-              𝕏
+              <i className="fa-brands fa-x-twitter" aria-hidden="true" />
             </a>
           </div>
         </div>
@@ -63,14 +63,16 @@ export default function Footer() {
           <h2 className="mb-2 font-semibold">Atendimento</h2>
           <div className="space-y-3 text-purple-100">
             <p>
-              <b className="mr-2">☎</b> Disque 180
+              <i className="fa-solid fa-phone mr-2" aria-hidden="true" /> Disque
+              180
               <br />
               <span className="pl-6 text-purple-200">
                 Central de Atendimento à Mulher
               </span>
             </p>
             <p>
-              <b className="mr-2">☎</b> Polícia Militar
+              <i className="fa-solid fa-phone mr-2" aria-hidden="true" /> Polícia
+              Militar
               <br />
               <span className="pl-6 text-purple-200">190</span>
             </p>
@@ -81,7 +83,7 @@ export default function Footer() {
           <br />
           também é proteção
           <br />
-          <span className="text-2xl">♡</span>
+          <i className="fa-regular fa-heart text-2xl" aria-hidden="true" />
         </p>
       </div>
     </footer>
