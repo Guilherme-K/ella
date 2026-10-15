@@ -48,7 +48,7 @@ export default function Home() {
               </Link>
             </div>
             <a
-              href="https://www.gov.br/pt-br/servicos/solicitar-atendimento-por-meio-da-central-de-atendimento-a-mulher"
+              href="https://www.youtube.com/receitas"
               className="mt-6 inline-block rounded-lg bg-purple-100 px-4 py-2 text-xs text-violet-700 underline decoration-violet-400 underline-offset-2 transition hover:bg-purple-200"
             >
               Saída Rápida
