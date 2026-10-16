@@ -25,13 +25,15 @@ export default function Login() {
   }
 
   return (
-    <main className="relative flex min-h-screen flex-1 items-center justify-center overflow-hidden bg-purple-100 px-4 py-12">
+    <main className="relative flex flex-1 items-center justify-center overflow-hidden bg-purple-100 px-4 py-12"> 
+      {/* imagem dando erro no build, por isso comentada.
       <img
         src={floralBackground}
         alt=""
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3 w-full object-cover object-bottom"
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3 w-full object-cover object-bottom rotate-12"
       />
+      */}
       <section className="relative z-10 min-h-144 w-full max-w-sm overflow-hidden rounded-2xl bg-white px-8 py-9 shadow-md">
         <div className="relative z-10">
           <h1 className="font-serif text-2xl font-bold leading-tight text-violet-950">
