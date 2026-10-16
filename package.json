@@ -27,5 +27,12 @@
     "eslint-plugin-react-refresh": "^0.5.3",
     "globals": "^17.7.0",
     "vite": "^8.2.0"
-  }
+  },
+  "tailwindCSS.includeLanguages": {
+  "javascript": "javascript",
+  "javascriptreact": "javascriptreact",
+  "typescriptreact": "typescriptreact"
+}
+
+
 }

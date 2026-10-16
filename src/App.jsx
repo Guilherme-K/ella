@@ -6,6 +6,8 @@ import Login from './pages/Login'
 import Signup from './pages/Signup'
 import MainLayout from './layouts/MainLayout'
 
+import Voluntaria from './pages/Voluntaria'
+
 export default function App() {
   return (
     <Routes>
@@ -15,6 +17,7 @@ export default function App() {
         <Route path="/cadastro" element={<Signup />} />
         <Route path="/contas" element={<Accounts />} />
         <Route path="*" element={<Home />} />
+        <Route path='/voluntaria' element={<Voluntaria/>} />
       </Route>
     </Routes>
   )

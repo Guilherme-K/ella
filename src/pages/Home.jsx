@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import womenArtwork from '../assets/ChatGPT Image 18 de set. de 2026, 08_12_58 (1) 1.png'
+import womenArtwork from '../assets/mulheres.png'
 import { homeLinks, supportServices, violenceTypes } from '../data/homeData'
 
 export default function Home() {
@@ -200,7 +200,7 @@ export default function Home() {
               </p>
             </div>
             <Link
-              to="/apoio"
+              to="/voluntaria"
               className="rounded-xl bg-purple-100 px-4 py-2 text-sm text-violet-700 transition hover:bg-white sm:text-base"
             >
               Quero ser voluntária

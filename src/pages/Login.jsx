@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { getUsers } from '../api_crud'
-import womenArtwork from '../assets/ChatGPT Image 18 de set. de 2026, 08_12_58 (1) 1.png'
-import floralBackground from '../assets/ChatGPT Image 18 de set. de 2026, 08_12_58 (1) 2.png'
+import womenArtwork from '../assets/mulheres.png'
+import floralBackground from '../assets/fundo_lado1.png'
 
 export default function Login() {
   const [email, setEmail] = useState('')
