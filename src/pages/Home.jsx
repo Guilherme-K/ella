@@ -79,7 +79,7 @@ export default function Home() {
         ))}
       </nav>
 
-      <section className="rounded-t-2xl bg-gradient-to-r from-violet-950 to-violet-700 px-6 py-5 text-white sm:px-10">
+      <section className="bg-gradient-to-r from-violet-950 to-violet-700 px-6 py-5 text-white sm:px-10">
         <div className="mx-auto max-w-6xl">
           <h2 className="font-serif text-xl sm:text-2xl">
             Informações que salvam vidas
