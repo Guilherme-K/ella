@@ -33,13 +33,13 @@ export default function Home() {
               contra a mulher.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
-              <a
-                href="tel:190"
+              <Link
+                to="/emergencia"
                 className="inline-flex items-center gap-2 rounded-full bg-pink-700 px-4 py-2 text-sm font-medium text-white transition hover:bg-pink-800 focus:outline-none focus:ring-2 focus:ring-pink-400 focus:ring-offset-2"
               >
                 <i className="fa-solid fa-bell" aria-hidden="true" />
                 Botão de Emergência
-              </a>
+              </Link>
               <Link
                 to="/apoio"
                 className="rounded-full border border-pink-400 bg-white/80 px-4 py-2 text-sm text-pink-600 transition hover:bg-pink-50 focus:outline-none focus:ring-2 focus:ring-pink-300 focus:ring-offset-2"

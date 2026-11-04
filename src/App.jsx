@@ -8,6 +8,9 @@ import MainLayout from './layouts/MainLayout'
 
 import Voluntaria from './pages/Voluntaria'
 
+import Chat from './pages/Chat'
+import Emergencia from "./pages/Emergencia";
+
 export default function App() {
   return (
     <Routes>
@@ -18,6 +21,8 @@ export default function App() {
         <Route path="/contas" element={<Accounts />} />
         <Route path="*" element={<Home />} />
         <Route path='/voluntaria' element={<Voluntaria/>} />
+        <Route path='/chat' element={<Chat/>} />
+        <Route path="/emergencia" element={<Emergencia />} />
       </Route>
     </Routes>
   )

@@ -83,7 +83,7 @@ export const homeLinks = [
     icon: 'fa-comment-dots',
     label: 'Chat',
     description: 'Converse com voluntários',
-    to: '/apoio',
+    to: '/chat',
   },
   {
     icon: 'fa-triangle-exclamation',
