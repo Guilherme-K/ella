@@ -21,36 +21,40 @@ function Voluntaria() {
 
                 <form>
                     <Campo
-                    label="Nome completo"
-                    id="nome"
-                    name="nome"
-                    type="text"
-                    placeholder="Seu nome completo..."
-                />
+                        label="Nome completo"
+                        id="nome"
+                        name="nome"
+                        type="text"
+                        placeholder="Seu nome completo..."
+                    />
 
-                <Campo
-                    label="E-mail"
-                    id="e-mail"
-                    name="e-mail"
-                    type="text"
-                    placeholder="seu@gmail.com"
-                />
+                    <Campo
+                        label="E-mail"
+                        id="email"
+                        name="email"
+                        type="text"
+                        placeholder="seu@gmail.com"
+                    />
 
-                <Campo
-                    label="Telefone (opcional)"
-                    id="telefone"
-                    name="telefone"
-                    type="text"
-                    placeholder="(00) 00000-0000"
-                />
+                    <Campo
+                        label="Telefone (opcional)"
+                        id="telefone"
+                        name="telefone"
+                        type="tel"
+                        placeholder="(00) 00000-0000"
+                    />
 
-                <Campo
-                    label="Cidade"
-                    id="cidade"
-                    name="cidade"
-                    type="text"
-                    placeholder="Sua cidade"
-                />
+                    <Campo
+                        label="Cidade"
+                        id="cidade"
+                        name="cidade"
+                        type="text"
+                        placeholder="Sua cidade"
+                    />
+
+                    <h3 className="font-semibold text-[#4c1d95]">Como você gostaria de ajudar?</h3>
+
+
                 </form>
             </section>
         </main>
