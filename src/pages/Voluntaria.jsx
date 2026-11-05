@@ -12,14 +12,22 @@ function Voluntaria() {
         email: "",
         telefone: "",
         cidade: "",
-    })
+    });
+
     function handleChange(e) {
-        setDados({ ...dados, [e.target.name]: e.target.value });
+        setDados((dadosAtuais) => ({
+            ...dadosAtuais,
+            [e.target.name]: e.target.value
+        }));
     }
-    const [ajuda, setAjuda] = useState(
-        [])
+
+    const [ajuda, setAjuda] = useState([]);
+    const [erro, setErro] = useState("");
+
 
     function escolherOpcao(opcao) {
+
+        setErro("");
         if (ajuda.includes(opcao)) {
             setAjuda(ajuda.filter((item) => item !== opcao))
         } else {
@@ -27,7 +35,7 @@ function Voluntaria() {
         }
     }
 
-    const [erro, setErro] = useState("");
+
 
     function handleSubmit(e) {
         e.preventDefault();
@@ -37,7 +45,7 @@ function Voluntaria() {
             return;
         }
 
-        setErro("");
+
         console.log({ ...dados, areas: ajuda });
     }
 
@@ -59,7 +67,7 @@ function Voluntaria() {
                 <p className="mb-2">Preencha seus dados e conte para nós como você gostaria de ajudar.</p>
                 <p className="mb-6">Entraremos em contato com os próximos passos.</p>
 
-                <form>
+                <form onSubmit={handleSubmit}>
                     <Campo
                         label="Nome completo"
                         id="nome"
@@ -68,6 +76,7 @@ function Voluntaria() {
                         placeholder="Seu nome completo..."
                         value={dados.nome}
                         onChange={handleChange}
+                        required
                     />
 
                     <Campo
@@ -78,6 +87,7 @@ function Voluntaria() {
                         placeholder="seu@gmail.com"
                         value={dados.email}
                         onChange={handleChange}
+                        required
                     />
 
                     <Campo
@@ -98,6 +108,7 @@ function Voluntaria() {
                         placeholder="Sua cidade"
                         value={dados.cidade}
                         onChange={handleChange}
+                        required
                     />
 
                     <h3 className="font-semibold text-[#4c1d95] mb-4 mt-2">Como você gostaria de ajudar?</h3>
@@ -148,6 +159,7 @@ function Voluntaria() {
                         </button>
                     </div>
 
+                    {erro && <p className="text-red-500 mt-2">{erro}</p>}
                     <button className="rounded-full text-white bg-pink-400 px-8 py-2 mx-auto block mt-8" type="submit">Quero ser voluntária</button>
                 </form>
 
