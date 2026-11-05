@@ -17,15 +17,29 @@ function Voluntaria() {
         setDados({ ...dados, [e.target.name]: e.target.value });
     }
     const [ajuda, setAjuda] = useState(
-    [ ])
+        [])
 
     function escolherOpcao(opcao) {
-    if (ajuda.includes(opcao)) {
-        setAjuda(ajuda.filter( (item) => item !== opcao))
-    } else {
-        setAjuda([ ...ajuda, opcao ])
+        if (ajuda.includes(opcao)) {
+            setAjuda(ajuda.filter((item) => item !== opcao))
+        } else {
+            setAjuda([...ajuda, opcao])
+        }
     }
-}
+
+    const [erro, setErro] = useState("");
+
+    function handleSubmit(e) {
+        e.preventDefault();
+
+        if (ajuda.length === 0) {
+            setErro("Escolha pelo menos uma forma de ajudar.");
+            return;
+        }
+
+        setErro("");
+        console.log({ ...dados, areas: ajuda });
+    }
 
 
     return (
@@ -90,50 +104,46 @@ function Voluntaria() {
 
                     <div className="grid grid-cols-2 gap-4">
                         <button
-                            className={`rounded-xl py-4 font-semibold flex flex-col items-center gap-2 ${
-    ajuda.includes("Acolhimento")
-        ? "bg-[#7e22ce] text-white"
-        : "bg-[#e9d5ff] text-[#4c1d95]"
-}`}
+                            className={`rounded-xl py-4 font-semibold flex flex-col items-center gap-2 ${ajuda.includes("Acolhimento")
+                                ? "bg-[#7e22ce] text-white"
+                                : "bg-[#e9d5ff] text-[#4c1d95]"
+                                }`}
                             type="button"
-                            onClick={ () => escolherOpcao("Acolhimento")}
+                            onClick={() => escolherOpcao("Acolhimento")}
                         ><FontAwesomeIcon icon={faHeart} />
                             Acolhimento
                         </button>
 
                         <button
-                            className={`rounded-xl py-4 font-semibold flex flex-col items-center gap-2 ${
-    ajuda.includes("Divulgação")
-        ? "bg-[#7e22ce] text-white"
-        : "bg-[#e9d5ff] text-[#4c1d95]"
-}`}
+                            className={`rounded-xl py-4 font-semibold flex flex-col items-center gap-2 ${ajuda.includes("Divulgação")
+                                ? "bg-[#7e22ce] text-white"
+                                : "bg-[#e9d5ff] text-[#4c1d95]"
+                                }`}
                             type="button"
-                            onClick={ () => escolherOpcao("Divulgação")}
-                        ><FontAwesomeIcon icon={faBullhorn}/>
+                            onClick={() => escolherOpcao("Divulgação")}
+                        ><FontAwesomeIcon icon={faBullhorn} />
                             Divulgação
                         </button>
 
                         <button
-                            className={`rounded-xl py-4 font-semibold flex flex-col items-center gap-2 ${
-    ajuda.includes("Eventos")
-        ? "bg-[#7e22ce] text-white"
-        : "bg-[#e9d5ff] text-[#4c1d95]"
-}`}
+                            className={`rounded-xl py-4 font-semibold flex flex-col items-center gap-2 ${ajuda.includes("Eventos")
+                                ? "bg-[#7e22ce] text-white"
+                                : "bg-[#e9d5ff] text-[#4c1d95]"
+                                }`}
                             type="button"
-                            onClick={ () => escolherOpcao("Eventos")}
-                        ><FontAwesomeIcon icon={faCalendarDays}/>
+                            onClick={() => escolherOpcao("Eventos")}
+                        ><FontAwesomeIcon icon={faCalendarDays} />
                             Eventos
                         </button>
 
                         <button
-                            className={`rounded-xl py-4 font-semibold flex flex-col items-center gap-2 ${
-    ajuda.includes("Profissional")
-        ? "bg-[#7e22ce] text-white"
-        : "bg-[#e9d5ff] text-[#4c1d95]"
-}`}
+                            className={`rounded-xl py-4 font-semibold flex flex-col items-center gap-2 ${ajuda.includes("Profissional")
+                                ? "bg-[#7e22ce] text-white"
+                                : "bg-[#e9d5ff] text-[#4c1d95]"
+                                }`}
                             type="button"
-                            onClick={ () => escolherOpcao("Profissional")}>
-                        <FontAwesomeIcon icon={faBriefcase} />
+                            onClick={() => escolherOpcao("Profissional")}>
+                            <FontAwesomeIcon icon={faBriefcase} />
                             Profissional
                         </button>
                     </div>

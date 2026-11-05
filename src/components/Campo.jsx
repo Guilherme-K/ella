@@ -1,4 +1,4 @@
-function Campo ({label, id, name, type, placeholder, value, onChange}) {
+function Campo ({label, id, name, type, placeholder, value, onChange, required}) {
     return (
         <div>
         <label className="block mb-2"
@@ -14,6 +14,7 @@ function Campo ({label, id, name, type, placeholder, value, onChange}) {
         placeholder={placeholder}
         value={value}
         onChange={onChange}
+        required={required}
         />
 
         </div>
