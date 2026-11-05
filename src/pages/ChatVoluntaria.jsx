@@ -36,7 +36,6 @@ function ChatVoluntaria() {
 
                 <div className="px-5 pb-8 space-y-5">
 
-                    {/* Mensagem da usuária */}
                     <div className="flex items-start gap-3">
                         <div className="w-10 h-10 rounded-full bg-pink-300 flex items-center justify-center text-white font-bold shrink-0">
                             J
@@ -50,7 +49,6 @@ function ChatVoluntaria() {
                         </div>
                     </div>
 
-                    {/* Resposta da voluntária */}
                     <div className="flex items-start gap-3 justify-end">
                         <div className="max-w-[75%] px-4 py-3 rounded-2xl rounded-tr-sm bg-[#f1efff] text-[#50449b]">
                             <p className="text-sm">
