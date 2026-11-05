@@ -9,6 +9,9 @@ import MainLayout from './layouts/MainLayout'
 import Voluntaria from './pages/Voluntaria'
 
 import Chat from './pages/Chat'
+import ChatUsuario from './pages/ChatUsuario'
+import ChatVoluntaria from './pages/ChatVoluntaria'
+import ChatAdmin from './pages/ChatAdmin'
 import Emergencia from "./pages/Emergencia";
 
 export default function App() {
@@ -20,8 +23,11 @@ export default function App() {
         <Route path="/cadastro" element={<Signup />} />
         <Route path="/contas" element={<Accounts />} />
         <Route path="*" element={<Home />} />
-        <Route path='/voluntaria' element={<Voluntaria/>} />
-        <Route path='/chat' element={<Chat/>} />
+        <Route path='/voluntaria' element={<Voluntaria />} />
+        <Route path='/chat' element={<Chat />} />
+        <Route path='/chatusuario' element={<ChatUsuario />} />
+        <Route path="/chatvoluntaria" element={<ChatVoluntaria />} />
+        <Route path="/chatadmin" element={<ChatAdmin />} />
         <Route path="/emergencia" element={<Emergencia />} />
       </Route>
     </Routes>
