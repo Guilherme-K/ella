@@ -1,5 +1,26 @@
 
 export default function Emergencia() {
+  function compartilharLocalizacao() {
+    if (!navigator.geolocation) {
+      alert('Seu navegador não suporta localização.');
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+
+        window.open(
+          `https://www.google.com/maps?q=${latitude},${longitude}`,
+          '_blank'
+        );
+      },
+      () => {
+        alert('Não foi possível acessar sua localização. Verifique a permissão do navegador.');
+      }
+    );
+  }
+
   return (
     <main className="min-h-screen bg-[#c91d70] px-5 py-10 text-white">
       <section className="mx-auto flex w-full max-w-md flex-col items-center">
@@ -21,7 +42,7 @@ export default function Emergencia() {
         <div className="flex w-full flex-col gap-4">
 
           <a
-            href="#"
+            href="tel:190"
             className="flex min-h-[72px] items-center gap-5 rounded-xl bg-[#b90060] px-6 transition hover:bg-[#aa0057]"
           >
             <i className="fa-solid fa-shield-halved text-3xl" />
@@ -33,6 +54,7 @@ export default function Emergencia() {
 
           <button
             type="button"
+            onClick={compartilharLocalizacao}
             className="flex min-h-[72px] w-full items-center gap-5 rounded-xl bg-[#f4e3fa] px-6 text-[#c00065] transition hover:bg-white"
           >
             <i className="fa-solid fa-location-dot shrink-0 text-3xl" />
