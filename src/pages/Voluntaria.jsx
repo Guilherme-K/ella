@@ -1,7 +1,33 @@
 import imagemMulheres2 from '../assets/mulheres2.png';
 import Campo from '../components/Campo';
 
+import { useState } from 'react';
+
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHeart, faBullhorn, faCalendarDays, faBriefcase } from '@fortawesome/free-solid-svg-icons';
+
 function Voluntaria() {
+    const [dados, setDados] = useState({
+        nome: "",
+        email: "",
+        telefone: "",
+        cidade: "",
+    })
+    function handleChange(e) {
+        setDados({ ...dados, [e.target.name]: e.target.value });
+    }
+    const [ajuda, setAjuda] = useState(
+    [ ])
+
+    function escolherOpcao(opcao) {
+    if (ajuda.includes(opcao)) {
+        setAjuda(ajuda.filter( (item) => item !== opcao))
+    } else {
+        setAjuda([ ...ajuda, opcao ])
+    }
+}
+
+
     return (
         <main className="bg-[#f3e8ff]">
             <section className="flex items-center justify-between flex-col md:flex-row px-10 py-10">
@@ -26,14 +52,18 @@ function Voluntaria() {
                         name="nome"
                         type="text"
                         placeholder="Seu nome completo..."
+                        value={dados.nome}
+                        onChange={handleChange}
                     />
 
                     <Campo
                         label="E-mail"
                         id="email"
                         name="email"
-                        type="text"
+                        type="email"
                         placeholder="seu@gmail.com"
+                        value={dados.email}
+                        onChange={handleChange}
                     />
 
                     <Campo
@@ -42,6 +72,8 @@ function Voluntaria() {
                         name="telefone"
                         type="tel"
                         placeholder="(00) 00000-0000"
+                        value={dados.telefone}
+                        onChange={handleChange}
                     />
 
                     <Campo
@@ -50,12 +82,68 @@ function Voluntaria() {
                         name="cidade"
                         type="text"
                         placeholder="Sua cidade"
+                        value={dados.cidade}
+                        onChange={handleChange}
                     />
 
-                    <h3 className="font-semibold text-[#4c1d95]">Como você gostaria de ajudar?</h3>
+                    <h3 className="font-semibold text-[#4c1d95] mb-4 mt-2">Como você gostaria de ajudar?</h3>
 
+                    <div className="grid grid-cols-2 gap-4">
+                        <button
+                            className={`rounded-xl py-4 font-semibold flex flex-col items-center gap-2 ${
+    ajuda.includes("Acolhimento")
+        ? "bg-[#7e22ce] text-white"
+        : "bg-[#e9d5ff] text-[#4c1d95]"
+}`}
+                            type="button"
+                            onClick={ () => escolherOpcao("Acolhimento")}
+                        ><FontAwesomeIcon icon={faHeart} />
+                            Acolhimento
+                        </button>
 
+                        <button
+                            className={`rounded-xl py-4 font-semibold flex flex-col items-center gap-2 ${
+    ajuda.includes("Divulgação")
+        ? "bg-[#7e22ce] text-white"
+        : "bg-[#e9d5ff] text-[#4c1d95]"
+}`}
+                            type="button"
+                            onClick={ () => escolherOpcao("Divulgação")}
+                        ><FontAwesomeIcon icon={faBullhorn}/>
+                            Divulgação
+                        </button>
+
+                        <button
+                            className={`rounded-xl py-4 font-semibold flex flex-col items-center gap-2 ${
+    ajuda.includes("Eventos")
+        ? "bg-[#7e22ce] text-white"
+        : "bg-[#e9d5ff] text-[#4c1d95]"
+}`}
+                            type="button"
+                            onClick={ () => escolherOpcao("Eventos")}
+                        ><FontAwesomeIcon icon={faCalendarDays}/>
+                            Eventos
+                        </button>
+
+                        <button
+                            className={`rounded-xl py-4 font-semibold flex flex-col items-center gap-2 ${
+    ajuda.includes("Profissional")
+        ? "bg-[#7e22ce] text-white"
+        : "bg-[#e9d5ff] text-[#4c1d95]"
+}`}
+                            type="button"
+                            onClick={ () => escolherOpcao("Profissional")}>
+                        <FontAwesomeIcon icon={faBriefcase} />
+                            Profissional
+                        </button>
+                    </div>
+
+                    <button className="rounded-full text-white bg-pink-400 px-8 py-2 mx-auto block mt-8" type="submit">Quero ser voluntária</button>
                 </form>
+
+
+
+
             </section>
         </main>
     );

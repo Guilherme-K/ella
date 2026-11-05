@@ -10,6 +10,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^7.3.1",
+    "@fortawesome/free-solid-svg-icons": "^7.3.1",
+    "@fortawesome/react-fontawesome": "^3.5.0",
     "@rolldown/plugin-babel": "^0.2.3",
     "@tailwindcss/vite": "^4.3.3",
     "react": "^19.2.8",
@@ -29,10 +32,8 @@
     "vite": "^8.2.0"
   },
   "tailwindCSS.includeLanguages": {
-  "javascript": "javascript",
-  "javascriptreact": "javascriptreact",
-  "typescriptreact": "typescriptreact"
-}
-
-
+    "javascript": "javascript",
+    "javascriptreact": "javascriptreact",
+    "typescriptreact": "typescriptreact"
+  }
 }
