@@ -19,7 +19,7 @@ function ChatUsuario() {
 
                 <div className="flex items-center justify-between px-6 py-4 border-b border-violet-100 flex-wrap gap-3">
                     <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-pink-300 to-purple-500 flex items-center justify-center text-white font-bold">
+                        <div className="w-12 h-12 rounded-full bg-linear-to-br from-pink-300 to-purple-500 flex items-center justify-center text-white font-bold">
                             M
                         </div>
 
@@ -77,7 +77,7 @@ function ChatUsuario() {
                     {mensagens.map((item, index) => (
                         <div key={index} className="flex items-start gap-3 justify-end">
                             <div className="max-w-[75%] px-4 py-3 rounded-2xl rounded-tr-sm bg-[#f9d8f5] text-[#5540a0]">
-                                <p className="text-sm break-words">{item}</p>
+                                <p className="text-sm wrap-break-word">{item}</p>
                                 <p className="text-right text-[10px] text-[#a29bc9] mt-2">Agora</p>
                             </div>
 

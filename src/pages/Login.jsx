@@ -1,31 +1,33 @@
-import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { getUsers } from '../api_crud'
-import womenArtwork from '../assets/mulheres.png'
-import floralBackground from '../assets/fundo_lado1.png'
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { getUsers } from "../api_crud";
+import womenArtwork from "../assets/mulheres.png";
+import floralBackground from "../assets/fundo_lado1.png";
 
 export default function Login() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [message, setMessage] = useState('')
-  const navigate = useNavigate()
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [message, setMessage] = useState("");
+  const navigate = useNavigate();
 
   function submit(event) {
-    event.preventDefault()
+    event.preventDefault();
     const user = getUsers().find(
       (item) => item.email.toLowerCase() === email.toLowerCase(),
-    )
+    );
 
     if (!user || user.password !== password) {
-      setMessage('E-mail ou senha não conferem. Confira os dados ou crie sua conta.')
-      return
+      setMessage(
+        "E-mail ou senha não conferem. Confira os dados ou crie sua conta.",
+      );
+      return;
     }
 
-    navigate('/contas')
+    navigate("/contas");
   }
 
   return (
-    <main className="relative flex flex-1 items-center justify-center overflow-hidden bg-purple-100 px-4 py-12"> 
+    <main className="relative flex flex-1 items-center justify-center overflow-hidden bg-purple-100 px-4 py-12">
       {/* imagem dando erro no build, por isso comentada.
       <img
         src={floralBackground}
@@ -48,7 +50,10 @@ export default function Login() {
             <label className="block text-xs font-semibold text-violet-500">
               E-mail
               <div className="mt-3 flex h-9 items-center gap-6 rounded-lg border border-purple-100 bg-purple-50 px-3">
-                <i className="fa-regular fa-envelope text-xs" aria-hidden="true" />
+                <i
+                  className="fa-regular fa-envelope text-xs"
+                  aria-hidden="true"
+                />
                 <input
                   required
                   type="email"
@@ -83,7 +88,7 @@ export default function Login() {
                 type="button"
                 onClick={() =>
                   setMessage(
-                    'Para recuperar seu acesso, faça um novo cadastro com seu e-mail.',
+                    "Para recuperar seu acesso, faça um novo cadastro com seu e-mail.",
                   )
                 }
                 className="text-xs text-pink-400 underline"
@@ -124,5 +129,5 @@ export default function Login() {
         />
       </section>
     </main>
-  )
+  );
 }

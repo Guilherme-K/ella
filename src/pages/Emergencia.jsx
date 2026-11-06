@@ -43,7 +43,7 @@ export default function Emergencia() {
 
           <a
             href="tel:190"
-            className="flex min-h-[72px] items-center gap-5 rounded-xl bg-[#b90060] px-6 transition hover:bg-[#aa0057]"
+            className="flex min-h-18 items-center gap-5 rounded-xl bg-[#b90060] px-6 transition hover:bg-[#aa0057]"
           >
             <i className="fa-solid fa-shield-halved text-3xl" />
 
@@ -55,7 +55,7 @@ export default function Emergencia() {
           <button
             type="button"
             onClick={compartilharLocalizacao}
-            className="flex min-h-[72px] w-full items-center gap-5 rounded-xl bg-[#f4e3fa] px-6 text-[#c00065] transition hover:bg-white"
+            className="flex min-h-18 w-full items-center gap-5 rounded-xl bg-[#f4e3fa] px-6 text-[#c00065] transition hover:bg-white"
           >
             <i className="fa-solid fa-location-dot shrink-0 text-3xl" />
 
@@ -64,7 +64,7 @@ export default function Emergencia() {
             </span>
           </button>
 
-          <div className="mt-5 flex min-h-[72px] items-center gap-5 rounded-xl bg-[#f4e3fa] px-6 py-4 text-[#c00065]">
+          <div className="mt-5 flex min-h-18 items-center gap-5 rounded-xl bg-[#f4e3fa] px-6 py-4 text-[#c00065]">
 
             <i className="fa-solid fa-shield-heart shrink-0 text-3xl" />
 
