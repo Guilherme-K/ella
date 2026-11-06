@@ -1,4 +1,29 @@
-# React + Vite
+# ELLA
+
+Frontend React + Vite da plataforma ELLA.
+
+## Backend (API)
+
+A pasta [`backend/`](./backend/README.md) contém a API REST com Express,
+Prisma ORM 7 e MySQL (compatível com MySQL Workbench). O frontend continua
+usando os dados mock em `localStorage` por enquanto.
+
+Consulte [`backend/README.md`](./backend/README.md) para o passo a passo de
+configuração do banco, migrations e endpoints.
+
+## Integração com a API
+
+A camada de serviços do frontend está em:
+
+- `src/services/httpClient.js` — cliente HTTP baseado em `fetch`.
+- `src/services/userService.js` — cadastro, login, listagem, atualização e exclusão.
+
+A URL da API é lida de `VITE_API_URL` (veja `.env.example`). As telas ainda
+usam os dados mock de `src/api_crud.js`; a troca para a API pode ser feita
+quando desejado, substituindo as chamadas de `getUsers`, `createUser`,
+`updateUser` e `deleteUser` pelos métodos do `userService`.
+
+## React + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 

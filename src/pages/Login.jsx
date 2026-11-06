@@ -1,3 +1,4 @@
+
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import womenArtwork from '../assets/mulheres.png'
@@ -10,34 +11,34 @@ export default function Login() {
   const navigate = useNavigate()
 
   async function submit(event) {
-  event.preventDefault()
-  setMessage('')
+    event.preventDefault()
+    setMessage('')
 
-  try {
-    const resposta = await fetch('http://localhost:3000/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email, password }),
-    })
+    try {
+      const resposta = await fetch('http://localhost:3000/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      })
 
-    const dados = await resposta.json()
+      const dados = await resposta.json()
 
-    if (!resposta.ok) {
-      setMessage(dados.erro)
-      return
+      if (!resposta.ok) {
+        setMessage(dados.erro)
+        return
+      }
+
+      localStorage.setItem('usuarioLogado', JSON.stringify(dados))
+      navigate('/contas')
+    } catch {
+      setMessage('Não foi possível conectar ao servidor.')
     }
-
-    localStorage.setItem('usuarioLogado', JSON.stringify(dados))
-    navigate('/contas')
-  } catch {
-    setMessage('Não foi possível conectar ao servidor.')
   }
-}
 
   return (
-    <main className="relative flex flex-1 items-center justify-center overflow-hidden bg-purple-100 px-4 py-12"> 
+    <main className="relative flex flex-1 items-center justify-center overflow-hidden bg-purple-100 px-4 py-12">
       {/* imagem dando erro no build, por isso comentada.
       <img
         src={floralBackground}

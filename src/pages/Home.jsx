@@ -7,7 +7,7 @@ export default function Home() {
     <main className="flex-1 bg-white">
       <section
         id="inicio"
-        className="relative isolate flex items-center overflow-hidden bg-gradient-to-r from-pink-50 via-pink-50 to-purple-100 px-6 py-8 sm:px-10 sm:py-10 lg:px-16"
+        className="relative isolate flex items-center overflow-hidden bg-linear-to-r from-pink-50 via-pink-50 to-purple-100 px-6 py-8 sm:px-10 sm:py-10 lg:px-16"
       >
         <img
           src={womenArtwork}
@@ -15,7 +15,7 @@ export default function Home() {
           aria-hidden="true"
           className="pointer-events-none absolute inset-y-0 right-0 -z-20 h-full w-3/4 object-contain object-right opacity-70 sm:w-2/3 sm:opacity-100"
         />
-        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-pink-50 via-pink-50/95 to-transparent" />
+        <div className="absolute inset-0 -z-10 bg-linear-to-r from-pink-50 via-pink-50/95 to-transparent" />
         <div className="mx-auto w-full max-w-6xl">
           <div className="max-w-lg">
             <h1 className="font-serif text-3xl font-bold leading-tight text-violet-950 sm:text-4xl lg:text-5xl">
@@ -79,7 +79,7 @@ export default function Home() {
         ))}
       </nav>
 
-      <section className="bg-gradient-to-r from-violet-950 to-violet-700 px-6 py-5 text-white sm:px-10">
+      <section className="bg-linear-to-r from-violet-950 to-violet-700 px-6 py-5 text-white sm:px-10">
         <div className="mx-auto max-w-6xl">
           <h2 className="font-serif text-xl sm:text-2xl">
             Informações que salvam vidas
@@ -186,7 +186,7 @@ export default function Home() {
             ))}
           </div>
 
-          <aside className="mt-14 flex flex-col items-center gap-5 rounded-3xl bg-gradient-to-r from-violet-700 via-violet-700 to-violet-950 px-6 py-7 text-center text-white sm:flex-row sm:justify-between sm:px-10 sm:py-8 sm:text-left">
+          <aside className="mt-14 flex flex-col items-center gap-5 rounded-3xl bg-linear-to-r from-violet-700 via-violet-700 to-violet-950 px-6 py-7 text-center text-white sm:flex-row sm:justify-between sm:px-10 sm:py-8 sm:text-left">
             <i
               className="fa-solid fa-people-group text-4xl text-purple-200"
               aria-hidden="true"

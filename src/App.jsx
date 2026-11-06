@@ -14,6 +14,8 @@ import ChatVoluntaria from './pages/ChatVoluntaria'
 import ChatAdmin from './pages/ChatAdmin'
 import Emergencia from "./pages/Emergencia"
 import Denuncia from './pages/Denuncia'
+import AgradecimentoVoluntaria from './pages/AgradecimentoVoluntario'
+import DashboardAdmin from './pages/DashboardAdmin'
 
 export default function App() {
   return (
@@ -31,6 +33,8 @@ export default function App() {
         <Route path="/chatadmin" element={<ChatAdmin />} />
         <Route path="/emergencia" element={<Emergencia />} />
         <Route path="/denuncia" element={<Denuncia />} />
+        <Route path='/voluntaria/agradecimentovoluntaria' element={<AgradecimentoVoluntaria/>}/>
+        <Route path="/administrador" element={<DashboardAdmin />} />
       </Route>
     </Routes>
   )

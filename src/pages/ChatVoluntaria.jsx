@@ -65,7 +65,7 @@ function ChatVoluntaria() {
                     {mensagens.map((item, index) => (
                         <div key={index} className="flex items-start gap-3 justify-end">
                             <div className="max-w-[75%] px-4 py-3 rounded-2xl rounded-tr-sm bg-[#f1efff] text-[#50449b]">
-                                <p className="text-sm break-words">{item}</p>
+                                <p className="text-sm wrap-break-word">{item}</p>
                                 <p className="text-right text-[10px] text-[#a29bc9] mt-2">Agora</p>
                             </div>
 

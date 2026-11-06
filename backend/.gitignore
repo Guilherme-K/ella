@@ -1,0 +1,6 @@
+node_modules
+# Mantenha as variáveis de ambiente fora do versionamento
+.env
+
+# Cliente gerado pelo Prisma (recriado com `npm run prisma:generate`)
+/src/generated/prisma

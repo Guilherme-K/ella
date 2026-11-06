@@ -6,7 +6,7 @@ export default function SectionPage() {
   const section = sections[pathname]
 
   return (
-    <main className="flex-1 bg-gradient-to-br from-pink-50 to-purple-100 px-6 py-14 sm:px-10 sm:py-20">
+    <main className="flex-1 bg-linear-to-br from-pink-50 to-purple-100 px-6 py-14 sm:px-10 sm:py-20">
       <article className="mx-auto max-w-4xl rounded-3xl border border-white bg-white/90 p-7 shadow-sm sm:p-12">
         <p className="text-xs font-semibold uppercase tracking-widest text-pink-500">
           {section.eyebrow}

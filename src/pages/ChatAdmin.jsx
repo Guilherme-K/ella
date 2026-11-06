@@ -109,7 +109,7 @@ function ChatAdmin() {
                             </div>
                         </div>
 
-                        <div className="px-5 py-8 space-y-5 min-h-[300px]">
+                        <div className="px-5 py-8 space-y-5 min-h-75">
                             <div className="flex items-start gap-3">
                                 <div className="w-10 h-10 rounded-full bg-pink-300 flex items-center justify-center text-white font-bold shrink-0">
                                     {conversaSelecionada.nome[0]}
@@ -125,7 +125,7 @@ function ChatAdmin() {
                             {mensagens.map((item, index) => (
                                 <div key={index} className="flex justify-end">
                                     <div className="bg-[#f1efff] text-[#50449b] rounded-2xl p-4 max-w-[75%]">
-                                        <p className="text-sm break-words">{item}</p>
+                                        <p className="text-sm wrap-break-word">{item}</p>
                                     </div>
                                 </div>
                             ))}
