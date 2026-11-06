@@ -16,6 +16,8 @@ const userFilter = {
   id: true,
   name: true,
   email: true,
+  avatar: true,
+  tipo: true,
 };
 
 function normalizeEmail(email) {
@@ -56,11 +58,18 @@ router.post('/', async (req, res) => {
 
   validatePassword(data.password);
 
+  const normalizedEmail = normalizeEmail(data.email);
+  const tipo =
+    data.tipo ||
+    (normalizedEmail.includes('admin') ? 'admin' : 'usuario');
+
   const user = await prisma.user.create({
     data: {
-      email: normalizeEmail(data.email),
+      email: normalizedEmail,
       name: readName(data),
       password: await bcrypt.hash(data.password, 10),
+      avatar: data.avatar ? String(data.avatar).trim() : null,
+      tipo,
     },
     select: userFilter,
   });
@@ -77,10 +86,12 @@ router.post('/login', async (req, res) => {
     throw createError(401, 'O usuário e a senha são obrigatórios');
   }
 
+  const normalizedEmail = normalizeEmail(data.email);
+
   // findUnique (sem OrThrow) para não revelar se o e-mail existe.
   const user = await prisma.user.findUnique({
     where: {
-      email: normalizeEmail(data.email),
+      email: normalizedEmail,
     },
     select: {
       ...userFilter,
@@ -97,10 +108,16 @@ router.post('/login', async (req, res) => {
     throw createError(401, 'Usuário ou senha incorreto(s)');
   }
 
-  const { password, ...userWithoutPassword } = user;
-  const token = generateToken(userWithoutPassword);
+  const { password: _password, ...userWithoutPassword } = user;
+  const userWithTipo = {
+    ...userWithoutPassword,
+    tipo:
+      userWithoutPassword.tipo ||
+      (normalizedEmail.includes('admin') ? 'admin' : 'usuario'),
+  };
+  const token = generateToken(userWithTipo);
 
-  res.json({ user: userWithoutPassword, token });
+  res.json({ user: userWithTipo, token });
 });
 
 // GET /api/users/:id
@@ -121,7 +138,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // PATCH /api/users/:id
-// Atualiza os próprios dados. Exige token JWT.
+// Atualiza os próprios dados ou os dados editados por um administrador. Exige token JWT.
 router.patch('/:id', authenticate, onlySelf, async (req, res) => {
   const id = Number(req.params.id);
   const data = req.body ?? {};
@@ -139,7 +156,15 @@ router.patch('/:id', authenticate, onlySelf, async (req, res) => {
     changes.name = readName(data);
   }
 
-  if (data.password !== undefined) {
+  if (data.avatar !== undefined) {
+    changes.avatar = data.avatar ? String(data.avatar).trim() : null;
+  }
+
+  if (data.tipo !== undefined) {
+    changes.tipo = String(data.tipo).trim();
+  }
+
+  if (data.password !== undefined && data.password !== '') {
     validatePassword(data.password);
     changes.password = await bcrypt.hash(data.password, 10);
   }
@@ -158,7 +183,7 @@ router.patch('/:id', authenticate, onlySelf, async (req, res) => {
 });
 
 // DELETE /api/users/:id
-// Exclui a própria conta. Exige token JWT.
+// Exclui a conta. Exige token JWT (próprio usuário ou admin).
 router.delete('/:id', authenticate, onlySelf, async (req, res) => {
   const id = Number(req.params.id);
 

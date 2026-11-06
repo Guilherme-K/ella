@@ -4,6 +4,13 @@ const ENDPOINT = '/api/users'
 const TOKEN_KEY = 'ella:token'
 const USER_KEY = 'usuarioLogado'
 
+// Dispara evento para sincronizar componentes na tela (ex.: Header, Accounts, DashboardAdmin)
+function notifyAuthChange() {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event('auth-change'))
+  }
+}
+
 // Token JWT salvo após o login.
 function getToken() {
   return localStorage.getItem(TOKEN_KEY)
@@ -21,7 +28,12 @@ function clearToken() {
 
 // Usuário logado, usado pelo restante do frontend (ex.: página de chat).
 function saveCurrentUser(user) {
-  localStorage.setItem(USER_KEY, JSON.stringify(user))
+  if (user) {
+    localStorage.setItem(USER_KEY, JSON.stringify(user))
+  } else {
+    localStorage.removeItem(USER_KEY)
+  }
+  notifyAuthChange()
 }
 
 function getCurrentUser() {
@@ -35,6 +47,7 @@ function getCurrentUser() {
 function clearSession() {
   clearToken()
   localStorage.removeItem(USER_KEY)
+  notifyAuthChange()
 }
 
 export const userService = {
@@ -54,9 +67,17 @@ export const userService = {
     saveToken(data.token)
 
     if (data.user) {
+      const tipo =
+        data.user.tipo ||
+        (data.user.email?.toLowerCase().includes('admin') ? 'admin' : 'usuario')
+
       saveCurrentUser({
         ...data.user,
         nome: data.user.name ?? data.user.nome,
+        name: data.user.name ?? data.user.nome,
+        avatar: data.user.avatar,
+        tipo,
+        papel: tipo === 'admin' ? 'Administradora' : 'Usuária',
       })
     }
 
@@ -64,12 +85,38 @@ export const userService = {
   },
 
   // PATCH /api/users/:id
-  update: (id, user) =>
-    httpClient.patch(`${ENDPOINT}/${id}`, user, { token: getToken() }),
+  update: async (id, changes) => {
+    const data = await httpClient.patch(`${ENDPOINT}/${id}`, changes, {
+      token: getToken(),
+    })
+
+    if (data?.user) {
+      const current = getCurrentUser() || {}
+      if (Number(current.id) === Number(id)) {
+        const tipo = data.user.tipo ?? current.tipo ?? 'usuario'
+        saveCurrentUser({
+          ...current,
+          ...data.user,
+          nome: data.user.name ?? data.user.nome ?? current.nome,
+          name: data.user.name ?? data.user.nome ?? current.name,
+          avatar: data.user.avatar ?? current.avatar,
+          tipo,
+          papel: tipo === 'admin' ? 'Administradora' : 'Usuária',
+        })
+      } else {
+        notifyAuthChange()
+      }
+    }
+
+    return data
+  },
 
   // DELETE /api/users/:id
-  remove: (id) =>
-    httpClient.delete(`${ENDPOINT}/${id}`, { token: getToken() }),
+  remove: async (id) => {
+    const res = await httpClient.delete(`${ENDPOINT}/${id}`, { token: getToken() })
+    notifyAuthChange()
+    return res
+  },
 
   getToken,
   saveToken,
@@ -77,4 +124,5 @@ export const userService = {
   saveCurrentUser,
   getCurrentUser,
   clearSession,
+  notifyAuthChange,
 }

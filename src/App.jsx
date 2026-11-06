@@ -4,6 +4,7 @@ import Home from './pages/Home'
 //import SectionPage from './pages/SectionPage'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
+import ContaUser from './pages/ContaUser'
 import MainLayout from './layouts/MainLayout'
 
 import Voluntaria from './pages/Voluntaria'
@@ -25,6 +26,8 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/cadastro" element={<Signup />} />
         <Route path="/contas" element={<Accounts />} />
+        <Route path="/minha-conta" element={<ContaUser />} />
+        <Route path="/perfil" element={<ContaUser />} />
         <Route path="*" element={<Home />} />
         <Route path='/voluntaria' element={<Voluntaria />} />
         <Route path='/chat' element={<Chat />} />

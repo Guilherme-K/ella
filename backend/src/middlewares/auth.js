@@ -15,7 +15,11 @@ function authenticate(req, res, next) {
 
   try {
     const payload = verifyToken(token);
-    req.user = { id: Number(payload.sub), email: payload.email };
+    req.user = {
+      id: Number(payload.sub),
+      email: payload.email,
+      tipo: payload.tipo || 'usuario',
+    };
   } catch {
     throw createError(401, 'Token inválido ou expirado');
   }
@@ -24,13 +28,12 @@ function authenticate(req, res, next) {
 }
 
 // Middleware de autorização:
-// só deixa passar se o :id da rota for o mesmo do usuário do token.
-// Deve ser usado DEPOIS de authenticate.
+// Deixa passar se o :id da rota for o do próprio usuário OU se o usuário for administrador.
 function onlySelf(req, res, next) {
   const id = Number(req.params.id);
 
-  if (req.user.id !== id) {
-    throw createError(403, 'Você só pode alterar os seus próprios dados');
+  if (req.user.id !== id && req.user.tipo !== 'admin') {
+    throw createError(403, 'Acesso não autorizado');
   }
 
   next();

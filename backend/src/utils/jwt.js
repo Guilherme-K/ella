@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 // "sub" (subject) é o campo padrão para o identificador do usuário.
 function generateToken(user) {
   return jwt.sign(
-    { sub: user.id, email: user.email },
+    { sub: user.id, email: user.email, tipo: user.tipo || 'usuario' },
     process.env.JWT_SECRET,
     { expiresIn: process.env.JWT_EXPIRES_IN || '1h' }
   );
