@@ -20,4 +20,4 @@ function Chat() {
     return <Navigate to="/chatusuario" replace />
 }
 
-export default Chat
+export default Chat;
