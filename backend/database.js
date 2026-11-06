@@ -1,3 +1,5 @@
+// LEGADO: backend MySQL direto com mysql2, mantido apenas como referência.
+// O backend ativo usa Prisma ORM em src/lib/prisma.js.
 import mysql from 'mysql2/promise'
 import dotenv from 'dotenv'
 import path from 'node:path'

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { userService } from '../services/userService'
 
 const fields = [
   { name: 'nome', label: 'Nome', type: 'text' },
@@ -10,32 +11,32 @@ const fields = [
 export default function Signup() {
   const [form, setForm] = useState({ nome: '', email: '', password: '' })
   const [message, setMessage] = useState('')
+  const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
 
   async function submit(event) {
     event.preventDefault()
     setMessage('')
+    setLoading(true)
 
     try {
-      const resposta = await fetch('http://localhost:3000/cadastro', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(form),
+      await userService.create({
+        nome: form.nome,
+        email: form.email,
+        password: form.password,
       })
 
-      const dados = await resposta.json()
+      // Entra automaticamente após o cadastro.
+      await userService.login({
+        email: form.email,
+        password: form.password,
+      })
 
-      if (!resposta.ok) {
-        setMessage(dados.erro)
-        return
-      }
-
-      localStorage.setItem('usuarioLogado', JSON.stringify(dados))
       navigate('/contas')
-    } catch {
-      setMessage('Não foi possível conectar ao servidor.')
+    } catch (err) {
+      setMessage(err.message || 'Não foi possível conectar ao servidor.')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -65,6 +66,7 @@ export default function Signup() {
                 required
                 name={field.name}
                 type={field.type}
+                minLength={field.name === 'password' ? 8 : undefined}
                 value={form[field.name]}
                 onChange={updateField}
                 className="mt-2 block w-full rounded-xl border border-purple-100 bg-purple-50 px-4 py-3 text-sm outline-none focus:border-pink-300"
@@ -76,8 +78,11 @@ export default function Signup() {
               {message}
             </p>
           )}
-          <button className="w-full rounded-xl bg-pink-400 py-3 text-sm font-medium text-white hover:bg-pink-500">
-            Cadastrar
+          <button
+            disabled={loading}
+            className="w-full rounded-xl bg-pink-400 py-3 text-sm font-medium text-white hover:bg-pink-500 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {loading ? 'Cadastrando...' : 'Cadastrar'}
           </button>
         </form>
 

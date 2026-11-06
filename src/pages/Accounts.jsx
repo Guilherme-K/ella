@@ -1,32 +1,39 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
-
-function lerUsuarioLogado() {
-  try {
-    return JSON.parse(localStorage.getItem('usuarioLogado'))
-  } catch {
-    return null
-  }
-}
+import { useEffect, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { userService } from '../services/userService'
 
 export default function Accounts() {
-  const [users, setUsers] = useState(() => {
-    const logado = lerUsuarioLogado()
-    return logado ? [logado] : []
-  })
-  const [editing, setEditing] = useState(null)
-  const [name, setName] = useState('')
+  const [users, setUsers] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const navigate = useNavigate()
 
-  function save(user) {
-    const atualizado = { ...user, nome: name }
-    localStorage.setItem('usuarioLogado', JSON.stringify(atualizado))
-    setUsers([atualizado])
-    setEditing(null)
-  }
+  useEffect(() => {
+    let ativo = true
 
-  function remove() {
-    localStorage.removeItem('usuarioLogado')
-    setUsers([])
+    async function carregarContas() {
+      try {
+        const dados = await userService.list()
+        if (ativo) setUsers(dados)
+      } catch (err) {
+        if (ativo) {
+          setError(err.message || 'Não foi possível carregar as contas.')
+        }
+      } finally {
+        if (ativo) setLoading(false)
+      }
+    }
+
+    carregarContas()
+
+    return () => {
+      ativo = false
+    }
+  }, [])
+
+  function sair() {
+    userService.clearSession()
+    navigate('/')
   }
 
   return (
@@ -36,65 +43,43 @@ export default function Accounts() {
           Contas cadastradas
         </h1>
         <p className="mt-2 text-sm text-violet-500">
-          Seus dados ficam salvos neste navegador.
+          Contas registradas no banco de dados da plataforma.
         </p>
 
         <div className="mt-6 divide-y divide-purple-100">
-          {users.length === 0 && (
+          {loading && (
+            <p className="py-5 text-sm text-violet-400">Carregando contas...</p>
+          )}
+
+          {error && (
+            <p role="alert" className="py-5 text-sm text-pink-600">
+              {error}
+            </p>
+          )}
+
+          {!loading && !error && users.length === 0 && (
             <p className="py-5 text-sm text-violet-400">
               Nenhuma conta cadastrada ainda.
             </p>
           )}
-          {users.map((user) => (
-            <div
-              key={user.id}
-              className="flex flex-wrap items-center justify-between gap-3 py-4"
-            >
-              <div>
-                {editing === user.id ? (
-                  <input
-                    value={name}
-                    onChange={(event) => setName(event.target.value)}
-                    aria-label="Editar nome"
-                    className="rounded border border-purple-200 px-2 py-1"
-                  />
-                ) : (
-                  <p className="font-medium text-violet-800">{user.nome}</p>
-                )}
-                <p className="text-xs text-violet-400">{user.email}</p>
-              </div>
 
-              <div className="flex gap-3 text-sm">
-                {editing === user.id ? (
-                  <button
-                    type="button"
-                    onClick={() => save(user)}
-                    className="text-green-600"
-                  >
-                    Salvar
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setEditing(user.id)
-                      setName(user.nome)
-                    }}
-                    className="text-violet-500"
-                  >
-                    Editar
-                  </button>
-                )}
-                <button
-                  type="button"
-                  onClick={() => remove(user.id)}
-                  className="text-pink-500"
-                >
-                  Excluir
-                </button>
+          {!loading &&
+            !error &&
+            users.map((user) => (
+              <div
+                key={user.id}
+                className="flex flex-wrap items-center justify-between gap-3 py-4"
+              >
+                <div>
+                  <p className="font-medium text-violet-800">
+                    {user.name ?? user.nome}
+                  </p>
+                  <p className="text-xs text-violet-400">{user.email}</p>
+                </div>
+
+                <span className="text-xs text-violet-300">#{user.id}</span>
               </div>
-            </div>
-          ))}
+            ))}
         </div>
 
         <div className="mt-6 flex flex-wrap gap-3">
@@ -104,12 +89,13 @@ export default function Accounts() {
           >
             Adicionar conta
           </Link>
-          <Link
-            to="/"
+          <button
+            type="button"
+            onClick={sair}
             className="rounded-lg border border-purple-200 px-4 py-2 text-sm text-violet-600"
           >
             Sair
-          </Link>
+          </button>
         </div>
       </section>
     </main>

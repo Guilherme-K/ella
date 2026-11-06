@@ -1,5 +1,5 @@
-// Carrega as variáveis de ambiente do arquivo .env
-import 'dotenv/config';
+// Carrega as variáveis de ambiente do arquivo .env do backend.
+import './config/env.js';
 
 // O app com as configurações do express.
 import app from './app.js';

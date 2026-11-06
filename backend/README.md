@@ -3,8 +3,9 @@
 API REST criada seguindo a estrutura do projeto `api-completa_JWT`, com
 Prisma ORM 7 e MySQL (compatível com MySQL Workbench).
 
-O frontend React continua usando os dados mock em `localStorage`
-(`src/api_crud.js`) por enquanto. Nenhuma tela foi alterada.
+As telas de **cadastro**, **login** e **contas** do frontend React já
+consomem esta API. O restante do site continua usando os dados mock em
+`localStorage` (`src/api_crud.js`).
 
 ## Estrutura
 
@@ -29,13 +30,15 @@ backend/
 ## 1. Criar o banco no MySQL Workbench
 
 1. Abra o MySQL Workbench e conecte-se ao seu servidor local.
-2. Crie um schema (banco) chamado `ella_db`:
+2. Crie um schema (banco) chamado `backend_db`:
 
 ```sql
-CREATE DATABASE ella_db
+CREATE DATABASE IF NOT EXISTS backend_db
   CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
 ```
+
+O mesmo comando está em [`database/create-database.sql`](./database/create-database.sql).
 
 > Você pode usar outro nome, desde que atualize `DB_NAME` e `DATABASE_URL`
 > no arquivo `.env`.
@@ -48,7 +51,9 @@ Copie `.env.example` para `.env` e ajuste usuário, senha e nome do banco:
 Copy-Item .env.example .env
 ```
 
-O arquivo `.env` não é versionado e **não** foi criado automaticamente.
+O arquivo `.env` não é versionado. As variáveis são carregadas por
+`src/config/env.js`, então o backend funciona mesmo sendo iniciado da raiz
+do projeto (`npm run server`).
 
 ## 3. Instalar as dependências
 
@@ -158,17 +163,24 @@ model User {
 }
 ```
 
-## Próximo passo (quando for integrar o frontend)
+## Integração com o frontend
 
-A camada de serviços do frontend já foi criada em `src/services/`:
+As telas de cadastro, login e contas usam a camada de serviços em
+`src/services/`:
 
 - `httpClient.js` — cliente `fetch` com suporte a token Bearer.
 - `userService.js` — métodos `list`, `getById`, `create`, `login`, `update` e `remove`.
 
-O frontend atualmente usa `src/api_crud.js` com `localStorage`. Para trocar
-pelos endpoints reais, basta substituir as chamadas de `getUsers`,
-`createUser`, `updateUser` e `deleteUser` pelos métodos do `userService` e
-configurar `VITE_API_URL` no `.env` do frontend (veja `.env.example`).
+- `src/pages/Signup.jsx` chama `POST /api/users` e, em seguida,
+  `POST /api/users/login` (login automático).
+- `src/pages/Login.jsx` chama `POST /api/users/login`.
+- `src/pages/Accounts.jsx` chama `GET /api/users` para exibir as contas.
+
+A URL da API é lida de `VITE_API_URL` no `.env` do frontend (veja
+`.env.example`); por padrão usa `http://127.0.0.1:5000`.
+
+O token JWT fica salvo em `localStorage` na chave `ella:token`, e o usuário
+atual em `usuarioLogado` (usado pelas páginas de chat).
 
 Exemplo de login:
 
@@ -176,6 +188,5 @@ Exemplo de login:
 import { userService } from '../services/userService'
 
 const { user, token } = await userService.login({ email, password })
-// O token fica salvo em localStorage na chave "ella:token"
 ```
 

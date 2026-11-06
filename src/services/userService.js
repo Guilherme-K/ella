@@ -2,6 +2,7 @@ import { httpClient } from './httpClient'
 
 const ENDPOINT = '/api/users'
 const TOKEN_KEY = 'ella:token'
+const USER_KEY = 'usuarioLogado'
 
 // Token JWT salvo após o login.
 function getToken() {
@@ -18,6 +19,24 @@ function clearToken() {
   localStorage.removeItem(TOKEN_KEY)
 }
 
+// Usuário logado, usado pelo restante do frontend (ex.: página de chat).
+function saveCurrentUser(user) {
+  localStorage.setItem(USER_KEY, JSON.stringify(user))
+}
+
+function getCurrentUser() {
+  try {
+    return JSON.parse(localStorage.getItem(USER_KEY))
+  } catch {
+    return null
+  }
+}
+
+function clearSession() {
+  clearToken()
+  localStorage.removeItem(USER_KEY)
+}
+
 export const userService = {
   // GET /api/users
   list: () => httpClient.get(ENDPOINT),
@@ -31,7 +50,16 @@ export const userService = {
   // POST /api/users/login
   login: async (credentials) => {
     const data = await httpClient.post(`${ENDPOINT}/login`, credentials)
+
     saveToken(data.token)
+
+    if (data.user) {
+      saveCurrentUser({
+        ...data.user,
+        nome: data.user.name ?? data.user.nome,
+      })
+    }
+
     return data
   },
 
@@ -46,4 +74,7 @@ export const userService = {
   getToken,
   saveToken,
   clearToken,
+  saveCurrentUser,
+  getCurrentUser,
+  clearSession,
 }

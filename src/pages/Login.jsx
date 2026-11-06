@@ -1,39 +1,28 @@
 
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { userService } from '../services/userService'
 import womenArtwork from '../assets/mulheres.png'
-import floralBackground from '../assets/fundo_lado1.png'
 
 export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [message, setMessage] = useState('')
+  const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
 
   async function submit(event) {
     event.preventDefault()
     setMessage('')
+    setLoading(true)
 
     try {
-      const resposta = await fetch('http://localhost:3000/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      })
-
-      const dados = await resposta.json()
-
-      if (!resposta.ok) {
-        setMessage(dados.erro)
-        return
-      }
-
-      localStorage.setItem('usuarioLogado', JSON.stringify(dados))
+      await userService.login({ email, password })
       navigate('/contas')
-    } catch {
-      setMessage('Não foi possível conectar ao servidor.')
+    } catch (err) {
+      setMessage(err.message || 'Não foi possível conectar ao servidor.')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -111,8 +100,11 @@ export default function Login() {
               </p>
             )}
 
-            <button className="mx-auto -mt-5 block rounded-md bg-pink-400 px-6 py-1 text-xs text-white transition hover:bg-pink-500">
-              Entrar
+            <button
+              disabled={loading}
+              className="mx-auto -mt-5 block rounded-md bg-pink-400 px-6 py-1 text-xs text-white transition hover:bg-pink-500 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {loading ? 'Entrando...' : 'Entrar'}
             </button>
           </form>
 
