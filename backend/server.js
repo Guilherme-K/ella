@@ -43,11 +43,11 @@ app.post('/cadastro', async (req, res) => {
         const senhaHash = await bcrypt.hash(password, 10)
 
         const [resultado] = await db.query(
-            'INSERT INTO usuarios (nome, email, senha_hash) VALUES (?, ?, ?)',
-            [nome, email, senhaHash]
+            'INSERT INTO usuarios (nome, email, senha, tipo) VALUES (?, ?, ?, ?)',
+            [nome, email, senhaHash, 'usuaria']
         )
 
-        res.status(201).json({ id: resultado.insertId, nome, email })
+        res.status(201).json({ id: resultado.insertId, nome, email, tipo: 'usuaria' })
     } catch (error) {
         console.error(error)
         res.status(500).json({ erro: 'Erro ao cadastrar usuário.' })
@@ -63,20 +63,20 @@ app.post('/login', async (req, res) => {
         }
 
         const [linhas] = await db.query(
-            'SELECT id, nome, email, senha_hash FROM usuarios WHERE email = ?',
+            'SELECT id, nome, email, senha, tipo FROM usuarios WHERE email = ?',
             [email]
         )
         const usuario = linhas[0]
 
         const senhaCorreta = usuario
-            ? await bcrypt.compare(password, usuario.senha_hash)
+            ? await bcrypt.compare(password, usuario.senha)
             : false
 
         if (!senhaCorreta) {
             return res.status(401).json({ erro: 'E-mail ou senha incorretos.' })
         }
 
-        res.json({ id: usuario.id, nome: usuario.nome, email: usuario.email })
+            res.json({ id: usuario.id, nome: usuario.nome, email: usuario.email, tipo: usuario.tipo })
     } catch (error) {
         console.error(error)
         res.status(500).json({ erro: 'Erro ao fazer login.' })

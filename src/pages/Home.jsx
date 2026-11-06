@@ -59,6 +59,7 @@ const perguntasFrequentes = [
 ];
 
 export default function Home() {
+  const [buscaApoio, setBuscaApoio] = useState("");
   const [perguntaAberta, setPerguntaAberta] = useState(null);
   const [totalAcionamentos, setTotalAcionamentos] = useState(null);
   const [erroContagem, setErroContagem] = useState(false);
@@ -103,6 +104,28 @@ export default function Home() {
       window.clearInterval(intervalo);
     };
   }, []);
+
+  const servicosFiltrados = supportServices.filter((service) => {
+    const pesquisa = buscaApoio
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim();
+
+    if (pesquisa.length < 2) return true;
+
+    const titulo = service.title
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase();
+
+    const descricao = service.description
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase();
+
+    return titulo.includes(pesquisa) || descricao.includes(pesquisa);
+  });
 
   return (
     <main className="flex-1 bg-white">
@@ -260,12 +283,27 @@ export default function Home() {
           </Link>
 
           <label className="mx-auto mt-7 flex max-w-3xl items-center gap-3 rounded-full border border-stone-400 px-6 py-2 shadow-sm focus-within:border-violet-600 focus-within:ring-2 focus-within:ring-violet-200">
-            <span className="sr-only">Campo de texto da rede de apoio</span>
+            <span className="sr-only">Pesquisar na rede de apoio</span>
+
             <input
               type="text"
+              value={buscaApoio}
+              onChange={(e) => setBuscaApoio(e.target.value)}
               placeholder="Buscar por serviços, cidade ou especialidade..."
               className="min-w-0 flex-1 bg-transparent text-sm text-violet-950 outline-none placeholder:text-violet-300"
             />
+
+            {buscaApoio && (
+              <button
+                type="button"
+                onClick={() => setBuscaApoio("")}
+                aria-label="Limpar pesquisa"
+                className="text-violet-600 hover:text-violet-900"
+              >
+                <i className="fa-solid fa-xmark" />
+              </button>
+            )}
+
             <i
               className="fa-solid fa-magnifying-glass text-lg text-violet-700"
               aria-hidden="true"
@@ -273,23 +311,31 @@ export default function Home() {
           </label>
 
           <div className="mx-auto mt-8 grid max-w-5xl gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {supportServices.map((service) => (
-              <article
-                key={service.title}
-                className="flex min-h-36 flex-col items-center justify-center rounded-2xl bg-purple-100 px-5 py-6 text-center"
-              >
-                <i
-                  className={`fa-solid ${service.icon} text-2xl text-violet-900`}
-                  aria-hidden="true"
-                />
-                <h3 className="mt-3 font-serif text-base font-bold text-violet-950">
-                  {service.title}
-                </h3>
-                <p className="mt-4 text-xs text-violet-950">
-                  {service.description}
-                </p>
-              </article>
-            ))}
+            {servicosFiltrados.length > 0 ? (
+              servicosFiltrados.map((service) => (
+                <article
+                  key={service.title}
+                  className="flex min-h-36 flex-col items-center justify-center rounded-2xl bg-purple-100 px-5 py-6 text-center"
+                >
+                  <i
+                    className={`fa-solid ${service.icon} text-2xl text-violet-900`}
+                    aria-hidden="true"
+                  />
+
+                  <h3 className="mt-3 font-serif text-base font-bold text-violet-950">
+                    {service.title}
+                  </h3>
+
+                  <p className="mt-4 text-xs text-violet-950">
+                    {service.description}
+                  </p>
+                </article>
+              ))
+            ) : (
+              <p className="col-span-full py-8 text-center text-sm text-violet-700">
+                Nenhum serviço encontrado. Tente pesquisar por outro nome ou especialidade.
+              </p>
+            )}
           </div>
 
           <section
