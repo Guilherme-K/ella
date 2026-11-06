@@ -25,16 +25,16 @@ export default function Footer() {
             <br className="hidden sm:block" /> e ferramentas de segurança.
           </p>
           <div className="mt-4 flex gap-4 text-base font-bold text-fuchsia-500">
-            <a href="#facebook" aria-label="Facebook">
+            <a href="https://www.facebook.com" aria-label="Facebook">
               <i className="fa-brands fa-facebook" aria-hidden="true" />
             </a>
-            <a href="#youtube" aria-label="YouTube">
+            <a href="https://www.youtube.com" aria-label="YouTube">
               <i className="fa-brands fa-youtube" aria-hidden="true" />
             </a>
-            <a href="#instagram" aria-label="Instagram">
+            <a href="https://www.instagram.com" aria-label="Instagram">
               <i className="fa-brands fa-instagram" aria-hidden="true" />
             </a>
-            <a href="#x" aria-label="X">
+            <a href="https://twitter.com" aria-label="X">
               <i className="fa-brands fa-x-twitter" aria-hidden="true" />
             </a>
           </div>

@@ -1,1 +1,7 @@
 node_modules/
+dist/
+
+# Variáveis de ambiente
+.env
+.env.local
+.env.*.local
