@@ -1,21 +1,32 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { deleteUser, getUsers, updateUser } from '../api_crud'
+
+function lerUsuarioLogado() {
+  try {
+    return JSON.parse(localStorage.getItem('usuarioLogado'))
+  } catch {
+    return null
+  }
+}
 
 export default function Accounts() {
-  const [users, setUsers] = useState(() => getUsers())
+  const [users, setUsers] = useState(() => {
+    const logado = lerUsuarioLogado()
+    return logado ? [logado] : []
+  })
   const [editing, setEditing] = useState(null)
   const [name, setName] = useState('')
 
   function save(user) {
-    updateUser(user.id, { nome: name })
-    setUsers(getUsers())
+    const atualizado = { ...user, nome: name }
+    localStorage.setItem('usuarioLogado', JSON.stringify(atualizado))
+    setUsers([atualizado])
     setEditing(null)
   }
 
-  function remove(id) {
-    deleteUser(id)
-    setUsers(getUsers())
+  function remove() {
+    localStorage.removeItem('usuarioLogado')
+    setUsers([])
   }
 
   return (

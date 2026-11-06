@@ -89,7 +89,7 @@ export const homeLinks = [
     icon: 'fa-triangle-exclamation',
     label: 'Denúncia',
     description: 'Saiba como e onde denunciar',
-    to: '/apoio',
+    to: '/denuncia',
   },
 ]
 

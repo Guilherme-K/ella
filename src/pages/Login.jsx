@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { getUsers } from '../api_crud'
 import womenArtwork from '../assets/mulheres.png'
 import floralBackground from '../assets/fundo_lado1.png'
 
@@ -10,19 +9,32 @@ export default function Login() {
   const [message, setMessage] = useState('')
   const navigate = useNavigate()
 
-  function submit(event) {
-    event.preventDefault()
-    const user = getUsers().find(
-      (item) => item.email.toLowerCase() === email.toLowerCase(),
-    )
+  async function submit(event) {
+  event.preventDefault()
+  setMessage('')
 
-    if (!user || user.password !== password) {
-      setMessage('E-mail ou senha não conferem. Confira os dados ou crie sua conta.')
+  try {
+    const resposta = await fetch('http://localhost:3000/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, password }),
+    })
+
+    const dados = await resposta.json()
+
+    if (!resposta.ok) {
+      setMessage(dados.erro)
       return
     }
 
+    localStorage.setItem('usuarioLogado', JSON.stringify(dados))
     navigate('/contas')
+  } catch {
+    setMessage('Não foi possível conectar ao servidor.')
   }
+}
 
   return (
     <main className="relative flex flex-1 items-center justify-center overflow-hidden bg-purple-100 px-4 py-12"> 

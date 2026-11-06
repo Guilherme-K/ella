@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { createUser, getUsers } from '../api_crud'
 
 const fields = [
   { name: 'nome', label: 'Nome', type: 'text' },
@@ -13,19 +12,31 @@ export default function Signup() {
   const [message, setMessage] = useState('')
   const navigate = useNavigate()
 
-  function submit(event) {
+  async function submit(event) {
     event.preventDefault()
-    const emailExists = getUsers().some(
-      (user) => user.email.toLowerCase() === form.email.toLowerCase(),
-    )
+    setMessage('')
 
-    if (emailExists) {
-      setMessage('Já existe uma conta com este e-mail.')
-      return
+    try {
+      const resposta = await fetch('http://localhost:3000/cadastro', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(form),
+      })
+
+      const dados = await resposta.json()
+
+      if (!resposta.ok) {
+        setMessage(dados.erro)
+        return
+      }
+
+      localStorage.setItem('usuarioLogado', JSON.stringify(dados))
+      navigate('/contas')
+    } catch {
+      setMessage('Não foi possível conectar ao servidor.')
     }
-
-    createUser(form)
-    navigate('/contas')
   }
 
   function updateField(event) {

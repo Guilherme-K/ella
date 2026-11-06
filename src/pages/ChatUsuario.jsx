@@ -18,6 +18,13 @@ function ChatUsuario() {
             <section className="bg-white rounded-3xl shadow-lg max-w-3xl mx-auto overflow-hidden">
 
                 <div className="flex items-center justify-between px-6 py-4 border-b border-violet-100 flex-wrap gap-3">
+
+                     <button
+          onClick={() => window.history.back()}
+          className="text-purple-900 mb-8"
+        >
+          ← Voltar
+        </button>
                     <div className="flex items-center gap-3">
                         <div className="w-12 h-12 rounded-full bg-gradient-to-br from-pink-300 to-purple-500 flex items-center justify-center text-white font-bold">
                             M
@@ -40,7 +47,7 @@ function ChatUsuario() {
 
                 <div className="px-6 py-2 border-b border-violet-100">
                     <a
-                        href="https://www.youtube.com/ordemparanormal"
+                        href="https://www.youtube.com/receitas"
                         className="text-sm text-gray-500 hover:text-[#9d174d] underline"
                     >
                         <i className="fa-solid fa-right-from-bracket mr-2" />
