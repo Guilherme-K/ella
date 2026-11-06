@@ -6,19 +6,23 @@ import Login from './pages/Login'
 import Signup from './pages/Signup'
 import ContaUser from './pages/ContaUser'
 import Voluntaria from './pages/Voluntaria'
-import Chat from './pages/Chat'
-import ChatUsuario from './pages/ChatUsuario'
-import ChatVoluntaria from './pages/ChatVoluntaria'
-import Emergencia from './pages/Emergencia'
-import Denuncia from './pages/Denuncia'
+
 import AgradecimentoVoluntaria from './pages/AgradecimentoVoluntario'
 import DashboardAdmin from './pages/DashboardAdmin'
 import ChatAdmin from './pages/ChatAdmin'
 import PerfilAdmin from './pages/PerfilAdmin'
 import Informacoes from './pages/Informacoes'
+import Chat from './pages/Chat'
+import ChatUsuario from './pages/ChatUsuario'
+import ChatVoluntaria from './pages/ChatVoluntaria'
+import Emergencia from './pages/Emergencia'
+import Denuncia from './pages/Denuncia'
+import Sobre from './pages/Sobre'
 
 import MainLayout from './layouts/MainLayout'
 import AdminLayout from './layouts/AdminLayout'
+import RedeApoio from './pages/RedeApoio'
+import Contato from './pages/Contato'
 
 export default function App() {
   return (
@@ -33,6 +37,14 @@ export default function App() {
         <Route path="/emergencia" element={<Emergencia />} />
         <Route path="/denuncia" element={<Denuncia />} />
         <Route path="/informacoes" element={<Informacoes />} />
+        <Route path="/voluntaria" element={<Voluntaria />} />
+        <Route path="/apoio" element={<RedeApoio />} />
+        <Route path="/contato" element={<Contato />} />
+        <Route
+          path="/voluntaria/agradecimentovoluntaria"
+          element={<AgradecimentoVoluntaria />}
+        />
+        <Route path="/sobre" element={<Sobre />} />
       </Route>
 
       <Route path="/admin" element={<AdminLayout />}>
@@ -45,17 +57,10 @@ export default function App() {
       {/* Rota legado / compatibilidade para /administrador */}
       <Route path="/administrador" element={<Navigate to="/admin" replace />} />
 
-      <Route path="/voluntaria" element={<Voluntaria />} />
       <Route path="/chat" element={<Chat />} />
       <Route path="/chatusuario" element={<ChatUsuario />} />
       <Route path="/chatvoluntaria" element={<ChatVoluntaria />} />
       <Route path="/chatadmin" element={<ChatAdmin />} />
-
-      <Route
-        path="/voluntaria/agradecimentovoluntaria"
-        element={<AgradecimentoVoluntaria />}
-      />
-
       <Route path="*" element={<Home />} />
     </Routes>
   )
