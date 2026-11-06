@@ -8,7 +8,7 @@ import {
   faShieldHalved,
   faRightFromBracket,
 } from '@fortawesome/free-solid-svg-icons'
-import Avatar from './Avatar'
+import Avatar from '../components/Avatar'
 import ProfileModal from '../components/ProfileModal'
 import { userService } from '../services/userService'
 

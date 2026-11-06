@@ -1,31 +1,37 @@
 export const violenceTypes = [
   {
+    id: 'violencia-fisica',
     icon: 'fa-hand',
     title: 'Física',
     description: 'Agressões, tapas, empurrões, uso de arma, entre outros.',
   },
   {
+    id: 'violencia-psicologica',
     icon: 'fa-brain',
     title: 'Psicológica',
     description: 'Insultos, ameaças, manipulação, humilhação e controle.',
   },
   {
+    id: 'violencia-sexual',
     icon: 'fa-venus-mars',
     title: 'Sexual',
     description: 'Forçar relação, assédio, abusos e exploração sexual.',
   },
   {
+    id: 'violencia-patrimonial',
     icon: 'fa-sack-dollar',
     title: 'Patrimonial',
     description:
       'Controle do dinheiro, destruição de bens e retenção de documentos.',
   },
   {
+    id: 'violencia-moral',
     icon: 'fa-comment-dots',
     title: 'Moral',
     description: 'Calúnia, difamação e exposição da vida íntima.',
   },
   {
+    id: 'violencia-digital',
     icon: 'fa-mobile-screen-button',
     title: 'Digital',
     description:
@@ -71,13 +77,13 @@ export const homeLinks = [
     icon: 'fa-clipboard-check',
     label: 'Informações',
     description: 'Conheça os tipos de violência e seus direitos',
-    to: '#tipos-violencia',
+    to: '/informacoes',
   },
   {
     icon: 'fa-people-group',
     label: 'Rede de Apoio',
     description: 'Psicólogos, ONGs e órgãos governamentais',
-    to: '#rede-apoio',
+    to: '/apoio',
   },
   {
     icon: 'fa-comment-dots',
@@ -107,7 +113,7 @@ export const sections = {
     eyebrow: 'Conheça seus direitos',
     title: 'Informação é uma forma de proteção',
     intro:
-      'A violência contra a mulher pode ser física, psicológica, sexual, patrimonial ou moral. Nenhuma forma de violência é aceitável, e pedir orientação é um direito.',
+      'A violência contra a mulher pode ser física, psicológica, sexual, patrimonial, moral e vicária. Nenhuma forma de violência é aceitável, e pedir orientação é um direito.',
     heading: 'Onde buscar orientação',
     body:
       'A Central de Atendimento à Mulher oferece orientação e encaminhamento pelo número 180. Em uma emergência imediata, ligue para a Polícia Militar pelo 190.',

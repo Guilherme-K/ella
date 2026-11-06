@@ -1,24 +1,40 @@
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
 export default function Emergencia() {
+  function registrarAcionamentoPolicia() {
+    fetch(`${API_URL}/api/emergencia/acionamentos`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        tipo: 'ligacao_policial'
+      }),
+      keepalive: true
+    }).catch((erro) => {
+      console.error('Não foi possível registrar o acionamento:', erro)
+    })
+  }
+
   function compartilharLocalizacao() {
     if (!navigator.geolocation) {
-      alert('Seu navegador não suporta localização.');
-      return;
+      alert('Seu navegador não suporta localização.')
+      return
     }
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        const { latitude, longitude } = position.coords;
+        const { latitude, longitude } = position.coords
 
         window.open(
           `https://www.google.com/maps?q=${latitude},${longitude}`,
           '_blank'
-        );
+        )
       },
       () => {
-        alert('Não foi possível acessar sua localização. Verifique a permissão do navegador.');
+        alert('Não foi possível acessar sua localização. Verifique a permissão do navegador.')
       }
-    );
+    )
   }
 
   return (
@@ -43,6 +59,7 @@ export default function Emergencia() {
 
           <a
             href="tel:190"
+            onClick={registrarAcionamentoPolicia}
             className="flex min-h-18 items-center gap-5 rounded-xl bg-[#b90060] px-6 transition hover:bg-[#aa0057]"
           >
             <i className="fa-solid fa-shield-halved text-3xl" />
@@ -60,7 +77,7 @@ export default function Emergencia() {
             <i className="fa-solid fa-location-dot shrink-0 text-3xl" />
 
             <span className="flex-1 text-center text-sm font-medium leading-5">
-              Compartilhar minha localização em tempo real
+              Ver minha localização no mapa
             </span>
           </button>
 

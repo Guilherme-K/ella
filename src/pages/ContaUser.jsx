@@ -12,7 +12,7 @@ import {
   faImage,
   faArrowLeft,
 } from '@fortawesome/free-solid-svg-icons'
-import Avatar from './Avatar'
+import Avatar from '../components/Avatar'
 import { userService } from '../services/userService'
 
 const PRESET_AVATARS = [

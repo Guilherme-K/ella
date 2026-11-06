@@ -11,7 +11,7 @@ import {
   faRightFromBracket,
   faImage,
 } from '@fortawesome/free-solid-svg-icons'
-import Avatar from '../pages/Avatar'
+import Avatar from './Avatar'
 import { userService } from '../services/userService'
 
 const PRESET_AVATARS = [

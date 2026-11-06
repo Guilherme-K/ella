@@ -2,19 +2,21 @@ import { useState, useEffect, useRef } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
+  faBell,
   faChevronDown,
   faGear,
+  faMagnifyingGlass,
   faRightFromBracket,
   faUsers,
   faPen,
   faShieldHalved,
 } from '@fortawesome/free-solid-svg-icons'
 import Brand from './Brand'
-import Avatar from '../pages/Avatar'
+import Avatar from './Avatar'
 import ProfileModal from './ProfileModal'
 import { userService } from '../services/userService'
 
-export default function Header() {
+export default function Header({ variant = 'public' }) {
   const [user, setUser] = useState(() => userService.getCurrentUser())
   const [menuOpen, setMenuOpen] = useState(false)
   const [profileModalOpen, setProfileModalOpen] = useState(false)
@@ -65,6 +67,77 @@ export default function Header() {
   const displayName = user ? (user.nome || user.name || 'Usuária').split(' ')[0] : ''
   const isAdmin = user && (user.tipo === 'admin' || user.email?.toLowerCase().includes('admin'))
 
+  // Variante para o painel administrativo
+  if (variant === 'admin') {
+    return (
+      <>
+        <header className="flex h-16 items-center gap-4 bg-white px-4 shadow-sm sm:px-6">
+          <Link
+            to="/admin"
+            className="flex shrink-0 items-center gap-2 text-pink-500"
+          >
+            <Brand className="h-9 w-9" />
+            <span className="hidden font-serif font-bold text-lg sm:inline">ELLA Admin</span>
+          </Link>
+
+          <div className="relative mx-auto hidden w-full max-w-xl md:block">
+            <FontAwesomeIcon
+              icon={faMagnifyingGlass}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[#7e22ce]"
+            />
+            <input
+              type="search"
+              placeholder="Buscar usuária, voluntária, evento ou conteúdo..."
+              className="w-full rounded-lg bg-[#f3e8ff] py-2 pl-9 pr-4 text-sm outline-none focus:ring-2 focus:ring-purple-300"
+            />
+          </div>
+
+          <div className="ml-auto flex items-center gap-4">
+            <button
+              type="button"
+              aria-label="Notificações"
+              className="relative text-[#4c1d95]"
+            >
+              <FontAwesomeIcon icon={faBell} />
+              <span className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-pink-500" />
+            </button>
+
+            <Link
+              to="/admin/perfil"
+              aria-label="Abrir perfil da administradora"
+              className="flex items-center gap-2 rounded-full p-1 transition hover:bg-purple-50"
+            >
+              <Avatar
+                nome={user?.nome || user?.name || 'Admin'}
+                avatar={user?.avatar}
+                tamanho="h-9 w-9"
+              />
+              <div className="hidden text-left leading-tight sm:block">
+                <p className="text-sm font-semibold text-gray-800">
+                  {user?.nome || user?.name || 'Admin ELLA'}
+                </p>
+                <p className="text-xs text-gray-500">Administradora</p>
+              </div>
+              <FontAwesomeIcon
+                icon={faChevronDown}
+                className="text-xs text-[#4c1d95]"
+              />
+            </Link>
+          </div>
+        </header>
+
+        <ProfileModal
+          isOpen={profileModalOpen}
+          onClose={() => setProfileModalOpen(false)}
+          user={user}
+          onUpdateUser={handleUpdateUser}
+          onLogout={handleLogout}
+        />
+      </>
+    )
+  }
+
+  // Variante pública padrão
   return (
     <>
       <header className="relative z-20 grid w-full grid-cols-3 grid-rows-2 items-center gap-x-3 gap-y-2 rounded-b-xl border border-purple-100 bg-white px-4 py-2 shadow-sm sm:flex sm:h-16 sm:justify-between sm:gap-5 sm:px-6 sm:py-0">
@@ -167,7 +240,7 @@ export default function Header() {
                   <div className="space-y-0.5">
                     {isAdmin && (
                       <Link
-                        to="/administrador"
+                        to="/admin"
                         onClick={() => setMenuOpen(false)}
                         className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-semibold text-purple-800 bg-purple-50 transition hover:bg-purple-100"
                       >
