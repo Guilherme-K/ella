@@ -384,7 +384,9 @@ export default function Informacoes() {
             Começar a leitura
             <FontAwesomeIcon icon={faArrowRight} />
           </a>
+
         </div>
+
       </section>
 
       <div className="mx-auto max-w-6xl space-y-14 px-5 py-12">

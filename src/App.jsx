@@ -1,4 +1,4 @@
-import { Route, Routes } from 'react-router-dom'
+import { Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom'
 
 import Accounts from './pages/Accounts'
 import Home from './pages/Home'
@@ -18,6 +18,27 @@ import Informacoes from './pages/Informacoes'
 
 import MainLayout from './layouts/MainLayout'
 import AdminLayout from './layouts/AdminLayout'
+
+
+function usuarioEstaLogado() {
+  try {
+    const usuario = JSON.parse(localStorage.getItem('usuarioLogado'))
+    return Boolean(usuario && usuario.id)
+  } catch {
+    return false
+  }
+}
+
+function RotaProtegida() {
+  const location = useLocation()
+
+  if (!usuarioEstaLogado()) {
+    return <Navigate to="/login" replace state={{ from: location.pathname }} />
+  }
+
+  return <Outlet />
+}
+
 
 export default function App() {
   return (
@@ -39,9 +60,12 @@ export default function App() {
       </Route>
 
       <Route path="/voluntaria" element={<Voluntaria />} />
-      <Route path="/chat" element={<Chat />} />
-      <Route path="/chatusuario" element={<ChatUsuario />} />
-      <Route path="/chatvoluntaria" element={<ChatVoluntaria />} />
+
+            <Route element={<RotaProtegida />}>
+        <Route path="/chat" element={<Chat />} />
+        <Route path="/chatusuario" element={<ChatUsuario />} />
+        <Route path="/chatvoluntaria" element={<ChatVoluntaria />} />
+      </Route>
 
       <Route
         path="/voluntaria/agradecimentovoluntaria"

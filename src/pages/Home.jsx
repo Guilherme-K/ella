@@ -1,102 +1,131 @@
-import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
-import womenArtwork from '../assets/mulheres.png'
-import { homeLinks, supportServices, violenceTypes } from '../data/homeData'
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import womenArtwork from "../assets/mulheres.png";
+import { homeLinks, supportServices, violenceTypes } from "../data/homeData";
 
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 const perguntasFrequentes = [
   {
-    pergunta: 'O que é a plataforma ELLA?',
-    resposta: 'A ELLA é uma plataforma que reúne informações, orientações e recursos de apoio para mulheres, ajudando a identificar situações de violência e encontrar caminhos para buscar ajuda.'
+    pergunta: "O que é a plataforma ELLA?",
+    resposta:
+      "A ELLA é uma plataforma que reúne informações, orientações e recursos de apoio para mulheres, ajudando a identificar situações de violência e encontrar caminhos para buscar ajuda.",
   },
   {
-    pergunta: 'Quem pode utilizar o site?',
-    resposta: 'Qualquer pessoa pode acessar as informações públicas da plataforma. Algumas funcionalidades podem exigir cadastro e autenticação.'
+    pergunta: "Quem pode utilizar o site?",
+    resposta:
+      "Qualquer pessoa pode acessar as informações públicas da plataforma. Algumas funcionalidades podem exigir cadastro e autenticação.",
   },
   {
-    pergunta: 'Preciso criar uma conta para acessar as informações?',
-    resposta: 'Não. As informações disponíveis nas páginas públicas podem ser consultadas sem cadastro. Algumas áreas e funcionalidades podem exigir uma conta.'
+    pergunta: "Preciso criar uma conta para acessar as informações?",
+    resposta:
+      "Não. As informações disponíveis nas páginas públicas podem ser consultadas sem cadastro. Algumas áreas e funcionalidades podem exigir uma conta.",
   },
   {
-    pergunta: 'Onde encontro informações sobre os tipos de violência?',
-    resposta: 'Na página inicial, na seção Tipos de Violência, você encontra informações sobre violência física, psicológica, sexual, moral e patrimonial.'
+    pergunta: "Onde encontro informações sobre os tipos de violência?",
+    resposta:
+      "Na página inicial, na seção Tipos de Violência, você encontra informações sobre violência física, psicológica, sexual, moral e patrimonial.",
   },
   {
-    pergunta: 'Como encontro serviços de apoio?',
-    resposta: 'Na seção Rede de Apoio, você encontra informações sobre serviços e instituições que podem oferecer orientação e atendimento.'
+    pergunta: "Como encontro serviços de apoio?",
+    resposta:
+      "Na seção Rede de Apoio, você encontra informações sobre serviços e instituições que podem oferecer orientação e atendimento.",
   },
   {
-    pergunta: 'O que acontece quando aperto em Chamar a Polícia (190)?',
-    resposta: 'O botão abre a opção de ligação para o número 190 no dispositivo. Você ainda precisa confirmar e realizar a chamada.'
+    pergunta: "O que acontece quando aperto em Chamar a Polícia (190)?",
+    resposta:
+      "O botão abre a opção de ligação para o número 190 no dispositivo. Você ainda precisa confirmar e realizar a chamada.",
   },
   {
-    pergunta: 'A ELLA chama a polícia automaticamente?',
-    resposta: 'Não. A plataforma não substitui os serviços de emergência. O botão facilita o acesso à opção de ligação para a Polícia Militar.'
+    pergunta: "A ELLA chama a polícia automaticamente?",
+    resposta:
+      "Não. A plataforma não substitui os serviços de emergência. O botão facilita o acesso à opção de ligação para a Polícia Militar.",
   },
   {
-    pergunta: 'Como posso visualizar minha localização?',
-    resposta: 'Na página de emergência, você pode permitir o acesso à localização do dispositivo para abrir sua posição atual no Google Maps.'
+    pergunta: "Como posso visualizar minha localização?",
+    resposta:
+      "Na página de emergência, você pode permitir o acesso à localização do dispositivo para abrir sua posição atual no Google Maps.",
   },
   {
-    pergunta: 'Como posso me tornar voluntária?',
-    resposta: 'Acesse a opção Quero ser voluntária, disponível na página inicial, para conhecer o processo de inscrição.'
+    pergunta: "Como posso me tornar voluntária?",
+    resposta:
+      "Acesse a opção Quero ser voluntária, disponível na página inicial, para conhecer o processo de inscrição.",
   },
   {
-    pergunta: 'A plataforma substitui atendimento profissional?',
-    resposta: 'Não. A ELLA é uma ferramenta de informação e apoio. Ela não substitui serviços policiais, médicos, psicológicos ou jurídicos.'
-  }
-]
-
+    pergunta: "A plataforma substitui atendimento profissional?",
+    resposta:
+      "Não. A ELLA é uma ferramenta de informação e apoio. Ela não substitui serviços policiais, médicos, psicológicos ou jurídicos.",
+  },
+];
 
 export default function Home() {
-
-  const [perguntaAberta, setPerguntaAberta] = useState(null)
-  const [totalAcionamentos, setTotalAcionamentos] = useState(null)
-  const [erroContagem, setErroContagem] = useState(false)
+  const [buscaApoio, setBuscaApoio] = useState("");
+  const [perguntaAberta, setPerguntaAberta] = useState(null);
+  const [totalAcionamentos, setTotalAcionamentos] = useState(null);
+  const [erroContagem, setErroContagem] = useState(false);
 
   useEffect(() => {
-    let ativo = true
+    let ativo = true;
 
     async function buscarAcionamentos() {
       try {
         const resposta = await fetch(
-          `${API_URL}/api/emergencia/acionamentos/total`
-        )
+          `${API_URL}/api/emergencia/acionamentos/total`,
+        );
 
         if (!resposta.ok) {
-          throw new Error('Não foi possível consultar os acionamentos.')
+          throw new Error("Não foi possível consultar os acionamentos.");
         }
 
-        const dados = await resposta.json()
-        const total = Number(dados.total)
+        const dados = await resposta.json();
+        const total = Number(dados.total);
 
         if (!Number.isFinite(total)) {
-          throw new Error('Contagem inválida.')
+          throw new Error("Contagem inválida.");
         }
 
         if (ativo) {
-          setTotalAcionamentos(total)
-          setErroContagem(false)
+          setTotalAcionamentos(total);
+          setErroContagem(false);
         }
       } catch (erro) {
         if (ativo) {
-          setErroContagem(true)
+          setErroContagem(true);
         }
       }
     }
 
-    buscarAcionamentos()
+    buscarAcionamentos();
 
-    const intervalo = window.setInterval(buscarAcionamentos, 5000)
+    const intervalo = window.setInterval(buscarAcionamentos, 5000);
 
     return () => {
-      ativo = false
-      window.clearInterval(intervalo)
-    }
-  }, [])
+      ativo = false;
+      window.clearInterval(intervalo);
+    };
+  }, []);
 
+  const servicosFiltrados = supportServices.filter((service) => {
+  const pesquisa = buscaApoio
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim()
+
+  if (pesquisa.length < 2) return true
+
+  const titulo = service.title
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+
+  const descricao = service.description
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+
+  return titulo.includes(pesquisa) || descricao.includes(pesquisa)
+})
   return (
     <main className="flex-1 bg-white">
       <section
@@ -134,7 +163,6 @@ export default function Home() {
                 <i className="fa-solid fa-bell" aria-hidden="true" />
                 Botão de Emergência
               </Link>
-
             </div>
             <a
               href="https://www.youtube.com/receitas"
@@ -192,27 +220,27 @@ export default function Home() {
             </p>
 
             <div className="mx-auto mt-8 grid max-w-5xl gap-5 sm:grid-cols-2 lg:grid-cols-3">
-  {violenceTypes.map((type) => (
-    <Link
-      key={type.id}
-      to={`/informacoes#${type.id}`}
-      className="flex min-h-40 flex-col items-center justify-center rounded-2xl bg-pink-50 px-5 py-6 text-center transition hover:-translate-y-1 hover:bg-pink-100 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-pink-500"
-    >
-      <i
-        className={`fa-solid ${type.icon} text-2xl text-pink-400`}
-        aria-hidden="true"
-      />
+              {violenceTypes.map((type) => (
+                <Link
+                  key={type.id}
+                  to={`/informacoes#${type.id}`}
+                  className="flex min-h-40 flex-col items-center justify-center rounded-2xl bg-pink-50 px-5 py-6 text-center transition hover:-translate-y-1 hover:bg-pink-100 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-pink-500"
+                >
+                  <i
+                    className={`fa-solid ${type.icon} text-2xl text-pink-400`}
+                    aria-hidden="true"
+                  />
 
-      <h3 className="mt-3 font-serif text-base font-bold text-violet-950">
-        {type.title}
-      </h3>
+                  <h3 className="mt-3 font-serif text-base font-bold text-violet-950">
+                    {type.title}
+                  </h3>
 
-      <p className="mt-3 max-w-56 text-xs leading-snug text-violet-900">
-        {type.description}
-      </p>
-    </Link>
-  ))}
-</div>
+                  <p className="mt-3 max-w-56 text-xs leading-snug text-violet-900">
+                    {type.description}
+                  </p>
+                </Link>
+              ))}
+            </div>
           </section>
 
           <aside
@@ -246,12 +274,27 @@ export default function Home() {
           </p>
 
           <label className="mx-auto mt-7 flex max-w-3xl items-center gap-3 rounded-full border border-stone-400 px-6 py-2 shadow-sm focus-within:border-violet-600 focus-within:ring-2 focus-within:ring-violet-200">
-            <span className="sr-only">Campo de texto da rede de apoio</span>
+            <span className="sr-only">Pesquisar na rede de apoio</span>
+
             <input
               type="text"
+              value={buscaApoio}
+              onChange={(e) => setBuscaApoio(e.target.value)}
               placeholder="Buscar por serviços, cidade ou especialidade..."
               className="min-w-0 flex-1 bg-transparent text-sm text-violet-950 outline-none placeholder:text-violet-300"
             />
+
+            {buscaApoio && (
+              <button
+                type="button"
+                onClick={() => setBuscaApoio("")}
+                aria-label="Limpar pesquisa"
+                className="text-violet-600 hover:text-violet-900"
+              >
+                <i className="fa-solid fa-xmark" />
+              </button>
+            )}
+
             <i
               className="fa-solid fa-magnifying-glass text-lg text-violet-700"
               aria-hidden="true"
@@ -259,23 +302,31 @@ export default function Home() {
           </label>
 
           <div className="mx-auto mt-8 grid max-w-5xl gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {supportServices.map((service) => (
-              <article
-                key={service.title}
-                className="flex min-h-36 flex-col items-center justify-center rounded-2xl bg-purple-100 px-5 py-6 text-center"
-              >
-                <i
-                  className={`fa-solid ${service.icon} text-2xl text-violet-900`}
-                  aria-hidden="true"
-                />
-                <h3 className="mt-3 font-serif text-base font-bold text-violet-950">
-                  {service.title}
-                </h3>
-                <p className="mt-4 text-xs text-violet-950">
-                  {service.description}
-                </p>
-              </article>
-            ))}
+            {servicosFiltrados.length > 0 ? (
+              servicosFiltrados.map((service) => (
+                <article
+                  key={service.title}
+                  className="flex min-h-36 flex-col items-center justify-center rounded-2xl bg-purple-100 px-5 py-6 text-center"
+                >
+                  <i
+                    className={`fa-solid ${service.icon} text-2xl text-violet-900`}
+                    aria-hidden="true"
+                  />
+
+                  <h3 className="mt-3 font-serif text-base font-bold text-violet-950">
+                    {service.title}
+                  </h3>
+
+                  <p className="mt-4 text-xs text-violet-950">
+                    {service.description}
+                  </p>
+                </article>
+              ))
+            ) : (
+              <p className="col-span-full py-8 text-center text-sm text-violet-700">
+                Nenhum serviço encontrado. Tente pesquisar por outro nome ou especialidade.
+              </p>
+            )}
           </div>
 
           <section
@@ -293,8 +344,8 @@ export default function Home() {
                 </h2>
 
                 <p className="mt-3 text-sm leading-relaxed text-violet-800">
-                  Acompanhe quantas vezes o botão de ligação para a Polícia (190)
-                  foi acionado pelos usuários da plataforma.
+                  Acompanhe quantas vezes o botão de ligação para a Polícia
+                  (190) foi acionado pelos usuários da plataforma.
                 </p>
               </div>
 
@@ -304,8 +355,8 @@ export default function Home() {
               >
                 <p className="text-4xl font-bold text-pink-700">
                   {totalAcionamentos === null
-                    ? '—'
-                    : totalAcionamentos.toLocaleString('pt-BR')}
+                    ? "—"
+                    : totalAcionamentos.toLocaleString("pt-BR")}
                 </p>
 
                 <p className="mt-2 text-xs font-semibold text-violet-900">
@@ -315,9 +366,9 @@ export default function Home() {
                 <p className="mt-2 text-xs text-gray-500">
                   {totalAcionamentos === null
                     ? erroContagem
-                      ? 'Contagem indisponível'
-                      : 'Carregando...'
-                    : 'Atualizado automaticamente'}
+                      ? "Contagem indisponível"
+                      : "Carregando..."
+                    : "Atualizado automaticamente"}
                 </p>
               </div>
             </div>
@@ -363,7 +414,7 @@ export default function Home() {
 
               <div className="space-y-3">
                 {perguntasFrequentes.map((item, index) => {
-                  const aberta = perguntaAberta === index
+                  const aberta = perguntaAberta === index;
 
                   return (
                     <article
@@ -382,7 +433,7 @@ export default function Home() {
                         </span>
 
                         <i
-                          className={`fa-solid fa-chevron-down shrink-0 text-sm text-pink-600 transition-transform duration-200 ${aberta ? 'rotate-180' : ''
+                          className={`fa-solid fa-chevron-down shrink-0 text-sm text-pink-600 transition-transform duration-200 ${aberta ? "rotate-180" : ""
                             }`}
                           aria-hidden="true"
                         />
@@ -399,14 +450,13 @@ export default function Home() {
                         </div>
                       )}
                     </article>
-                  )
+                  );
                 })}
               </div>
             </div>
           </section>
-
         </div>
       </section>
     </main>
-  )
+  );
 }
