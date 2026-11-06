@@ -20,6 +20,7 @@ import Sobre from './pages/Sobre'
 
 import MainLayout from './layouts/MainLayout'
 import AdminLayout from './layouts/AdminLayout'
+import RedeApoio from './pages/RedeApoio'
 
 export default function App() {
   return (
@@ -33,6 +34,7 @@ export default function App() {
         <Route path="/denuncia" element={<Denuncia />} />
         <Route path="/informacoes" element={<Informacoes />} />
         <Route path="/voluntaria" element={<Voluntaria />} />
+        <Route path="/apoio" element={<RedeApoio />} />
         <Route
           path="/voluntaria/agradecimentovoluntaria"
           element={<AgradecimentoVoluntaria />}
