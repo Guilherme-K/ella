@@ -56,7 +56,7 @@ export default function Footer() {
               <Link to="/apoio">Rede de apoio</Link>
             </li>
             <li>
-              <Link to="/apoio#contato">Contato</Link>
+              <Link to="/contato">Contato</Link>
             </li>
           </ul>
         </div>
