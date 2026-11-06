@@ -106,26 +106,27 @@ export default function Home() {
   }, []);
 
   const servicosFiltrados = supportServices.filter((service) => {
-  const pesquisa = buscaApoio
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .trim()
+    const pesquisa = buscaApoio
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim();
 
-  if (pesquisa.length < 2) return true
+    if (pesquisa.length < 2) return true;
 
-  const titulo = service.title
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
+    const titulo = service.title
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase();
 
-  const descricao = service.description
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
+    const descricao = service.description
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase();
 
-  return titulo.includes(pesquisa) || descricao.includes(pesquisa)
-})
+    return titulo.includes(pesquisa) || descricao.includes(pesquisa);
+  });
+
   return (
     <main className="flex-1 bg-white">
       <section
@@ -272,6 +273,14 @@ export default function Home() {
             Conecte-se com profissionais e instituições
             <br className="hidden sm:block" /> que podem te ajudar.
           </p>
+
+          <Link
+            to="/apoio"
+            className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-pink-700 transition hover:text-pink-900"
+          >
+            Conheça nossa Rede de Apoio
+            <i className="fa-solid fa-arrow-right" aria-hidden="true" />
+          </Link>
 
           <label className="mx-auto mt-7 flex max-w-3xl items-center gap-3 rounded-full border border-stone-400 px-6 py-2 shadow-sm focus-within:border-violet-600 focus-within:ring-2 focus-within:ring-violet-200">
             <span className="sr-only">Pesquisar na rede de apoio</span>
@@ -433,8 +442,9 @@ export default function Home() {
                         </span>
 
                         <i
-                          className={`fa-solid fa-chevron-down shrink-0 text-sm text-pink-600 transition-transform duration-200 ${aberta ? "rotate-180" : ""
-                            }`}
+                          className={`fa-solid fa-chevron-down shrink-0 text-sm text-pink-600 transition-transform duration-200 ${
+                            aberta ? "rotate-180" : ""
+                          }`}
                           aria-hidden="true"
                         />
                       </button>
