@@ -13,6 +13,7 @@ import ChatUsuario from './pages/ChatUsuario'
 import ChatVoluntaria from './pages/ChatVoluntaria'
 import ChatAdmin from './pages/ChatAdmin'
 import Emergencia from "./pages/Emergencia";
+import AgradecimentoVoluntaria from './pages/AgradecimentoVoluntario'
 
 export default function App() {
   return (
@@ -29,6 +30,7 @@ export default function App() {
         <Route path="/chatvoluntaria" element={<ChatVoluntaria />} />
         <Route path="/chatadmin" element={<ChatAdmin />} />
         <Route path="/emergencia" element={<Emergencia />} />
+        <Route path='/voluntaria/agradecimentovoluntaria' element={<AgradecimentoVoluntaria/>}/>
       </Route>
     </Routes>
   )

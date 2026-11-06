@@ -6,8 +6,12 @@ import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHeart, faBullhorn, faCalendarDays, faBriefcase } from '@fortawesome/free-solid-svg-icons';
 
+
+import { useNavigate } from 'react-router-dom';
+
 function Voluntaria() {
     const [dados, setDados] = useState({
+        
         nome: "",
         email: "",
         telefone: "",
@@ -23,6 +27,7 @@ function Voluntaria() {
 
     const [ajuda, setAjuda] = useState([]);
     const [erro, setErro] = useState("");
+    const navigate = useNavigate();
 
 
     function escolherOpcao(opcao) {
@@ -47,6 +52,7 @@ function Voluntaria() {
 
 
         console.log({ ...dados, areas: ajuda });
+        navigate("/voluntaria/agradecimentovoluntaria")
     }
 
 
