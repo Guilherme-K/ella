@@ -197,8 +197,9 @@ Content-Type: application/json
 ```
 
 Os avatares são pré-setados e identificados por `avatar-1` … `avatar-8`.
-O banco guarda apenas o identificador; o desenho é feito no frontend
-(`src/data/avatars.js`).
+O banco guarda apenas o identificador; as imagens SVG são geradas no
+frontend com **DiceBear** (`@dicebear/core` e `@dicebear/styles`), a partir
+das definições em `src/data/avatars.js`.
 
 ### Rotas protegidas
 

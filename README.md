@@ -41,7 +41,8 @@ público cria sempre `usuaria`. A conta administrativa é criada pelo seed:
 
 Os avatares pré-setados (`avatar-1` … `avatar-8`) são escolhidos em
 **Minha área** e no perfil do admin; o identificador escolhido fica salvo
-no banco. Os desenhos ficam em `src/data/avatars.js`.
+no banco. As imagens são geradas com **DiceBear** (`@dicebear/core` +
+`@dicebear/styles`) e definidas em `src/data/avatars.js`.
 
 Para iniciar a API a partir da raiz do projeto:
 
