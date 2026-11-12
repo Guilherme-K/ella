@@ -1,241 +1,592 @@
+import { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-    faCalendarDays, faChevronRight, faFileLines, faHeart, faShieldHalved, faUserPlus, faUsers,
+    faBrain, faCalendarDays, faChevronRight, faComments, faDownload, faHeart,
+    faRotate, faUserGear, faUserPlus, faUsers,
 } from '@fortawesome/free-solid-svg-icons';
 
-// TEMPORÁRIO: dados de exemplo. Trocar pelos dados da API.
-// TODO: só admin pode abrir esta página (proteger a rota e conferir o papel no back).
+import Avatar from '../components/Avatar';
+import { userService } from '../services/userService';
 
-const estatisticas = [
-    { icone: faUsers, valor: '1.248', rotulo: 'Usuárias cadastradas', variacao: '+12%', sobe: true },
-    { icone: faHeart, valor: '342', rotulo: 'Voluntárias ativas', variacao: '+8%', sobe: true },
-    { icone: faCalendarDays, valor: '86', rotulo: 'Eventos realizados', variacao: '+20%', sobe: true },
-    { icone: faShieldHalved, valor: '23', rotulo: 'Denúncias recebidas', variacao: '-15%', sobe: false },
-];
+// Dados reais das contas cadastradas. O projeto ainda não possui eventos,
+// denúncias, conteúdos ou atendimentos persistidos, então o dashboard mostra
+// apenas o que existe hoje no banco: contas, papéis e preenchimento de perfil.
+
+const PAPEIS = {
+    usuaria: { rotulo: 'Usuária', cor: '#e11d8f', classe: 'bg-pink-100 text-pink-700' },
+    voluntaria: { rotulo: 'Voluntária', cor: '#6d28d9', classe: 'bg-violet-100 text-violet-700' },
+    psicologa: { rotulo: 'Psicóloga', cor: '#a21caf', classe: 'bg-fuchsia-100 text-fuchsia-700' },
+    admin: { rotulo: 'Admin', cor: '#2e1065', classe: 'bg-violet-950 text-white' },
+};
 
 const acoesRapidas = [
-    { texto: 'Adicionar usuária', icone: faUserPlus },
-    { texto: 'Cadastrar voluntária', icone: faHeart },
-    { texto: 'Criar evento', icone: faCalendarDays },
-    { texto: 'Publicar conteúdo', icone: faFileLines },
-    { texto: 'Ver denúncias', icone: faShieldHalved },
+    { texto: 'Ver todas as contas', icone: faUsers, to: '/contas' },
+    { texto: 'Abrir chats', icone: faComments, to: '/admin/chats' },
+    { texto: 'Editar meu perfil', icone: faUserGear, to: '/admin/perfil' },
+    { texto: 'Cadastrar nova conta', icone: faUserPlus, to: '/cadastro' },
 ];
-
-const atividades = [
-    { titulo: 'Nova usuária cadastrada', detalhe: 'Maria Silva', tempo: 'há 5 min' },
-    { titulo: 'Voluntária se inscreveu', detalhe: 'Ana Costa', tempo: 'há 12 min' },
-    { titulo: 'Evento publicado', detalhe: 'Roda de Conversa - Autocuidado', tempo: 'há 1 h' },
-    { titulo: 'Nova denúncia recebida', detalhe: 'Relato de violência psicológica', tempo: 'há 2 h' },
-    { titulo: 'Conteúdo publicado', detalhe: 'Dicas de segurança', tempo: 'há 3 h' },
-];
-
-const solicitacoes = [
-    { tipo: 'Usuária', nome: 'Juliana Ferreira', email: 'juliana@email.com', data: '10/05/2025', status: 'Pendente' },
-    { tipo: 'Voluntária', nome: 'Carla Menezes', email: 'carla@email.com', data: '09/05/2025', status: 'Aprovada' },
-    { tipo: 'Evento', nome: 'Oficina de Empoderamento', email: 'contato@evento.com', data: '08/05/2025', status: 'Pendente' },
-    { tipo: 'Usuária', nome: 'Renata Souza', email: 'renata@email.com', data: '08/05/2025', status: 'Em análise' },
-    { tipo: 'Voluntária', nome: 'Beatriz Lima', email: 'beatriz@email.com', data: '07/05/2025', status: 'Aprovada' },
-];
-
-const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'];
-const series = [
-    { nome: 'Usuárias', cor: '#e11d8f', largura: 2.5, valores: [350, 650, 800, 950, 1150, 1350] },
-    { nome: 'Voluntárias', cor: '#6d28d9', largura: 1.75, valores: [150, 350, 450, 550, 700, 900] },
-    { nome: 'Eventos', cor: '#d28bb8', largura: 1.75, valores: [50, 150, 250, 300, 380, 450] },
-];
-
-const violencia = [
-    { nome: 'Psicológica', pct: 56 },
-    { nome: 'Física', pct: 18 },
-    { nome: 'Sexual', pct: 12 },
-    { nome: 'Patrimonial', pct: 8 },
-    { nome: 'Moral', pct: 6 },
-];
-
-const corStatus = {
-    'Pendente': 'bg-amber-500',
-    'Aprovada': 'bg-emerald-500',
-    'Em análise': 'bg-violet-500',
-};
 
 const card = 'rounded-2xl border border-violet-100 bg-white p-6';
 const titulo = 'mb-4 font-serif text-lg text-[#2e1065]';
 
-function GraficoLinhas() {
+function lerData(valor) {
+    const data = new Date(valor);
+
+    return Number.isNaN(data.getTime()) ? null : data;
+}
+
+function formatarData(valor) {
+    const data = lerData(valor);
+
+    return data ? data.toLocaleDateString('pt-BR') : '—';
+}
+
+const formatadorRelativo = new Intl.RelativeTimeFormat('pt-BR', { numeric: 'auto' });
+
+function tempoRelativo(valor) {
+    const data = lerData(valor);
+
+    if (!data) return '—';
+
+    const diferenca = data.getTime() - Date.now();
+    const minutos = Math.round(diferenca / 60000);
+
+    if (Math.abs(minutos) < 60) return formatadorRelativo.format(minutos, 'minute');
+
+    const horas = Math.round(diferenca / 3600000);
+
+    if (Math.abs(horas) < 24) return formatadorRelativo.format(horas, 'hour');
+
+    const dias = Math.round(diferenca / 86400000);
+
+    if (Math.abs(dias) < 30) return formatadorRelativo.format(dias, 'day');
+
+    const meses = Math.round(diferenca / 2592000000);
+
+    if (Math.abs(meses) < 12) return formatadorRelativo.format(meses, 'month');
+
+    return formatadorRelativo.format(Math.round(diferenca / 31536000000), 'year');
+}
+
+function papelDe(usuario) {
+    const role = usuario.role ?? usuario.tipo;
+
+    return PAPEIS[role] ? role : 'usuaria';
+}
+
+function contarPorPapel(usuarios) {
+    return usuarios.reduce(
+        (contagem, usuario) => {
+            contagem[papelDe(usuario)] += 1;
+            return contagem;
+        },
+        { usuaria: 0, voluntaria: 0, psicologa: 0, admin: 0 },
+    );
+}
+
+function calcularResumo(usuarios) {
+    const total = usuarios.length;
+    const porPapel = contarPorPapel(usuarios);
+    const agora = Date.now();
+    const inicio30 = agora - 30 * 86400000;
+    const inicio60 = agora - 60 * 86400000;
+
+    const novas30 = usuarios.filter((usuario) => {
+        const data = lerData(usuario.createdAt);
+        return data && data.getTime() >= inicio30;
+    }).length;
+
+    const novas30Anteriores = usuarios.filter((usuario) => {
+        const data = lerData(usuario.createdAt);
+        return data && data.getTime() >= inicio60 && data.getTime() < inicio30;
+    }).length;
+
+    return { total, porPapel, novas30, novas30Anteriores };
+}
+
+function percentual(parte, total) {
+    return total > 0 ? Math.round((parte / total) * 100) : 0;
+}
+
+function criarSeries(usuarios) {
+    const agora = new Date();
+    const meses = [];
+
+    for (let i = 5; i >= 0; i -= 1) {
+        const inicio = new Date(agora.getFullYear(), agora.getMonth() - i, 1);
+        const fim = new Date(agora.getFullYear(), agora.getMonth() - i + 1, 1);
+
+        meses.push({
+            rotulo: inicio.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', ''),
+            fim,
+        });
+    }
+
+    const series = [
+        { nome: 'Contas', cor: '#e11d8f', largura: 2.5, valores: [] },
+        { nome: 'Voluntárias', cor: '#6d28d9', largura: 1.75, valores: [] },
+        { nome: 'Psicólogas', cor: '#d28bb8', largura: 1.75, valores: [] },
+    ];
+
+    for (const mes of meses) {
+        const cadastradasAte = usuarios.filter((usuario) => {
+            const data = lerData(usuario.createdAt);
+            return data && data < mes.fim;
+        });
+
+        series[0].valores.push(cadastradasAte.length);
+        series[1].valores.push(cadastradasAte.filter((usuario) => papelDe(usuario) === 'voluntaria').length);
+        series[2].valores.push(cadastradasAte.filter((usuario) => papelDe(usuario) === 'psicologa').length);
+    }
+
+    return { meses: meses.map((mes) => mes.rotulo), series };
+}
+
+function perfilPreenchido(usuario) {
+    const preenchidos = [
+        Boolean(usuario.bio),
+        Boolean(usuario.city ?? usuario.cidade),
+        Boolean(usuario.phone ?? usuario.telefone),
+    ].filter(Boolean).length;
+
+    if (preenchidos === 3) return { rotulo: 'Completo', classe: 'bg-emerald-500' };
+    if (preenchidos === 0) return { rotulo: 'Incompleto', classe: 'bg-amber-500' };
+
+    return { rotulo: 'Parcial', classe: 'bg-violet-500' };
+}
+
+function calcularPreenchimento(usuarios) {
+    const total = usuarios.length;
+    const itens = [
+        { rotulo: 'Com foto de perfil', quantidade: usuarios.filter((u) => Boolean(u.photo)).length },
+        { rotulo: 'Com bio', quantidade: usuarios.filter((u) => Boolean(u.bio)).length },
+        { rotulo: 'Com cidade', quantidade: usuarios.filter((u) => Boolean(u.city ?? u.cidade)).length },
+        { rotulo: 'Com telefone', quantidade: usuarios.filter((u) => Boolean(u.phone ?? u.telefone)).length },
+    ];
+
+    return itens.map((item) => ({
+        ...item,
+        pct: percentual(item.quantidade, total),
+    }));
+}
+
+function escaparCsv(valor) {
+    return `"${String(valor ?? '').replace(/"/g, '""')}"`;
+}
+
+function exportarContas(usuarios) {
+    const ordenados = [...usuarios].sort(
+        (a, b) => (lerData(b.createdAt)?.getTime() ?? 0) - (lerData(a.createdAt)?.getTime() ?? 0),
+    );
+
+    const linhas = [
+        ['Nome', 'E-mail', 'Tipo', 'Cidade', 'Cadastro', 'Perfil'],
+        ...ordenados.map((usuario) => [
+            usuario.name ?? usuario.nome ?? '',
+            usuario.email ?? '',
+            PAPEIS[papelDe(usuario)].rotulo,
+            usuario.city ?? usuario.cidade ?? '',
+            formatarData(usuario.createdAt),
+            perfilPreenchido(usuario).rotulo,
+        ]),
+    ];
+
+    // BOM e ponto e vírgula para abrir corretamente no Excel em português.
+    const csv = `\uFEFF${linhas.map((linha) => linha.map(escaparCsv).join(';')).join('\r\n')}`;
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+
+    link.href = url;
+    link.download = `ella-contas-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 0);
+}
+
+function GraficoLinhas({ meses, series }) {
     const largura = 560;
     const altura = 200;
     const esquerda = 36;
-    const direita = 80; // espaço para o nome de cada linha no final
+    const direita = 16;
     const base = 28;
-    const x = (i) => esquerda + (i * (largura - esquerda - direita)) / (meses.length - 1);
-    const y = (v) => altura - base - (v / 1500) * (altura - base - 10);
+    const maior = Math.max(1, ...series.flatMap((serie) => serie.valores));
+    const topo = Math.max(4, Math.ceil(maior));
+    const passos = 4;
+    const ticks = Array.from({ length: passos + 1 }, (_, i) => Math.round((topo / passos) * i));
+    const x = (i) => esquerda + (i * (largura - esquerda - direita)) / Math.max(1, meses.length - 1);
+    const y = (v) => altura - base - (v / topo) * (altura - base - 12);
     const ultimo = meses.length - 1;
 
     return (
-        <svg viewBox={`0 0 ${largura} ${altura}`} className="w-full" role="img"
-            aria-label="Crescimento de usuárias, voluntárias e eventos nos últimos 6 meses">
-            {[0, 500, 1000, 1500].map((v) => (
-                <g key={v}>
-                    <line x1={esquerda} x2={largura - direita} y1={y(v)} y2={y(v)} stroke="#ede9fe" strokeDasharray="3 4" />
-                    <text x={esquerda - 6} y={y(v) + 3} textAnchor="end" fontSize="9" fill="#6b7280">{v}</text>
-                </g>
-            ))}
-            {meses.map((m, i) => (
-                <text key={m} x={x(i)} y={altura - 8} textAnchor="middle" fontSize="9" fill="#6b7280">{m}</text>
-            ))}
-            {series.map((s) => (
-                <g key={s.nome}>
-                    <polyline fill="none" stroke={s.cor} strokeWidth={s.largura} strokeLinejoin="round"
-                        points={s.valores.map((v, i) => `${x(i)},${y(v)}`).join(' ')} />
-                    <circle cx={x(ultimo)} cy={y(s.valores[ultimo])} r="3.5" fill={s.cor} />
-                    <text x={x(ultimo) + 9} y={y(s.valores[ultimo]) + 3} fontSize="9" fontWeight="600" fill={s.cor}>
-                        {s.nome}
-                    </text>
-                </g>
-            ))}
-        </svg>
+        <>
+            <div className="mb-3 flex flex-wrap gap-4 text-xs text-gray-500">
+                {series.map((serie) => (
+                    <span key={serie.nome} className="flex items-center gap-2">
+                        <span className="h-2 w-2 rounded-full" style={{ backgroundColor: serie.cor }} />
+                        {serie.nome}
+                    </span>
+                ))}
+            </div>
+
+            <svg viewBox={`0 0 ${largura} ${altura}`} className="w-full" role="img"
+                aria-label="Evolução do total de contas, voluntárias e psicólogas nos últimos 6 meses">
+                {ticks.map((valor) => (
+                    <g key={valor}>
+                        <line x1={esquerda} x2={largura - direita} y1={y(valor)} y2={y(valor)} stroke="#ede9fe" strokeDasharray="3 4" />
+                        <text x={esquerda - 6} y={y(valor) + 3} textAnchor="end" fontSize="9" fill="#6b7280">{valor}</text>
+                    </g>
+                ))}
+                {meses.map((mes, i) => (
+                    <text key={`${mes}-${i}`} x={x(i)} y={altura - 8} textAnchor="middle" fontSize="9" fill="#6b7280">{mes}</text>
+                ))}
+                {series.map((serie) => (
+                    <g key={serie.nome}>
+                        <polyline fill="none" stroke={serie.cor} strokeWidth={serie.largura} strokeLinejoin="round"
+                            points={serie.valores.map((valor, i) => `${x(i)},${y(valor)}`).join(' ')} />
+                        <circle cx={x(ultimo)} cy={y(serie.valores[ultimo])} r="3.5" fill={serie.cor} />
+                    </g>
+                ))}
+            </svg>
+        </>
     );
 }
 
 function AdminDashboard() {
+    const [usuarios, setUsuarios] = useState(null);
+    const [carregando, setCarregando] = useState(true);
+    const [erro, setErro] = useState('');
+    const [recarregar, setRecarregar] = useState(0);
+
+    useEffect(() => {
+        let ativo = true;
+
+        async function carregar() {
+            setCarregando(true);
+            setErro('');
+
+            try {
+                const dados = await userService.list();
+
+                if (ativo) setUsuarios(Array.isArray(dados) ? dados : []);
+            } catch (error) {
+                if (ativo) {
+                    setErro(error.message || 'Não foi possível carregar os dados da plataforma.');
+                }
+            } finally {
+                if (ativo) setCarregando(false);
+            }
+        }
+
+        carregar();
+
+        return () => {
+            ativo = false;
+        };
+    }, [recarregar]);
+
+    const lista = useMemo(() => usuarios ?? [], [usuarios]);
+    const resumo = useMemo(() => calcularResumo(lista), [lista]);
+    const grafico = useMemo(() => criarSeries(lista), [lista]);
+    const preenchimento = useMemo(() => calcularPreenchimento(lista), [lista]);
+    const recentes = useMemo(
+        () =>
+            [...lista]
+                .sort((a, b) => (lerData(b.createdAt)?.getTime() ?? 0) - (lerData(a.createdAt)?.getTime() ?? 0))
+                .slice(0, 6),
+        [lista],
+    );
+
+    const distribuicao = Object.entries(PAPEIS).map(([role, config]) => {
+        const quantidade = resumo.porPapel[role] ?? 0;
+
+        return {
+            role,
+            ...config,
+            quantidade,
+            pct: percentual(quantidade, resumo.total),
+        };
+    });
+
+    const papelDestaque = [...distribuicao].sort((a, b) => b.quantidade - a.quantidade)[0];
+    const variacao = resumo.novas30Anteriores > 0
+        ? Math.round(((resumo.novas30 - resumo.novas30Anteriores) / resumo.novas30Anteriores) * 100)
+        : null;
+
+    const estatisticas = [
+        {
+            icone: faUsers,
+            valor: resumo.total,
+            rotulo: 'Contas cadastradas',
+            detalhe: `${resumo.novas30} novas nos últimos 30 dias`,
+        },
+        {
+            icone: faHeart,
+            valor: resumo.porPapel.voluntaria,
+            rotulo: 'Voluntárias',
+            detalhe: `${percentual(resumo.porPapel.voluntaria, resumo.total)}% das contas`,
+        },
+        {
+            icone: faBrain,
+            valor: resumo.porPapel.psicologa,
+            rotulo: 'Psicólogas',
+            detalhe: `${percentual(resumo.porPapel.psicologa, resumo.total)}% das contas`,
+        },
+        {
+            icone: faUserPlus,
+            valor: resumo.novas30,
+            rotulo: 'Novas em 30 dias',
+            detalhe: variacao === null
+                ? `${resumo.novas30Anteriores} nos 30 dias anteriores`
+                : `${variacao >= 0 ? '↑' : '↓'} ${Math.abs(variacao)}% em relação aos 30 anteriores`,
+        },
+    ];
+
     const hoje = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
+    const usuarioAtual = userService.getCurrentUser();
+    const nomeAdmin = usuarioAtual?.nome || usuarioAtual?.name || 'Admin';
+
+    function atualizar() {
+        setRecarregar((valor) => valor + 1);
+    }
 
     return (
         <>
             <header className="mb-8 flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
                 <div>
-                    <p className="text-sm capitalize text-[#7e22ce]">{hoje}</p>
-                    <h1 className="font-serif text-4xl text-[#2e1065]">Olá, Admin</h1>
+                    <p className="text-sm text-[#7e22ce] first-letter:uppercase">{hoje}</p>
+                    <h1 className="font-serif text-4xl text-[#2e1065]">Olá, {nomeAdmin}</h1>
                     <p className="mt-1 max-w-md text-sm text-gray-600">
-                        Aqui você acompanha o que acontece na plataforma ELLA.
+                        Aqui você acompanha os dados reais das contas da plataforma ELLA.
                     </p>
                 </div>
-                <p className="border-l-2 border-pink-400 pl-4 font-serif italic text-[#4c1d95]">
-                    Juntas somos mais fortes.
-                    <span className="block font-sans text-xs not-italic text-gray-500">
-                        Mais apoio, mais histórias, mais recomeços.
-                    </span>
-                </p>
+
+                <div className="flex flex-wrap items-center gap-4 xl:justify-end">
+                    <p className="border-l-2 border-pink-400 pl-4 font-serif italic text-[#4c1d95]">
+                        Juntas somos mais fortes.
+                        <span className="block font-sans text-xs not-italic text-gray-500">
+                            Mais apoio, mais histórias, mais recomeços.
+                        </span>
+                    </p>
+
+                    <button
+                        type="button"
+                        onClick={atualizar}
+                        disabled={carregando}
+                        className="inline-flex items-center gap-2 rounded-full border border-violet-200 bg-white px-4 py-2 text-sm text-[#5b21b6] transition hover:bg-violet-50 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                        <FontAwesomeIcon icon={faRotate} spin={carregando} />
+                        {carregando ? 'Atualizando...' : 'Atualizar'}
+                    </button>
+                </div>
             </header>
 
-            <div className="grid gap-6 xl:grid-cols-[1fr_20rem]">
-                <div className="min-w-0 space-y-6">
-                    <section aria-label="Resumo"
-                        className="grid grid-cols-2 rounded-2xl border border-violet-100 bg-white xl:grid-cols-4 xl:divide-x xl:divide-violet-100">
-                        {estatisticas.map((e) => (
-                            <div key={e.rotulo} className="p-5">
-                                <p className="flex items-center gap-2 text-xs uppercase tracking-wide text-gray-500">
-                                    <FontAwesomeIcon icon={e.icone} className="text-pink-500" />
-                                    {e.rotulo}
-                                </p>
-                                <p className="mt-2 font-serif text-4xl tabular-nums text-[#2e1065]">{e.valor}</p>
-                                <p className="mt-1 text-xs text-gray-500">
-                                    <span className="font-semibold text-[#5b21b6]">{e.sobe ? '↑' : '↓'} {e.variacao}</span>{' '}
-                                    em relação ao mês anterior
-                                </p>
-                            </div>
-                        ))}
-                    </section>
+            {erro && (
+                <div role="alert" className="mb-6 flex flex-wrap items-center gap-4 rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-700">
+                    <span>{erro}</span>
+                    <button
+                        type="button"
+                        onClick={atualizar}
+                        className="rounded-full border border-red-200 px-3 py-1 text-xs font-semibold text-red-700"
+                    >
+                        Tentar novamente
+                    </button>
+                </div>
+            )}
 
-                    <div className="grid gap-6 lg:grid-cols-[3fr_2fr]">
+            {usuarios === null ? (
+                carregando && <section className={`${card} text-sm text-gray-500`}>Carregando dados da plataforma...</section>
+            ) : (
+                <div className="grid gap-6 xl:grid-cols-[1fr_20rem]">
+                    <div className="min-w-0 space-y-6">
+                        <section aria-label="Resumo"
+                            className="grid grid-cols-2 rounded-2xl border border-violet-100 bg-white xl:grid-cols-4 xl:divide-x xl:divide-violet-100">
+                            {estatisticas.map((estatistica) => (
+                                <div key={estatistica.rotulo} className="p-5">
+                                    <p className="flex items-center gap-2 text-xs uppercase tracking-wide text-gray-500">
+                                        <FontAwesomeIcon icon={estatistica.icone} className="text-pink-500" />
+                                        {estatistica.rotulo}
+                                    </p>
+                                    <p className="mt-2 font-serif text-4xl tabular-nums text-[#2e1065]">
+                                        {estatistica.valor.toLocaleString('pt-BR')}
+                                    </p>
+                                    <p className="mt-1 text-xs text-gray-500">{estatistica.detalhe}</p>
+                                </div>
+                            ))}
+                        </section>
+
+                        <div className="grid gap-6 lg:grid-cols-[3fr_2fr]">
+                            <section className={card}>
+                                <h2 className={titulo}>Evolução das contas</h2>
+                                <GraficoLinhas meses={grafico.meses} series={grafico.series} />
+                            </section>
+
+                            <section className={card}>
+                                <h2 className={titulo}>Contas por papel</h2>
+                                <ul className="space-y-3">
+                                    {distribuicao.map((item) => (
+                                        <li key={item.role}>
+                                            <div className="mb-1 flex justify-between text-sm">
+                                                <span className="flex items-center gap-2">
+                                                    <span className="h-2 w-2 rounded-full" style={{ backgroundColor: item.cor }} />
+                                                    {item.rotulo}
+                                                </span>
+                                                <span className="tabular-nums text-gray-500">
+                                                    {item.quantidade.toLocaleString('pt-BR')} · {item.pct}%
+                                                </span>
+                                            </div>
+                                            <div className="h-2 rounded-full bg-violet-50">
+                                                <div className="h-2 rounded-full" style={{ width: `${item.pct}%`, backgroundColor: item.cor }} />
+                                            </div>
+                                        </li>
+                                    ))}
+                                </ul>
+                                <p className="mt-4 text-xs text-gray-500">
+                                    {resumo.total > 0
+                                        ? `${papelDestaque.rotulo} é o papel mais comum (${papelDestaque.pct}% das contas).`
+                                        : 'Nenhuma conta cadastrada ainda.'}
+                                </p>
+                            </section>
+                        </div>
+
                         <section className={card}>
-                            <h2 className={titulo}>Crescimento da plataforma</h2>
-                            <GraficoLinhas />
+                            <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+                                <h2 className="font-serif text-lg text-[#2e1065]">Contas recentes</h2>
+
+                                <div className="flex items-center gap-4">
+                                    <button
+                                        type="button"
+                                        onClick={() => exportarContas(lista)}
+                                        disabled={lista.length === 0}
+                                        className="inline-flex items-center gap-2 text-sm text-[#5b21b6] underline underline-offset-4 disabled:cursor-not-allowed disabled:text-gray-300"
+                                    >
+                                        <FontAwesomeIcon icon={faDownload} />
+                                        Exportar CSV
+                                    </button>
+
+                                    <Link to="/contas" className="text-sm text-[#5b21b6] underline underline-offset-4">
+                                        Ver todas
+                                    </Link>
+                                </div>
+                            </div>
+
+                            <div className="overflow-x-auto">
+                                <table className="w-full min-w-[640px] text-left text-sm">
+                                    <thead className="text-xs uppercase tracking-wide text-gray-400">
+                                        <tr>
+                                            <th className="py-2 font-medium">Conta</th>
+                                            <th className="font-medium">E-mail</th>
+                                            <th className="font-medium">Tipo</th>
+                                            <th className="font-medium">Cadastro</th>
+                                            <th className="font-medium">Perfil</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {recentes.map((usuario) => {
+                                            const papel = PAPEIS[papelDe(usuario)];
+                                            const perfil = perfilPreenchido(usuario);
+
+                                            return (
+                                                <tr key={usuario.id} className="border-t border-violet-100 hover:bg-violet-50/50">
+                                                    <td className="py-3">
+                                                        <span className="flex items-center gap-2">
+                                                            <Avatar
+                                                                nome={usuario.name ?? usuario.nome ?? ''}
+                                                                avatar={usuario.avatar}
+                                                                photo={usuario.photo}
+                                                                tamanho="h-8 w-8 text-xs"
+                                                            />
+                                                            <span className="font-medium">
+                                                                {usuario.name ?? usuario.nome ?? 'Sem nome'}
+                                                            </span>
+                                                        </span>
+                                                    </td>
+                                                    <td className="text-gray-600">{usuario.email}</td>
+                                                    <td>
+                                                        <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${papel.classe}`}>
+                                                            {papel.rotulo}
+                                                        </span>
+                                                    </td>
+                                                    <td className="tabular-nums text-gray-600">
+                                                        <span className="block">{formatarData(usuario.createdAt)}</span>
+                                                        <span className="text-xs text-gray-400">{tempoRelativo(usuario.createdAt)}</span>
+                                                    </td>
+                                                    <td>
+                                                        <span className="flex items-center gap-2">
+                                                            <span className={`h-2 w-2 rounded-full ${perfil.classe}`} />
+                                                            {perfil.rotulo}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+
+                                {recentes.length === 0 && (
+                                    <p className="py-4 text-sm text-gray-500">Nenhuma conta cadastrada ainda.</p>
+                                )}
+                            </div>
+                        </section>
+                    </div>
+
+                    <div className="space-y-6">
+                        <section className={card}>
+                            <h2 className={titulo}>Ações rápidas</h2>
+                            <ul className="divide-y divide-violet-100">
+                                {acoesRapidas.map((acao) => (
+                                    <li key={acao.texto}>
+                                        <Link
+                                            to={acao.to}
+                                            className="flex w-full items-center gap-3 py-3 text-left text-sm hover:text-[#7e22ce]"
+                                        >
+                                            <FontAwesomeIcon icon={acao.icone} className="w-4 text-pink-500" />
+                                            <span className="mr-auto">{acao.texto}</span>
+                                            <FontAwesomeIcon icon={faChevronRight} className="text-xs text-gray-300" />
+                                        </Link>
+                                    </li>
+                                ))}
+                            </ul>
                         </section>
 
                         <section className={card}>
-                            <h2 className={titulo}>Tipos de violência</h2>
+                            <h2 className={titulo}>Preenchimento dos perfis</h2>
                             <ul className="space-y-3">
-                                {violencia.map((v, i) => (
-                                    <li key={v.nome}>
+                                {preenchimento.map((item) => (
+                                    <li key={item.rotulo}>
                                         <div className="mb-1 flex justify-between text-sm">
-                                            <span>{v.nome}</span>
-                                            <span className="tabular-nums text-gray-500">{v.pct}%</span>
+                                            <span>{item.rotulo}</span>
+                                            <span className="tabular-nums text-gray-500">
+                                                {item.quantidade} · {item.pct}%
+                                            </span>
                                         </div>
                                         <div className="h-2 rounded-full bg-violet-50">
-                                            <div className={`h-2 rounded-full ${i === 0 ? 'bg-pink-600' : 'bg-violet-300'}`}
-                                                style={{ width: `${v.pct}%` }} />
+                                            <div className="h-2 rounded-full bg-violet-300" style={{ width: `${item.pct}%` }} />
                                         </div>
                                     </li>
                                 ))}
                             </ul>
                             <p className="mt-4 text-xs text-gray-500">
-                                {violencia[0].nome} é o tipo mais registrado ({violencia[0].pct}% do total).
+                                {resumo.total > 0
+                                    ? `${preenchimento[0].quantidade} de ${resumo.total} contas têm foto de perfil.`
+                                    : 'Cadastre uma conta para acompanhar o preenchimento dos perfis.'}
+                            </p>
+                        </section>
+
+                        <section className={`${card} flex items-start gap-3 bg-pink-50 text-sm`}>
+                            <FontAwesomeIcon icon={faCalendarDays} className="mt-0.5 text-pink-500" />
+                            <p>
+                                <span className="font-semibold text-[#2e1065]">Última atualização</span>
+                                <span className="mt-1 block text-xs text-gray-500">
+                                    Os números são recalculados sempre que você abre o painel ou clica em Atualizar.
+                                </span>
                             </p>
                         </section>
                     </div>
-
-                    <section className={card}>
-                        <div className="mb-3 flex items-baseline justify-between">
-                            <h2 className="font-serif text-lg text-[#2e1065]">Últimas solicitações</h2>
-                            <button type="button" className="text-sm text-[#5b21b6] underline underline-offset-4">Ver todas</button>
-                        </div>
-                        <div className="overflow-x-auto">
-                            <table className="w-full min-w-[640px] text-left text-sm">
-                                <thead className="text-xs uppercase tracking-wide text-gray-400">
-                                    <tr>
-                                        <th className="py-2 font-medium">Tipo</th>
-                                        <th className="font-medium">Nome</th>
-                                        <th className="font-medium">E-mail</th>
-                                        <th className="font-medium">Data</th>
-                                        <th className="font-medium">Status</th>
-                                        <th />
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {solicitacoes.map((s) => (
-                                        <tr key={s.email} className="border-t border-violet-100 hover:bg-violet-50/50">
-                                            <td className="py-3 text-gray-500">{s.tipo}</td>
-                                            <td className="font-medium">{s.nome}</td>
-                                            <td className="text-gray-600">{s.email}</td>
-                                            <td className="tabular-nums text-gray-600">{s.data}</td>
-                                            <td>
-                                                <span className="flex items-center gap-2">
-                                                    <span className={`h-2 w-2 rounded-full ${corStatus[s.status]}`} />
-                                                    {s.status}
-                                                </span>
-                                            </td>
-                                            <td className="text-right">
-                                                <button type="button" className="text-[#5b21b6] underline underline-offset-4">Ver</button>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </section>
                 </div>
-
-                <div className="space-y-6">
-                    <section className={card}>
-                        <h2 className={titulo}>Ações rápidas</h2>
-                        <ul className="divide-y divide-violet-100">
-                            {acoesRapidas.map((a) => (
-                                <li key={a.texto}>
-                                    <button type="button" className="flex w-full items-center gap-3 py-3 text-left text-sm hover:text-[#7e22ce]">
-                                        <FontAwesomeIcon icon={a.icone} className="w-4 text-pink-500" />
-                                        <span className="mr-auto">{a.texto}</span>
-                                        <FontAwesomeIcon icon={faChevronRight} className="text-xs text-gray-300" />
-                                    </button>
-                                </li>
-                            ))}
-                        </ul>
-                    </section>
-
-                    <section className={card}>
-                        <h2 className={titulo}>Atividade recente</h2>
-                        <ol className="border-l border-violet-200">
-                            {atividades.map((a) => (
-                                <li key={a.titulo} className="relative pb-5 pl-5 last:pb-0">
-                                    <span className="absolute -left-[5px] top-1.5 h-2.5 w-2.5 rounded-full bg-pink-500 ring-4 ring-white" />
-                                    <p className="text-sm font-medium">{a.titulo}</p>
-                                    <p className="text-xs text-gray-500">{a.detalhe} · {a.tempo}</p>
-                                </li>
-                            ))}
-                        </ol>
-                    </section>
-                </div>
-            </div>
+            )}
         </>
     );
 }

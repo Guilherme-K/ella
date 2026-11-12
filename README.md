@@ -26,6 +26,9 @@ A URL da API é lida de `VITE_API_URL` (veja `.env.example`); por padrão,
 - `src/pages/Accounts.jsx` — listagem das contas cadastradas (`GET /api/users`).
 - `src/pages/Perfil.jsx` — Minha área (`GET`/`PATCH /api/users/me`).
 - `src/pages/PerfilAdmin.jsx` — perfil do admin (`GET`/`PATCH /api/users/me`).
+- `src/pages/DashboardAdmin.jsx` — dashboard do admin com dados reais de
+  `GET /api/users` (totais, papéis, evolução das contas, preenchimento dos
+  perfis e exportação CSV).
 
 As rotas `/cadastro` e `/login` são compatíveis com o frontend atual e usam
 o backend Prisma/MySQL.
