@@ -1,5 +1,5 @@
 
-import { Link, NavLink } from 'react-router-dom'
+import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faBell,
@@ -9,7 +9,39 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 import Brand from './Brand'
 
+function obterUsuario() {
+  try {
+    return JSON.parse(localStorage.getItem('usuarioLogado') || 'null')
+  } catch {
+    return null
+  }
+}
+
+function normalizarPapel(usuario) {
+  return (usuario?.tipo || usuario?.papel || usuario?.role || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+}
+
 export default function Header({ variant = 'public' }) {
+  const navigate = useNavigate()
+  const usuario = obterUsuario()
+  const papel = normalizarPapel(usuario)
+
+  const destinos = {
+    usuaria: '/perfiluser',
+    voluntaria: '/chatvoluntaria',
+    psicologa: '/contas',
+    admin: '/admin',
+  }
+
+  function sair() {
+    localStorage.removeItem('usuarioLogado')
+    localStorage.removeItem('ella:token')
+    navigate('/', { replace: true })
+  }
+
   if (variant === 'admin') {
     return (
       <header className="flex h-16 items-center gap-4 bg-white px-4 shadow-sm sm:px-6">
@@ -34,7 +66,7 @@ export default function Header({ variant = 'public' }) {
           />
         </div>
 
-        <div className="ml-auto flex items-center gap-5">
+        <div className="ml-auto flex items-center gap-3 sm:gap-5">
           <button
             type="button"
             aria-label="Notificações"
@@ -55,7 +87,7 @@ export default function Header({ variant = 'public' }) {
 
             <div className="hidden text-left leading-tight sm:block">
               <p className="text-sm font-semibold text-gray-800">
-                Admin ELLA
+                {usuario?.nome || 'Admin ELLA'}
               </p>
               <p className="text-xs text-gray-500">Administradora</p>
             </div>
@@ -65,6 +97,14 @@ export default function Header({ variant = 'public' }) {
               className="text-xs text-[#4c1d95]"
             />
           </Link>
+
+          <button
+            type="button"
+            onClick={sair}
+            className="text-xs font-medium text-pink-500 hover:text-pink-700 sm:text-sm"
+          >
+            Sair
+          </button>
         </div>
       </header>
     )
@@ -82,7 +122,7 @@ export default function Header({ variant = 'public' }) {
       </Link>
 
       <nav
-        className="col-span-3 row-start-2 flex items-center justify-center gap-4 text-xs text-pink-500 sm:col-span-1 sm:row-auto sm:flex-1 sm:gap-7"
+        className="col-span-3 row-start-2 flex items-center justify-center gap-3 text-xs text-pink-500 sm:col-span-1 sm:row-auto sm:flex-1 sm:gap-7 sm:text-sm"
         aria-label="Navegação principal"
       >
         {[
@@ -106,19 +146,40 @@ export default function Header({ variant = 'public' }) {
       </nav>
 
       <div className="col-start-3 row-start-1 flex items-center justify-end gap-2 sm:gap-3">
-        <Link
-          to="/login"
-          className="rounded-full px-2 py-1 text-xs text-pink-500 transition hover:bg-pink-50 sm:px-4"
-        >
-          Login
-        </Link>
+        {usuario ? (
+          <>
+            <Link
+              to={destinos[papel] || '/perfiluser'}
+              className="whitespace-nowrap rounded-full px-3 py-1.5 text-xs text-pink-500 transition hover:bg-pink-50 sm:px-4 sm:text-sm"
+            >
+              Minha área
+            </Link>
 
-        <Link
-          to="/cadastro"
-          className="whitespace-nowrap rounded-full bg-pink-400 px-3 py-1.5 text-xs text-white transition hover:bg-pink-500 sm:px-4"
-        >
-          Cadastre-se
-        </Link>
+            <button
+              type="button"
+              onClick={sair}
+              className="rounded-full bg-pink-400 px-3 py-1.5 text-xs text-white transition hover:bg-pink-500 sm:px-4 sm:text-sm"
+            >
+              Sair
+            </button>
+          </>
+        ) : (
+          <>
+            <Link
+              to="/login"
+              className="rounded-full px-2 py-1 text-xs text-pink-500 transition hover:bg-pink-50 sm:px-4 sm:text-sm"
+            >
+              Login
+            </Link>
+
+            <Link
+              to="/cadastro"
+              className="whitespace-nowrap rounded-full bg-pink-400 px-3 py-1.5 text-xs text-white transition hover:bg-pink-500 sm:px-4 sm:text-sm"
+            >
+              Cadastre-se
+            </Link>
+          </>
+        )}
       </div>
     </header>
   )
