@@ -22,9 +22,12 @@ A camada de serviços do frontend está em:
 A URL da API é lida de `VITE_API_URL` (veja `.env.example`); por padrão,
 `http://127.0.0.1:5000`.
 
-- `src/pages/Signup.jsx` — cadastro e login automático.
-- `src/pages/Login.jsx` — login.
-- `src/pages/Accounts.jsx` — listagem das contas cadastradas.
+- `src/pages/Signup.jsx` — cadastro (`POST /cadastro`).
+- `src/pages/Login.jsx` — login (`POST /login`).
+- `src/pages/Accounts.jsx` — listagem das contas cadastradas (`GET /api/users`).
+
+As rotas `/cadastro` e `/login` são compatíveis com o frontend atual e usam
+o backend Prisma/MySQL.
 
 Para iniciar a API a partir da raiz do projeto:
 

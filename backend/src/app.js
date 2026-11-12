@@ -17,8 +17,10 @@ app.use(express.urlencoded({ extended: false }));
 // Rotas da aplicação.
 import indexRouter from './routes/index.js';
 import usersRouter from './routes/users.js';
+import legacyAuthRouter from './routes/legacyAuth.js';
 
 app.use('/', indexRouter);
+app.use('/', legacyAuthRouter);
 app.use('/api/users', usersRouter);
 
 // 404

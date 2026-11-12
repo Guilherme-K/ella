@@ -1,8 +1,132 @@
-import { Link } from 'react-router-dom'
-import womenArtwork from '../assets/mulheres.png'
-import { homeLinks, supportServices, violenceTypes } from '../data/homeData'
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import womenArtwork from "../assets/mulheres.png";
+import { homeLinks, supportServices, violenceTypes } from "../data/homeData";
+
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
+const perguntasFrequentes = [
+  {
+    pergunta: "O que é a plataforma ELLA?",
+    resposta:
+      "A ELLA é uma plataforma que reúne informações, orientações e recursos de apoio para mulheres, ajudando a identificar situações de violência e encontrar caminhos para buscar ajuda.",
+  },
+  {
+    pergunta: "Quem pode utilizar o site?",
+    resposta:
+      "Qualquer pessoa pode acessar as informações públicas da plataforma. Algumas funcionalidades podem exigir cadastro e autenticação.",
+  },
+  {
+    pergunta: "Preciso criar uma conta para acessar as informações?",
+    resposta:
+      "Não. As informações disponíveis nas páginas públicas podem ser consultadas sem cadastro. Algumas áreas e funcionalidades podem exigir uma conta.",
+  },
+  {
+    pergunta: "Onde encontro informações sobre os tipos de violência?",
+    resposta:
+      "Na página inicial, na seção Tipos de Violência, você encontra informações sobre violência física, psicológica, sexual, moral e patrimonial.",
+  },
+  {
+    pergunta: "Como encontro serviços de apoio?",
+    resposta:
+      "Na seção Rede de Apoio, você encontra informações sobre serviços e instituições que podem oferecer orientação e atendimento.",
+  },
+  {
+    pergunta: "O que acontece quando aperto em Chamar a Polícia (190)?",
+    resposta:
+      "O botão abre a opção de ligação para o número 190 no dispositivo. Você ainda precisa confirmar e realizar a chamada.",
+  },
+  {
+    pergunta: "A ELLA chama a polícia automaticamente?",
+    resposta:
+      "Não. A plataforma não substitui os serviços de emergência. O botão facilita o acesso à opção de ligação para a Polícia Militar.",
+  },
+  {
+    pergunta: "Como posso visualizar minha localização?",
+    resposta:
+      "Na página de emergência, você pode permitir o acesso à localização do dispositivo para abrir sua posição atual no Google Maps.",
+  },
+  {
+    pergunta: "Como posso me tornar voluntária?",
+    resposta:
+      "Acesse a opção Quero ser voluntária, disponível na página inicial, para conhecer o processo de inscrição.",
+  },
+  {
+    pergunta: "A plataforma substitui atendimento profissional?",
+    resposta:
+      "Não. A ELLA é uma ferramenta de informação e apoio. Ela não substitui serviços policiais, médicos, psicológicos ou jurídicos.",
+  },
+];
 
 export default function Home() {
+  const [buscaApoio, setBuscaApoio] = useState("");
+  const [perguntaAberta, setPerguntaAberta] = useState(null);
+  const [totalAcionamentos, setTotalAcionamentos] = useState(null);
+  const [erroContagem, setErroContagem] = useState(false);
+
+  useEffect(() => {
+    let ativo = true;
+
+    async function buscarAcionamentos() {
+      try {
+        const resposta = await fetch(
+          `${API_URL}/api/emergencia/acionamentos/total`,
+        );
+
+        if (!resposta.ok) {
+          throw new Error("Não foi possível consultar os acionamentos.");
+        }
+
+        const dados = await resposta.json();
+        const total = Number(dados.total);
+
+        if (!Number.isFinite(total)) {
+          throw new Error("Contagem inválida.");
+        }
+
+        if (ativo) {
+          setTotalAcionamentos(total);
+          setErroContagem(false);
+        }
+      } catch (erro) {
+        if (ativo) {
+          setErroContagem(true);
+        }
+      }
+    }
+
+    buscarAcionamentos();
+
+    const intervalo = window.setInterval(buscarAcionamentos, 5000);
+
+    return () => {
+      ativo = false;
+      window.clearInterval(intervalo);
+    };
+  }, []);
+
+  const servicosFiltrados = supportServices.filter((service) => {
+    const pesquisa = buscaApoio
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim();
+
+    if (pesquisa.length < 2) return true;
+
+    const titulo = service.title
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase();
+
+    const descricao = service.description
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase();
+
+    return titulo.includes(pesquisa) || descricao.includes(pesquisa);
+  });
+
   return (
     <main className="flex-1 bg-white">
       <section
@@ -39,12 +163,6 @@ export default function Home() {
               >
                 <i className="fa-solid fa-bell" aria-hidden="true" />
                 Botão de Emergência
-              </Link>
-              <Link
-                to="/apoio"
-                className="rounded-full border border-pink-400 bg-white/80 px-4 py-2 text-sm text-pink-600 transition hover:bg-pink-50 focus:outline-none focus:ring-2 focus:ring-pink-300 focus:ring-offset-2"
-              >
-                Quero Ajuda
               </Link>
             </div>
             <a
@@ -104,21 +222,24 @@ export default function Home() {
 
             <div className="mx-auto mt-8 grid max-w-5xl gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {violenceTypes.map((type) => (
-                <article
-                  key={type.title}
-                  className="flex min-h-40 flex-col items-center justify-center rounded-2xl bg-pink-50 px-5 py-6 text-center"
+                <Link
+                  key={type.id}
+                  to={`/informacoes#${type.id}`}
+                  className="flex min-h-40 flex-col items-center justify-center rounded-2xl bg-pink-50 px-5 py-6 text-center transition hover:-translate-y-1 hover:bg-pink-100 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-pink-500"
                 >
                   <i
                     className={`fa-solid ${type.icon} text-2xl text-pink-400`}
                     aria-hidden="true"
                   />
+
                   <h3 className="mt-3 font-serif text-base font-bold text-violet-950">
                     {type.title}
                   </h3>
+
                   <p className="mt-3 max-w-56 text-xs leading-snug text-violet-900">
                     {type.description}
                   </p>
-                </article>
+                </Link>
               ))}
             </div>
           </section>
@@ -153,13 +274,36 @@ export default function Home() {
             <br className="hidden sm:block" /> que podem te ajudar.
           </p>
 
+          <Link
+            to="/apoio"
+            className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-pink-700 transition hover:text-pink-900"
+          >
+            Conheça nossa Rede de Apoio
+            <i className="fa-solid fa-arrow-right" aria-hidden="true" />
+          </Link>
+
           <label className="mx-auto mt-7 flex max-w-3xl items-center gap-3 rounded-full border border-stone-400 px-6 py-2 shadow-sm focus-within:border-violet-600 focus-within:ring-2 focus-within:ring-violet-200">
-            <span className="sr-only">Campo de texto da rede de apoio</span>
+            <span className="sr-only">Pesquisar na rede de apoio</span>
+
             <input
               type="text"
+              value={buscaApoio}
+              onChange={(e) => setBuscaApoio(e.target.value)}
               placeholder="Buscar por serviços, cidade ou especialidade..."
               className="min-w-0 flex-1 bg-transparent text-sm text-violet-950 outline-none placeholder:text-violet-300"
             />
+
+            {buscaApoio && (
+              <button
+                type="button"
+                onClick={() => setBuscaApoio("")}
+                aria-label="Limpar pesquisa"
+                className="text-violet-600 hover:text-violet-900"
+              >
+                <i className="fa-solid fa-xmark" />
+              </button>
+            )}
+
             <i
               className="fa-solid fa-magnifying-glass text-lg text-violet-700"
               aria-hidden="true"
@@ -167,24 +311,82 @@ export default function Home() {
           </label>
 
           <div className="mx-auto mt-8 grid max-w-5xl gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {supportServices.map((service) => (
-              <article
-                key={service.title}
-                className="flex min-h-36 flex-col items-center justify-center rounded-2xl bg-purple-100 px-5 py-6 text-center"
-              >
-                <i
-                  className={`fa-solid ${service.icon} text-2xl text-violet-900`}
-                  aria-hidden="true"
-                />
-                <h3 className="mt-3 font-serif text-base font-bold text-violet-950">
-                  {service.title}
-                </h3>
-                <p className="mt-4 text-xs text-violet-950">
-                  {service.description}
-                </p>
-              </article>
-            ))}
+            {servicosFiltrados.length > 0 ? (
+              servicosFiltrados.map((service) => (
+                <article
+                  key={service.title}
+                  className="flex min-h-36 flex-col items-center justify-center rounded-2xl bg-purple-100 px-5 py-6 text-center"
+                >
+                  <i
+                    className={`fa-solid ${service.icon} text-2xl text-violet-900`}
+                    aria-hidden="true"
+                  />
+
+                  <h3 className="mt-3 font-serif text-base font-bold text-violet-950">
+                    {service.title}
+                  </h3>
+
+                  <p className="mt-4 text-xs text-violet-950">
+                    {service.description}
+                  </p>
+                </article>
+              ))
+            ) : (
+              <p className="col-span-full py-8 text-center text-sm text-violet-700">
+                Nenhum serviço encontrado. Tente pesquisar por outro nome ou especialidade.
+              </p>
+            )}
           </div>
+
+          <section
+            id="contador-emergencia"
+            className="mt-14 rounded-3xl border border-pink-100 bg-pink-50 px-6 py-8 sm:px-10"
+          >
+            <div className="flex flex-col items-center gap-6 text-center sm:flex-row sm:justify-between sm:text-left">
+              <div className="max-w-xl">
+                <span className="text-xs font-bold uppercase tracking-wider text-pink-700">
+                  Indicador de emergência
+                </span>
+
+                <h2 className="mt-2 font-serif text-2xl font-bold text-violet-950 sm:text-3xl">
+                  Você não está sozinha.
+                </h2>
+
+                <p className="mt-3 text-sm leading-relaxed text-violet-800">
+                  Acompanhe quantas vezes o botão de ligação para a Polícia
+                  (190) foi acionado pelos usuários da plataforma.
+                </p>
+              </div>
+
+              <div
+                className="min-w-44 rounded-2xl bg-white px-8 py-5 text-center shadow-sm"
+                aria-live="polite"
+              >
+                <p className="text-4xl font-bold text-pink-700">
+                  {totalAcionamentos === null
+                    ? "—"
+                    : totalAcionamentos.toLocaleString("pt-BR")}
+                </p>
+
+                <p className="mt-2 text-xs font-semibold text-violet-900">
+                  Acionamentos registrados
+                </p>
+
+                <p className="mt-2 text-xs text-gray-500">
+                  {totalAcionamentos === null
+                    ? erroContagem
+                      ? "Contagem indisponível"
+                      : "Carregando..."
+                    : "Atualizado automaticamente"}
+                </p>
+              </div>
+            </div>
+
+            <p className="mt-5 text-xs leading-relaxed text-violet-700">
+              O número representa quantas vezes o botão foi acionado. Ele não
+              confirma se a ligação foi completada ou atendida.
+            </p>
+          </section>
 
           <aside className="mt-14 flex flex-col items-center gap-5 rounded-3xl bg-linear-to-r from-violet-700 via-violet-700 to-violet-950 px-6 py-7 text-center text-white sm:flex-row sm:justify-between sm:px-10 sm:py-8 sm:text-left">
             <i
@@ -206,8 +408,65 @@ export default function Home() {
               Quero ser voluntária
             </Link>
           </aside>
+
+          <section id="perguntas-frequentes" className="mt-16">
+            <div className="mx-auto max-w-3xl">
+              <div className="mb-8 text-center">
+                <h2 className="font-serif text-2xl font-bold text-violet-950 sm:text-3xl">
+                  Perguntas Frequentes
+                </h2>
+
+                <p className="mt-2 text-sm text-violet-700">
+                  Tire suas dúvidas e conheça melhor a plataforma ELLA.
+                </p>
+              </div>
+
+              <div className="space-y-3">
+                {perguntasFrequentes.map((item, index) => {
+                  const aberta = perguntaAberta === index;
+
+                  return (
+                    <article
+                      key={item.pergunta}
+                      className="overflow-hidden rounded-xl border border-purple-100 bg-white shadow-sm"
+                    >
+                      <button
+                        type="button"
+                        onClick={() => setPerguntaAberta(aberta ? null : index)}
+                        aria-expanded={aberta}
+                        aria-controls={`faq-resposta-${index}`}
+                        className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left transition hover:bg-purple-50"
+                      >
+                        <span className="text-sm font-semibold text-violet-950 sm:text-base">
+                          {item.pergunta}
+                        </span>
+
+                        <i
+                          className={`fa-solid fa-chevron-down shrink-0 text-sm text-pink-600 transition-transform duration-200 ${
+                            aberta ? "rotate-180" : ""
+                          }`}
+                          aria-hidden="true"
+                        />
+                      </button>
+
+                      {aberta && (
+                        <div
+                          id={`faq-resposta-${index}`}
+                          className="border-t border-purple-100 px-5 py-4"
+                        >
+                          <p className="text-sm leading-relaxed text-gray-600">
+                            {item.resposta}
+                          </p>
+                        </div>
+                      )}
+                    </article>
+                  );
+                })}
+              </div>
+            </div>
+          </section>
         </div>
       </section>
     </main>
-  )
+  );
 }

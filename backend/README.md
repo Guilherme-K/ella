@@ -100,6 +100,9 @@ A API ficará disponível em `http://127.0.0.1:5000`.
 | --- | --- | --- | --- |
 | GET | `/` | Status da API | Não |
 | GET | `/api/status` | Status da API | Não |
+| GET | `/teste-banco` | Testa a conexão com o banco | Não |
+| POST | `/cadastro` | Cadastro (compatível com o frontend da main) | Não |
+| POST | `/login` | Login (compatível com o frontend da main) | Não |
 | GET | `/api/users` | Lista os usuários (sem senha) | Não |
 | GET | `/api/users/:id` | Exibe um usuário | Não |
 | POST | `/api/users` | Cadastra um usuário | Não |
@@ -165,16 +168,21 @@ model User {
 
 ## Integração com o frontend
 
-As telas de cadastro, login e contas usam a camada de serviços em
-`src/services/`:
+As telas de cadastro, login e contas usam a API:
+
+- `src/pages/Signup.jsx` chama `POST /cadastro`.
+- `src/pages/Login.jsx` chama `POST /login`.
+- `src/pages/Accounts.jsx` chama `GET /api/users` para exibir as contas.
+
+As rotas `/cadastro` e `/login` são de compatibilidade com o frontend da
+`main` e usam o Prisma por baixo dos panos. Elas retornam os campos
+`id`, `nome`, `email`, `tipo` (`usuaria`) e `token`, no formato esperado
+pelas telas atuais.
+
+A camada de serviços em `src/services/` continua disponível:
 
 - `httpClient.js` — cliente `fetch` com suporte a token Bearer.
 - `userService.js` — métodos `list`, `getById`, `create`, `login`, `update` e `remove`.
-
-- `src/pages/Signup.jsx` chama `POST /api/users` e, em seguida,
-  `POST /api/users/login` (login automático).
-- `src/pages/Login.jsx` chama `POST /api/users/login`.
-- `src/pages/Accounts.jsx` chama `GET /api/users` para exibir as contas.
 
 A URL da API é lida de `VITE_API_URL` no `.env` do frontend (veja
 `.env.example`); por padrão usa `http://127.0.0.1:5000`.
