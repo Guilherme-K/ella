@@ -123,7 +123,7 @@ A API ficará disponível em `http://127.0.0.1:5000`.
 | POST | `/login` | Login (compatível com o frontend da main) | Não |
 | GET | `/api/users` | Lista os usuários (sem senha) | Não |
 | GET | `/api/users/me` | Exibe o usuário autenticado | Bearer token |
-| PATCH | `/api/users/me` | Atualiza perfil/avatar do usuário autenticado | Bearer token |
+| PATCH | `/api/users/me` | Atualiza perfil/avatar/foto do usuário autenticado | Bearer token |
 | GET | `/api/users/:id` | Exibe um usuário | Não |
 | POST | `/api/users` | Cadastra um usuário | Não |
 | POST | `/api/users/login` | Login e geração do token JWT | Não |
@@ -168,6 +168,7 @@ Resposta:
     "email": "maria@example.com",
     "role": "usuaria",
     "avatar": "avatar-1",
+    "photo": null,
     "nickname": null,
     "bio": null,
     "city": null,
@@ -199,7 +200,30 @@ Content-Type: application/json
 Os avatares são pré-setados e identificados por `avatar-1` … `avatar-8`.
 O banco guarda apenas o identificador; as imagens SVG são geradas no
 frontend com **DiceBear** (`@dicebear/core` e `@dicebear/styles`), a partir
-das definições em `src/data/avatars.js`.
+das definições em `src/data/avatars.js`. Os presets usam apenas os estilos
+da linha de arte do Lorelei: `lorelei`, `lorelei-neutral`, `adventurer` e
+`adventurer-neutral`.
+
+### Foto de perfil
+
+Além dos presets, é possível enviar uma foto. O frontend converte a imagem
+em data URL e envia no campo `photo`:
+
+```http
+PATCH /api/users/me
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "photo": "data:image/png;base64,iVBORw0KGgo..."
+}
+```
+
+A API aceita apenas PNG, JPEG ou WebP com até 2 MB (o corpo JSON tem limite
+de 8 MB para comportar o base64). A foto fica salva na coluna `photo`
+(`LONGTEXT`) e, quando presente, tem prioridade sobre o avatar pré-setado.
+Para remover a foto, envie `"photo": null`; para voltar a um preset, envie
+o `avatar` junto com `"photo": null`.
 
 ### Rotas protegidas
 
@@ -219,6 +243,7 @@ model User {
   password  String?
   role      String   @default("usuaria")
   avatar    String   @default("avatar-1")
+  photo     String?  @db.LongText
   nickname  String?
   bio       String?  @db.Text
   city      String?
@@ -235,7 +260,7 @@ As telas de cadastro, login e contas usam a API:
 - `src/pages/Login.jsx` chama `POST /login`.
 - `src/pages/Accounts.jsx` chama `GET /api/users` para exibir as contas.
 - `src/pages/Perfil.jsx` (Minha área) chama `GET` e `PATCH /api/users/me`.
-- `src/pages/PerfilAdmin.jsx` mostra os dados do admin e permite trocar o avatar.
+- `src/pages/PerfilAdmin.jsx` mostra os dados do admin e permite trocar o avatar ou enviar uma foto.
 
 As rotas `/cadastro` e `/login` são de compatibilidade com o frontend da
 `main` e usam o Prisma por baixo dos panos. Elas retornam os campos

@@ -15,6 +15,7 @@ import {
 
 import Avatar from '../components/Avatar';
 import AvatarPicker from '../components/AvatarPicker';
+import ProfilePhotoUpload from '../components/ProfilePhotoUpload';
 import { userService } from '../services/userService';
 
 const permissoes = [
@@ -80,20 +81,45 @@ export default function PerfilAdmin() {
     }, [recarregar]);
 
     async function trocarAvatar(avatar) {
-        if (!administrador || avatar === administrador.avatar) return;
+        if (!administrador) return;
+        // Escolher um avatar pré-setado também remove a foto enviada.
+        if (avatar === administrador.avatar && !administrador.photo) return;
 
         setSalvandoAvatar(true);
         setAviso('');
 
         try {
-            const atualizado = await userService.updateMe({ avatar });
+            const atualizado = await userService.updateMe({
+                avatar,
+                photo: null
+            });
             setAdministrador(atualizado);
-            setAviso('Avatar atualizado.');
+            setAviso(
+                administrador.photo
+                    ? 'Avatar atualizado e foto removida.'
+                    : 'Avatar atualizado.'
+            );
         } catch (error) {
             setAviso(error.message || 'Não foi possível atualizar o avatar.');
         } finally {
             setSalvandoAvatar(false);
         }
+    }
+
+    async function enviarFoto(photo) {
+        setAviso('');
+
+        const atualizado = await userService.updateMe({ photo });
+        setAdministrador(atualizado);
+        setAviso('Foto de perfil atualizada.');
+    }
+
+    async function removerFoto() {
+        setAviso('');
+
+        const atualizado = await userService.updateMe({ photo: null });
+        setAdministrador(atualizado);
+        setAviso('Foto removida. Seu avatar escolhido voltou a aparecer.');
     }
 
     if (carregando) {
@@ -169,6 +195,7 @@ export default function PerfilAdmin() {
                             <Avatar
                                 nome={nome}
                                 avatar={administrador.avatar}
+                                photo={administrador.photo}
                                 tamanho="h-24 w-24 text-4xl"
                             />
                         </div>
@@ -303,6 +330,21 @@ export default function PerfilAdmin() {
                         {salvandoAvatar ? 'Salvando...' : 'A escolha fica salva na sua conta.'}
                     </span>
                 </div>
+
+                <ProfilePhotoUpload
+                    nome={nome}
+                    avatar={administrador.avatar}
+                    photo={administrador.photo}
+                    onUpload={enviarFoto}
+                    onRemove={removerFoto}
+                />
+
+                <div className="my-5 border-t border-gray-100" />
+
+                <p className="mb-3 text-xs text-gray-400">
+                    Ou escolha um avatar pré-setado. Ao escolher um avatar, a
+                    foto enviada é removida.
+                </p>
 
                 <AvatarPicker
                     value={administrador.avatar}

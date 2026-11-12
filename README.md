@@ -42,7 +42,15 @@ público cria sempre `usuaria`. A conta administrativa é criada pelo seed:
 Os avatares pré-setados (`avatar-1` … `avatar-8`) são escolhidos em
 **Minha área** e no perfil do admin; o identificador escolhido fica salvo
 no banco. As imagens são geradas com **DiceBear** (`@dicebear/core` +
-`@dicebear/styles`) e definidas em `src/data/avatars.js`.
+`@dicebear/styles`) e definidas em `src/data/avatars.js`. Os oito presets
+usam apenas a linha de arte do Lorelei (Lisa Wischofsky): `lorelei`,
+`lorelei-neutral`, `adventurer` e `adventurer-neutral`.
+
+Também é possível enviar uma **foto de perfil** em Minha área ou no perfil
+do admin. A imagem (PNG, JPEG ou WebP, até 2 MB) é convertida em data URL e
+salva no banco no campo `photo`; enquanto existir, ela substitui o avatar
+pré-setado. Escolher um preset ou usar **Remover foto** volta a exibir o
+avatar escolhido.
 
 Para iniciar a API a partir da raiz do projeto:
 

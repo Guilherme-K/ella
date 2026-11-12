@@ -11,17 +11,20 @@ function iniciaisDoNome(nome) {
         .toUpperCase();
 }
 
-function Avatar({ nome = '', avatar, tamanho = 'h-10 w-10', online = false }) {
+// `photo` é a foto enviada pela usuária (data URL salva no banco) e tem
+// prioridade sobre o avatar pré-setado escolhido em `avatar`.
+function Avatar({ nome = '', avatar, photo, tamanho = 'h-10 w-10', online = false }) {
     const preset = avatar ? getAvatarById(avatar) : null;
+    const src = photo || preset?.src;
 
     return (
         <span
-            title={preset ? preset.label : nome}
-            className={`relative flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br font-semibold text-white ${preset ? 'from-pink-100 to-violet-100' : 'from-pink-300 to-violet-400'} ${tamanho}`}
+            title={photo ? 'Foto de perfil' : preset ? preset.label : nome}
+            className={`relative flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br font-semibold text-white ${src ? 'from-pink-100 to-violet-100' : 'from-pink-300 to-violet-400'} ${tamanho}`}
         >
-            {preset ? (
+            {src ? (
                 <img
-                    src={preset.src}
+                    src={src}
                     alt=""
                     aria-hidden="true"
                     className="h-full w-full object-cover"

@@ -23,6 +23,7 @@ const userFilter = {
   email: true,
   role: true,
   avatar: true,
+  photo: true,
   nickname: true,
   bio: true,
   city: true,

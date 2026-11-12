@@ -11,8 +11,9 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+// Limite maior para aceitar a foto de perfil em base64 (máx. 2 MB).
+app.use(express.json({ limit: '8mb' }));
+app.use(express.urlencoded({ extended: false, limit: '8mb' }));
 
 // Rotas da aplicação.
 import indexRouter from './routes/index.js';

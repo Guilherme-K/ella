@@ -17,6 +17,7 @@ model User {
   password  String?
   role      String   @default("usuaria")
   avatar    String   @default("avatar-1")
+  photo     String?  @db.LongText
   nickname  String?
   bio       String?  @db.Text
   city      String?

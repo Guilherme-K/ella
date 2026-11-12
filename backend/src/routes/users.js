@@ -23,6 +23,7 @@ const userFilter = {
   email: true,
   role: true,
   avatar: true,
+  photo: true,
   nickname: true,
   bio: true,
   city: true,
@@ -76,6 +77,38 @@ function readAvatar(value) {
   return value;
 }
 
+// Foto de perfil enviada pelo frontend como data URL (base64).
+// Limite de 2 MB, apenas PNG, JPEG e WebP.
+const MAX_PHOTO_BYTES = 2 * 1024 * 1024;
+const PHOTO_DATA_URL = /^data:image\/(png|jpeg|webp);base64,([A-Za-z0-9+/=]+)$/;
+
+function readPhoto(value) {
+  if (value === undefined) return undefined;
+  if (value === null || value === '') return null;
+
+  if (typeof value !== 'string') {
+    throw createError(400, 'Foto inválida');
+  }
+
+  const dataUrl = value.trim();
+  const match = PHOTO_DATA_URL.exec(dataUrl);
+
+  if (!match) {
+    throw createError(400, 'Envie uma imagem PNG, JPEG ou WebP');
+  }
+
+  // Cada 4 caracteres base64 representam 3 bytes; desconta o padding.
+  const base64 = match[2];
+  const padding = base64.endsWith('==') ? 2 : base64.endsWith('=') ? 1 : 0;
+  const bytes = Math.floor((base64.length * 3) / 4) - padding;
+
+  if (bytes > MAX_PHOTO_BYTES) {
+    throw createError(400, 'A foto deve ter no máximo 2 MB');
+  }
+
+  return dataUrl;
+}
+
 async function buildProfileChanges(data) {
   const changes = {};
 
@@ -114,6 +147,10 @@ async function buildProfileChanges(data) {
 
   if (data.avatar !== undefined) {
     changes.avatar = readAvatar(data.avatar);
+  }
+
+  if (data.photo !== undefined) {
+    changes.photo = readPhoto(data.photo);
   }
 
   if (data.password !== undefined) {

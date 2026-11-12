@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLock, faPen, faRotate } from '@fortawesome/free-solid-svg-icons';
 import Avatar from '../components/Avatar';
 import AvatarPicker from '../components/AvatarPicker';
+import ProfilePhotoUpload from '../components/ProfilePhotoUpload';
 import { userService } from '../services/userService';
 
 // ---------------------------------------------------------------------------
@@ -59,6 +60,7 @@ function normalizarPerfil(user) {
         email: user.email ?? '',
         tipo: user.role ?? user.tipo ?? 'usuaria',
         avatar: user.avatar || 'avatar-1',
+        photo: user.photo || '',
         bio: user.bio ?? '',
         cidade: user.city ?? user.cidade ?? '',
         telefone: user.phone ?? user.telefone ?? '',
@@ -188,17 +190,38 @@ function Perfil() {
     }
 
     async function trocarAvatar(avatar) {
-        if (!perfil || avatar === perfil.avatar) return;
+        if (!perfil) return;
+        // Escolher um avatar pré-setado também remove a foto enviada.
+        if (avatar === perfil.avatar && !perfil.photo) return;
 
         setSalvandoAvatar(true);
 
         try {
-            const atualizado = await userService.updateMe({ avatar });
+            const atualizado = await userService.updateMe({
+                avatar,
+                photo: null,
+            });
             const normalizado = normalizarPerfil(atualizado);
 
-            setPerfil(normalizado);
-            setRascunho((atual) => (atual ? { ...atual, avatar: normalizado.avatar } : atual));
-            mostrarAviso('Avatar atualizado.');
+            setPerfil((atual) => ({
+                ...normalizado,
+                saidaRapida: atual.saidaRapida,
+                mostrarFoto: atual.mostrarFoto,
+            }));
+            setRascunho((atual) =>
+                atual
+                    ? {
+                          ...atual,
+                          avatar: normalizado.avatar,
+                          photo: normalizado.photo,
+                      }
+                    : atual,
+            );
+            mostrarAviso(
+                perfil.photo
+                    ? 'Avatar atualizado e foto removida.'
+                    : 'Avatar atualizado.',
+            );
         } catch (error) {
             mostrarAviso(
                 error.message || 'Não foi possível atualizar o avatar.',
@@ -207,6 +230,36 @@ function Perfil() {
         } finally {
             setSalvandoAvatar(false);
         }
+    }
+
+    async function enviarFoto(photo) {
+        const atualizado = await userService.updateMe({ photo });
+        const normalizado = normalizarPerfil(atualizado);
+
+        setPerfil((atual) => ({
+            ...normalizado,
+            saidaRapida: atual.saidaRapida,
+            mostrarFoto: atual.mostrarFoto,
+        }));
+        setRascunho((atual) =>
+            atual ? { ...atual, photo: normalizado.photo } : atual,
+        );
+        mostrarAviso('Foto de perfil atualizada.');
+    }
+
+    async function removerFoto() {
+        const atualizado = await userService.updateMe({ photo: null });
+        const normalizado = normalizarPerfil(atualizado);
+
+        setPerfil((atual) => ({
+            ...normalizado,
+            saidaRapida: atual.saidaRapida,
+            mostrarFoto: atual.mostrarFoto,
+        }));
+        setRascunho((atual) =>
+            atual ? { ...atual, photo: normalizado.photo } : atual,
+        );
+        mostrarAviso('Foto removida. Seu avatar escolhido voltou a aparecer.');
     }
 
     if (carregando) {
@@ -265,6 +318,7 @@ function Perfil() {
                 <Avatar
                     nome={exibicao}
                     avatar={perfil.avatar}
+                    photo={perfil.photo}
                     tamanho="h-28 w-28 text-4xl"
                 />
 
@@ -302,6 +356,22 @@ function Perfil() {
                         {salvandoAvatar ? 'Salvando...' : 'A escolha fica salva na sua conta.'}
                     </span>
                 </div>
+
+                <ProfilePhotoUpload
+                    nome={exibicao}
+                    avatar={perfil.avatar}
+                    photo={perfil.photo}
+                    onUpload={enviarFoto}
+                    onRemove={removerFoto}
+                />
+
+                <div className="my-5 border-t border-violet-100" />
+
+                <p className="mb-3 text-xs text-gray-400">
+                    Ou escolha um avatar pré-setado. Ao escolher um avatar, a
+                    foto enviada é removida.
+                </p>
+
                 <AvatarPicker
                     value={perfil.avatar}
                     onChange={trocarAvatar}

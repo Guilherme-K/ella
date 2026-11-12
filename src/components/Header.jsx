@@ -84,6 +84,7 @@ export default function Header({ variant = 'public' }) {
             <Avatar
               nome={usuario?.nome || 'Admin ELLA'}
               avatar={usuario?.avatar}
+              photo={usuario?.photo}
               tamanho="h-10 w-10 text-lg"
             />
 
@@ -157,6 +158,7 @@ export default function Header({ variant = 'public' }) {
               <Avatar
                 nome={usuario?.nome || 'Usuária'}
                 avatar={usuario?.avatar}
+                photo={usuario?.photo}
                 tamanho="h-8 w-8 text-sm"
               />
               Minha área
