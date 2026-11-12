@@ -53,7 +53,7 @@ function AreaLogada({ ativo, usuario, children }) {
                         <span className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-pink-500" />
                     </button>
                     <div className="flex items-center gap-2">
-                        <Avatar nome={usuario.nome} tamanho="h-9 w-9" />
+                        <Avatar nome={usuario.nome} avatar={usuario.avatar} tamanho="h-9 w-9" />
                         <div className="hidden leading-tight sm:block">
                             <p className="text-sm font-semibold">{usuario.nome}</p>
                             <p className="text-xs text-gray-500">{usuario.papel}</p>

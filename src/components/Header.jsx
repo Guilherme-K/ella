@@ -5,9 +5,9 @@ import {
   faBell,
   faChevronDown,
   faMagnifyingGlass,
-  faUser,
 } from '@fortawesome/free-solid-svg-icons'
 import Brand from './Brand'
+import Avatar from './Avatar'
 
 function obterUsuario() {
   try {
@@ -81,9 +81,11 @@ export default function Header({ variant = 'public' }) {
             aria-label="Abrir perfil da administradora"
             className="flex items-center gap-2 rounded-lg p-1 transition hover:bg-purple-50"
           >
-            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#3b1a6e] text-white">
-              <FontAwesomeIcon icon={faUser} />
-            </span>
+            <Avatar
+              nome={usuario?.nome || 'Admin ELLA'}
+              avatar={usuario?.avatar}
+              tamanho="h-10 w-10 text-lg"
+            />
 
             <div className="hidden text-left leading-tight sm:block">
               <p className="text-sm font-semibold text-gray-800">
@@ -150,8 +152,13 @@ export default function Header({ variant = 'public' }) {
           <>
             <Link
               to={destinos[papel] || '/perfiluser'}
-              className="whitespace-nowrap rounded-full px-3 py-1.5 text-xs text-pink-500 transition hover:bg-pink-50 sm:px-4 sm:text-sm"
+              className="flex items-center gap-2 whitespace-nowrap rounded-full py-1 pl-1 pr-3 text-xs text-pink-500 transition hover:bg-pink-50 sm:pr-4 sm:text-sm"
             >
+              <Avatar
+                nome={usuario?.nome || 'Usuária'}
+                avatar={usuario?.avatar}
+                tamanho="h-8 w-8 text-sm"
+              />
               Minha área
             </Link>
 

@@ -8,6 +8,11 @@ import createError from '../utils/createError.js';
 
 import { generateToken } from '../utils/jwt.js';
 import { authenticate, onlySelf } from '../middlewares/auth.js';
+import {
+  AVATAR_IDS,
+  DEFAULT_AVATAR,
+  DEFAULT_ROLE,
+} from '../constants/user.js';
 
 const router = Router();
 
@@ -16,7 +21,26 @@ const userFilter = {
   id: true,
   name: true,
   email: true,
+  role: true,
+  avatar: true,
+  nickname: true,
+  bio: true,
+  city: true,
+  phone: true,
+  createdAt: true,
 };
+
+// Mantém também os nomes usados pelo frontend (nome, apelido, tipo).
+function serializeUser(user) {
+  if (!user) return user;
+
+  return {
+    ...user,
+    nome: user.name,
+    apelido: user.nickname,
+    tipo: user.role,
+  };
+}
 
 function normalizeEmail(email) {
   return String(email).trim().toLowerCase();
@@ -28,10 +52,76 @@ function readName(data) {
   return typeof name === 'string' ? name.trim() : null;
 }
 
+function readOptionalString(value) {
+  if (value === undefined) return undefined;
+  if (value === null) return null;
+
+  const text = String(value).trim();
+  return text.length > 0 ? text : null;
+}
+
 function validatePassword(password) {
-  if (!password || typeof password !== 'string' || password.length < 8) {
-    throw createError(400, 'Senha obrigatória e com no mínimo 8 caracteres');
+  if (!password || typeof password !== 'string' || password.length < 6) {
+    throw createError(400, 'Senha obrigatória e com no mínimo 6 caracteres');
   }
+}
+
+function readAvatar(value) {
+  if (value === undefined) return undefined;
+
+  if (!AVATAR_IDS.includes(value)) {
+    throw createError(400, 'Avatar inválido');
+  }
+
+  return value;
+}
+
+async function buildProfileChanges(data) {
+  const changes = {};
+
+  if (data.email !== undefined) {
+    if (!data.email) {
+      throw createError(400, 'E-mail não pode ficar vazio');
+    }
+    changes.email = normalizeEmail(data.email);
+  }
+
+  if (data.name !== undefined || data.nome !== undefined) {
+    const name = readName(data);
+
+    if (!name) {
+      throw createError(400, 'Nome não pode ficar vazio');
+    }
+
+    changes.name = name;
+  }
+
+  if (data.nickname !== undefined || data.apelido !== undefined) {
+    changes.nickname = readOptionalString(data.nickname ?? data.apelido);
+  }
+
+  if (data.bio !== undefined) {
+    changes.bio = readOptionalString(data.bio);
+  }
+
+  if (data.city !== undefined || data.cidade !== undefined) {
+    changes.city = readOptionalString(data.city ?? data.cidade);
+  }
+
+  if (data.phone !== undefined || data.telefone !== undefined) {
+    changes.phone = readOptionalString(data.phone ?? data.telefone);
+  }
+
+  if (data.avatar !== undefined) {
+    changes.avatar = readAvatar(data.avatar);
+  }
+
+  if (data.password !== undefined) {
+    validatePassword(data.password);
+    changes.password = await bcrypt.hash(data.password, 10);
+  }
+
+  return changes;
 }
 
 // GET /api/users
@@ -42,11 +132,40 @@ router.get('/', async (req, res) => {
     orderBy: { id: 'asc' },
   });
 
-  res.json(users);
+  res.json(users.map(serializeUser));
+});
+
+// GET /api/users/me
+// Exibe os dados do usuário autenticado (usado pela página Minha área).
+router.get('/me', authenticate, async (req, res) => {
+  const user = await prisma.user.findUniqueOrThrow({
+    where: { id: req.user.id },
+    select: userFilter,
+  });
+
+  res.json({ user: serializeUser(user) });
+});
+
+// PATCH /api/users/me
+// Atualiza os dados do próprio usuário autenticado.
+router.patch('/me', authenticate, async (req, res) => {
+  const changes = await buildProfileChanges(req.body ?? {});
+
+  if (Object.keys(changes).length === 0) {
+    throw createError(400, 'Nenhum dado válido para atualizar');
+  }
+
+  const user = await prisma.user.update({
+    where: { id: req.user.id },
+    data: changes,
+    select: userFilter,
+  });
+
+  res.json({ user: serializeUser(user) });
 });
 
 // POST /api/users
-// Cadastro de usuário.
+// Cadastro de usuário. O cadastro público sempre cria uma "usuaria".
 router.post('/', async (req, res) => {
   const data = req.body ?? {};
 
@@ -61,11 +180,13 @@ router.post('/', async (req, res) => {
       email: normalizeEmail(data.email),
       name: readName(data),
       password: await bcrypt.hash(data.password, 10),
+      role: DEFAULT_ROLE,
+      avatar: DEFAULT_AVATAR,
     },
     select: userFilter,
   });
 
-  res.status(201).json(user);
+  res.status(201).json(serializeUser(user));
 });
 
 // POST /api/users/login
@@ -97,10 +218,12 @@ router.post('/login', async (req, res) => {
     throw createError(401, 'Usuário ou senha incorreto(s)');
   }
 
-  const { password, ...userWithoutPassword } = user;
+  const userWithoutPassword = { ...user };
+  delete userWithoutPassword.password;
+
   const token = generateToken(userWithoutPassword);
 
-  res.json({ user: userWithoutPassword, token });
+  res.json({ user: serializeUser(userWithoutPassword), token });
 });
 
 // GET /api/users/:id
@@ -117,32 +240,14 @@ router.get('/:id', async (req, res) => {
     select: userFilter,
   });
 
-  res.json({ user });
+  res.json({ user: serializeUser(user) });
 });
 
 // PATCH /api/users/:id
 // Atualiza os próprios dados. Exige token JWT.
 router.patch('/:id', authenticate, onlySelf, async (req, res) => {
   const id = Number(req.params.id);
-  const data = req.body ?? {};
-
-  const changes = {};
-
-  if (data.email !== undefined) {
-    if (!data.email) {
-      throw createError(400, 'E-mail não pode ficar vazio');
-    }
-    changes.email = normalizeEmail(data.email);
-  }
-
-  if (data.name !== undefined || data.nome !== undefined) {
-    changes.name = readName(data);
-  }
-
-  if (data.password !== undefined) {
-    validatePassword(data.password);
-    changes.password = await bcrypt.hash(data.password, 10);
-  }
+  const changes = await buildProfileChanges(req.body ?? {});
 
   if (Object.keys(changes).length === 0) {
     throw createError(400, 'Nenhum dado válido para atualizar');
@@ -154,7 +259,7 @@ router.patch('/:id', authenticate, onlySelf, async (req, res) => {
     select: userFilter,
   });
 
-  res.json({ user });
+  res.json({ user: serializeUser(user) });
 });
 
 // DELETE /api/users/:id

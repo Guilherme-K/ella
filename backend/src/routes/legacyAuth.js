@@ -3,6 +3,10 @@ import bcrypt from 'bcryptjs';
 
 import { prisma } from '../lib/prisma.js';
 import { generateToken } from '../utils/jwt.js';
+import {
+  DEFAULT_AVATAR,
+  DEFAULT_ROLE,
+} from '../constants/user.js';
 
 // Rotas de compatibilidade com o frontend da main:
 // - POST /cadastro
@@ -10,13 +14,34 @@ import { generateToken } from '../utils/jwt.js';
 // - GET  /teste-banco
 //
 // Elas usam o Prisma e o banco backend_db, mantendo o formato de resposta
-// esperado pelas telas atuais (campos "nome", "tipo" e "erro").
+// esperado pelas telas atuais (campos "nome", "tipo", "avatar" e "erro").
 const router = Router();
 
-const DEFAULT_ROLE = 'usuaria';
+const userFilter = {
+  id: true,
+  name: true,
+  email: true,
+  role: true,
+  avatar: true,
+  nickname: true,
+  bio: true,
+  city: true,
+  phone: true,
+  createdAt: true,
+};
 
 function normalizeEmail(email) {
   return String(email).trim().toLowerCase();
+}
+
+// Formato plano usado pela tela de login/cadastro da main.
+function serializeUser(user) {
+  return {
+    ...user,
+    nome: user.name,
+    apelido: user.nickname,
+    tipo: user.role,
+  };
 }
 
 router.get('/teste-banco', async (req, res) => {
@@ -65,19 +90,18 @@ router.post('/cadastro', async (req, res) => {
         name: String(nome).trim(),
         email: normalizedEmail,
         password: await bcrypt.hash(password, 10),
+        role: DEFAULT_ROLE,
+        avatar: DEFAULT_AVATAR,
       },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-      },
+      select: userFilter,
     });
 
+    const token = generateToken(user);
+    const serialized = serializeUser(user);
+
     res.status(201).json({
-      id: user.id,
-      nome: user.name,
-      email: user.email,
-      tipo: DEFAULT_ROLE,
+      ...serialized,
+      token,
     });
   } catch (error) {
     console.error(error);
@@ -96,9 +120,7 @@ router.post('/login', async (req, res) => {
     const user = await prisma.user.findUnique({
       where: { email: normalizeEmail(email) },
       select: {
-        id: true,
-        name: true,
-        email: true,
+        ...userFilter,
         password: true,
       },
     });
@@ -112,14 +134,13 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ erro: 'E-mail ou senha incorretos.' });
     }
 
-    const { password: _senha, ...userWithoutPassword } = user;
+    const userWithoutPassword = { ...user };
+    delete userWithoutPassword.password;
+
     const token = generateToken(userWithoutPassword);
 
     res.json({
-      id: userWithoutPassword.id,
-      nome: userWithoutPassword.name,
-      email: userWithoutPassword.email,
-      tipo: DEFAULT_ROLE,
+      ...serializeUser(userWithoutPassword),
       token,
     });
   } catch (error) {

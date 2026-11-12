@@ -6,8 +6,7 @@ Frontend React + Vite da plataforma ELLA.
 
 A pasta [`backend/`](./backend/README.md) contém a API REST com Express,
 Prisma ORM 7 e MySQL (compatível com MySQL Workbench). As telas de
-**cadastro**, **login** e **contas** já consomem essa API; o restante do
-frontend continua usando os dados mock em `localStorage`.
+**cadastro**, **login**, **contas** e **Minha área** consomem essa API.
 
 Consulte [`backend/README.md`](./backend/README.md) para o passo a passo de
 configuração do banco, migrations e endpoints.
@@ -25,9 +24,24 @@ A URL da API é lida de `VITE_API_URL` (veja `.env.example`); por padrão,
 - `src/pages/Signup.jsx` — cadastro (`POST /cadastro`).
 - `src/pages/Login.jsx` — login (`POST /login`).
 - `src/pages/Accounts.jsx` — listagem das contas cadastradas (`GET /api/users`).
+- `src/pages/Perfil.jsx` — Minha área (`GET`/`PATCH /api/users/me`).
+- `src/pages/PerfilAdmin.jsx` — perfil do admin (`GET`/`PATCH /api/users/me`).
 
 As rotas `/cadastro` e `/login` são compatíveis com o frontend atual e usam
 o backend Prisma/MySQL.
+
+## Papéis e avatar
+
+Os papéis são `usuaria`, `voluntaria`, `psicologa` e `admin`. O cadastro
+público cria sempre `usuaria`. A conta administrativa é criada pelo seed:
+
+- **E-mail:** `admin@email.com`
+- **Senha:** `admin1234`
+- Acesso em `/admin`
+
+Os avatares pré-setados (`avatar-1` … `avatar-8`) são escolhidos em
+**Minha área** e no perfil do admin; o identificador escolhido fica salvo
+no banco. Os desenhos ficam em `src/data/avatars.js`.
 
 Para iniciar a API a partir da raiz do projeto:
 

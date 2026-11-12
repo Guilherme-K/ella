@@ -1,4 +1,4 @@
-
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -9,25 +9,128 @@ import {
     faLock,
     faArrowLeft,
     faUserGear,
-    faCheckCircle
+    faCheckCircle,
+    faRotate
 } from '@fortawesome/free-solid-svg-icons';
 
+import Avatar from '../components/Avatar';
+import AvatarPicker from '../components/AvatarPicker';
+import { userService } from '../services/userService';
+
+const permissoes = [
+    'Gerenciar usuárias',
+    'Gerenciar voluntárias',
+    'Acompanhar atendimentos',
+    'Gerenciar denúncias',
+    'Administrar conteúdos',
+    'Acessar relatórios'
+];
+
+function formatarData(valor) {
+    if (!valor) return '—';
+
+    const data = new Date(valor);
+
+    if (Number.isNaN(data.getTime())) return '—';
+
+    return data.toLocaleDateString('pt-BR', {
+        month: 'long',
+        year: 'numeric'
+    });
+}
+
 export default function PerfilAdmin() {
-    const administrador = {
-        nome: 'Admin ELLA',
-        email: 'admin@ella.com',
-        cargo: 'Administradora',
-        status: 'Conta ativa',
-        cadastro: 'Novembro de 2026',
-        permissoes: [
-            'Gerenciar usuárias',
-            'Gerenciar voluntárias',
-            'Acompanhar atendimentos',
-            'Gerenciar denúncias',
-            'Administrar conteúdos',
-            'Acessar relatórios'
-        ]
-    };
+    const [administrador, setAdministrador] = useState(null);
+    const [carregando, setCarregando] = useState(true);
+    const [erro, setErro] = useState('');
+    const [aviso, setAviso] = useState('');
+    const [salvandoAvatar, setSalvandoAvatar] = useState(false);
+    const [recarregar, setRecarregar] = useState(0);
+
+    useEffect(() => {
+        let ativo = true;
+
+        async function carregar() {
+            setCarregando(true);
+            setErro('');
+
+            try {
+                const usuario = await userService.me();
+
+                if (!ativo) return;
+
+                setAdministrador(usuario);
+            } catch (error) {
+                if (ativo) {
+                    setErro(
+                        error.message ||
+                            'Não foi possível carregar os dados da conta.'
+                    );
+                }
+            } finally {
+                if (ativo) setCarregando(false);
+            }
+        }
+
+        carregar();
+
+        return () => {
+            ativo = false;
+        };
+    }, [recarregar]);
+
+    async function trocarAvatar(avatar) {
+        if (!administrador || avatar === administrador.avatar) return;
+
+        setSalvandoAvatar(true);
+        setAviso('');
+
+        try {
+            const atualizado = await userService.updateMe({ avatar });
+            setAdministrador(atualizado);
+            setAviso('Avatar atualizado.');
+        } catch (error) {
+            setAviso(error.message || 'Não foi possível atualizar o avatar.');
+        } finally {
+            setSalvandoAvatar(false);
+        }
+    }
+
+    if (carregando) {
+        return (
+            <div className="mx-auto max-w-5xl">
+                <p className="rounded-2xl bg-white p-6 text-sm text-gray-500 shadow-sm">
+                    Carregando dados da administradora...
+                </p>
+            </div>
+        );
+    }
+
+    if (erro || !administrador) {
+        return (
+            <div className="mx-auto max-w-5xl">
+                <section className="space-y-4 rounded-2xl bg-white p-6 shadow-sm">
+                    <h1 className="text-2xl font-bold text-violet-950">
+                        Não foi possível abrir o perfil
+                    </h1>
+                    <p role="alert" className="text-sm text-red-600">
+                        {erro || 'Sessão não encontrada. Faça login novamente.'}
+                    </p>
+                    <button
+                        type="button"
+                        onClick={() => setRecarregar((valor) => valor + 1)}
+                        className="inline-flex items-center gap-2 rounded-lg bg-violet-700 px-4 py-2 text-sm font-medium text-white transition hover:bg-violet-800"
+                    >
+                        <FontAwesomeIcon icon={faRotate} />
+                        Tentar novamente
+                    </button>
+                </section>
+            </div>
+        );
+    }
+
+    const nome = administrador.name ?? administrador.nome ?? 'Admin ELLA';
+    const email = administrador.email ?? '—';
 
     return (
         <div className="mx-auto max-w-5xl space-y-6">
@@ -51,28 +154,38 @@ export default function PerfilAdmin() {
                 </Link>
             </div>
 
+            {aviso && (
+                <p role="status" className="rounded-xl bg-emerald-50 px-4 py-2 text-sm text-emerald-800">
+                    {aviso}
+                </p>
+            )}
+
             <section className="overflow-hidden rounded-2xl bg-white shadow-sm">
                 <div className="h-32 bg-gradient-to-r from-violet-950 to-purple-700" />
 
                 <div className="px-6 pb-6">
                     <div className="-mt-12 flex flex-col gap-4 sm:flex-row sm:items-end">
-                        <div className="flex h-24 w-24 items-center justify-center rounded-full border-4 border-white bg-violet-100 text-4xl text-violet-800 shadow-sm">
-                            <FontAwesomeIcon icon={faUser} />
+                        <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-4 border-white bg-violet-100 shadow-sm">
+                            <Avatar
+                                nome={nome}
+                                avatar={administrador.avatar}
+                                tamanho="h-24 w-24 text-4xl"
+                            />
                         </div>
 
                         <div className="pb-2">
                             <h2 className="text-xl font-bold text-gray-800">
-                                {administrador.nome}
+                                {nome}
                             </h2>
                             <p className="text-sm text-gray-500">
-                                {administrador.cargo}
+                                Administradora
                             </p>
                         </div>
 
                         <div className="sm:ml-auto sm:pb-3">
                             <span className="inline-flex items-center gap-2 rounded-full bg-emerald-100 px-3 py-1.5 text-xs font-semibold text-emerald-700">
                                 <FontAwesomeIcon icon={faCheckCircle} />
-                                {administrador.status}
+                                Conta ativa
                             </span>
                         </div>
                     </div>
@@ -97,8 +210,12 @@ export default function PerfilAdmin() {
                             <p className="mb-2 text-xs font-medium text-gray-400">
                                 Nome
                             </p>
-                            <p className="font-medium text-gray-800">
-                                {administrador.nome}
+                            <p className="flex items-center gap-2 font-medium text-gray-800">
+                                <FontAwesomeIcon
+                                    icon={faUser}
+                                    className="text-violet-500"
+                                />
+                                {nome}
                             </p>
                         </div>
 
@@ -107,7 +224,7 @@ export default function PerfilAdmin() {
                                 Tipo de conta
                             </p>
                             <p className="font-medium text-gray-800">
-                                {administrador.cargo}
+                                Administradora
                             </p>
                         </div>
 
@@ -120,7 +237,7 @@ export default function PerfilAdmin() {
                                     icon={faEnvelope}
                                     className="text-violet-500"
                                 />
-                                {administrador.email}
+                                {email}
                             </p>
                         </div>
 
@@ -133,7 +250,7 @@ export default function PerfilAdmin() {
                                     icon={faCalendarDays}
                                     className="text-violet-500"
                                 />
-                                {administrador.cadastro}
+                                {formatarData(administrador.createdAt)}
                             </p>
                         </div>
                     </div>
@@ -178,6 +295,23 @@ export default function PerfilAdmin() {
             </div>
 
             <section className="rounded-2xl bg-white p-6 shadow-sm">
+                <div className="mb-4 flex flex-wrap items-baseline justify-between gap-2">
+                    <h3 className="font-bold text-violet-950">
+                        Avatar
+                    </h3>
+                    <span className="text-xs text-gray-400">
+                        {salvandoAvatar ? 'Salvando...' : 'A escolha fica salva na sua conta.'}
+                    </span>
+                </div>
+
+                <AvatarPicker
+                    value={administrador.avatar}
+                    onChange={trocarAvatar}
+                    disabled={salvandoAvatar}
+                />
+            </section>
+
+            <section className="rounded-2xl bg-white p-6 shadow-sm">
                 <div className="mb-5 flex items-center gap-3 border-b border-gray-100 pb-4">
                     <FontAwesomeIcon
                         icon={faShieldHalved}
@@ -193,7 +327,7 @@ export default function PerfilAdmin() {
                 </p>
 
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                    {administrador.permissoes.map((permissao) => (
+                    {permissoes.map((permissao) => (
                         <div
                             key={permissao}
                             className="flex items-center gap-3 rounded-xl bg-violet-50 p-3"

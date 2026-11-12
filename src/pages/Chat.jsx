@@ -2,13 +2,13 @@
 import { Navigate } from 'react-router-dom'
 
 function Chat() {
-  let usuario = null
-
-  try {
-    usuario = JSON.parse(localStorage.getItem('usuarioLogado') || 'null')
-  } catch {
-    usuario = null
-  }
+  const usuario = (() => {
+    try {
+      return JSON.parse(localStorage.getItem('usuarioLogado') || 'null')
+    } catch {
+      return null
+    }
+  })()
 
   if (!usuario?.id) {
     return <Navigate to="/login" replace />

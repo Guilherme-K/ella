@@ -88,7 +88,7 @@ export default function Home() {
           setTotalAcionamentos(total);
           setErroContagem(false);
         }
-      } catch (erro) {
+      } catch {
         if (ativo) {
           setErroContagem(true);
         }

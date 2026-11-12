@@ -13,14 +13,17 @@ consomem esta API. O restante do site continua usando os dados mock em
 backend/
 ├── prisma/
 │   ├── schema.prisma
+│   ├── seed.js
 │   └── migrations/
 ├── prisma.config.ts
 ├── src/
 │   ├── app.js
 │   ├── server.js
+│   ├── constants/user.js
 │   ├── lib/prisma.js
 │   ├── middlewares/auth.js
 │   ├── routes/index.js
+│   ├── routes/legacyAuth.js
 │   ├── routes/users.js
 │   └── utils/
 ├── .env.example
@@ -86,6 +89,21 @@ Para inspecionar os dados visualmente:
 npm run prisma:studio
 ```
 
+### Usuário administrador
+
+O seed cria (ou atualiza) a conta administrativa de forma idempotente:
+
+```powershell
+npm run prisma:seed
+```
+
+- E-mail: `admin@email.com`
+- Senha: `admin1234`
+- Papel: `admin` (acesso à rota `/admin`)
+
+O cadastro público sempre cria o papel `usuaria`; os demais papéis
+(`voluntaria`, `psicologa`, `admin`) são definidos pela equipe.
+
 ## 5. Iniciar a API
 
 ```powershell
@@ -104,6 +122,8 @@ A API ficará disponível em `http://127.0.0.1:5000`.
 | POST | `/cadastro` | Cadastro (compatível com o frontend da main) | Não |
 | POST | `/login` | Login (compatível com o frontend da main) | Não |
 | GET | `/api/users` | Lista os usuários (sem senha) | Não |
+| GET | `/api/users/me` | Exibe o usuário autenticado | Bearer token |
+| PATCH | `/api/users/me` | Atualiza perfil/avatar do usuário autenticado | Bearer token |
 | GET | `/api/users/:id` | Exibe um usuário | Não |
 | POST | `/api/users` | Cadastra um usuário | Não |
 | POST | `/api/users/login` | Login e geração do token JWT | Não |
@@ -142,10 +162,43 @@ Resposta:
 
 ```json
 {
-  "user": { "id": 1, "name": "Maria Silva", "email": "maria@example.com" },
+  "user": {
+    "id": 1,
+    "name": "Maria Silva",
+    "email": "maria@example.com",
+    "role": "usuaria",
+    "avatar": "avatar-1",
+    "nickname": null,
+    "bio": null,
+    "city": null,
+    "phone": null
+  },
   "token": "eyJhbGciOiJIUzI1NiIs..."
 }
 ```
+
+### Perfil e avatar
+
+O frontend usa `GET /api/users/me` para carregar os dados da página
+**Minha área** e `PATCH /api/users/me` para salvar alterações:
+
+```http
+PATCH /api/users/me
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "apelido": "Mari",
+  "bio": "Acredito que ouvir também é cuidar.",
+  "cidade": "São Paulo - SP",
+  "telefone": "(11) 98765-4321",
+  "avatar": "avatar-3"
+}
+```
+
+Os avatares são pré-setados e identificados por `avatar-1` … `avatar-8`.
+O banco guarda apenas o identificador; o desenho é feito no frontend
+(`src/data/avatars.js`).
 
 ### Rotas protegidas
 
@@ -159,10 +212,17 @@ Authorization: Bearer <token>
 
 ```prisma
 model User {
-  id       Int     @id @default(autoincrement())
-  email    String  @unique
-  name     String?
-  password String?
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String?
+  password  String?
+  role      String   @default("usuaria")
+  avatar    String   @default("avatar-1")
+  nickname  String?
+  bio       String?  @db.Text
+  city      String?
+  phone     String?
+  createdAt DateTime @default(now())
 }
 ```
 
@@ -173,16 +233,19 @@ As telas de cadastro, login e contas usam a API:
 - `src/pages/Signup.jsx` chama `POST /cadastro`.
 - `src/pages/Login.jsx` chama `POST /login`.
 - `src/pages/Accounts.jsx` chama `GET /api/users` para exibir as contas.
+- `src/pages/Perfil.jsx` (Minha área) chama `GET` e `PATCH /api/users/me`.
+- `src/pages/PerfilAdmin.jsx` mostra os dados do admin e permite trocar o avatar.
 
 As rotas `/cadastro` e `/login` são de compatibilidade com o frontend da
 `main` e usam o Prisma por baixo dos panos. Elas retornam os campos
-`id`, `nome`, `email`, `tipo` (`usuaria`) e `token`, no formato esperado
-pelas telas atuais.
+`id`, `nome`, `email`, `tipo`, `avatar` e `token`, no formato esperado
+pelas telas atuais. O login também devolve `role`, para o redirecionamento
+por papel (`admin` → `/admin`).
 
 A camada de serviços em `src/services/` continua disponível:
 
 - `httpClient.js` — cliente `fetch` com suporte a token Bearer.
-- `userService.js` — métodos `list`, `getById`, `create`, `login`, `update` e `remove`.
+- `userService.js` — métodos `list`, `me`, `updateMe`, `getById`, `create`, `login`, `update` e `remove`.
 
 A URL da API é lida de `VITE_API_URL` no `.env` do frontend (veja
 `.env.example`); por padrão usa `http://127.0.0.1:5000`.

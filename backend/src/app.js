@@ -31,7 +31,7 @@ app.use((req, res) => {
 });
 
 // Tratamento centralizado de erros.
-app.use((err, req, res, next) => {
+app.use((err, req, res, _next) => {
   console.error(err);
 
   const error = prismaErrorHandler(err);

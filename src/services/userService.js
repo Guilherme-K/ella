@@ -19,9 +19,21 @@ function clearToken() {
   localStorage.removeItem(TOKEN_KEY)
 }
 
+// Mantém os apelidos usados pelo frontend (nome, apelido, tipo).
+function normalizeUser(user) {
+  if (!user) return user
+
+  return {
+    ...user,
+    nome: user.name ?? user.nome,
+    apelido: user.nickname ?? user.apelido,
+    tipo: user.role ?? user.tipo,
+  }
+}
+
 // Usuário logado, usado pelo restante do frontend (ex.: página de chat).
 function saveCurrentUser(user) {
-  localStorage.setItem(USER_KEY, JSON.stringify(user))
+  localStorage.setItem(USER_KEY, JSON.stringify(normalizeUser(user)))
 }
 
 function getCurrentUser() {
@@ -41,6 +53,23 @@ export const userService = {
   // GET /api/users
   list: () => httpClient.get(ENDPOINT),
 
+  // GET /api/users/me (usuário autenticado)
+  me: async () => {
+    const data = await httpClient.get(`${ENDPOINT}/me`, {
+      token: getToken(),
+    })
+    return data.user
+  },
+
+  // PATCH /api/users/me (atualiza o próprio usuário)
+  updateMe: async (changes) => {
+    const data = await httpClient.patch(`${ENDPOINT}/me`, changes, {
+      token: getToken(),
+    })
+    saveCurrentUser(data.user)
+    return data.user
+  },
+
   // GET /api/users/:id
   getById: (id) => httpClient.get(`${ENDPOINT}/${id}`),
 
@@ -54,10 +83,7 @@ export const userService = {
     saveToken(data.token)
 
     if (data.user) {
-      saveCurrentUser({
-        ...data.user,
-        nome: data.user.name ?? data.user.nome,
-      })
+      saveCurrentUser(data.user)
     }
 
     return data
