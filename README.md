@@ -2,6 +2,11 @@
 
 Frontend React + Vite da plataforma ELLA.
 
+> **Acabou de puxar o projeto em outra máquina?**
+> Siga o passo a passo de [`GUIA-INSTALACAO.md`](./GUIA-INSTALACAO.md):
+> instalação dos módulos, criação dos arquivos `.env`, migrations do Prisma,
+> seed da conta admin e execução do frontend/backend.
+
 ## Backend (API)
 
 A pasta [`backend/`](./backend/README.md) contém a API REST com Express,
