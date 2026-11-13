@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import womenArtwork from "../assets/mulheres.png";
 import { homeLinks, supportServices, violenceTypes } from "../data/homeData";
+import SaidaRapida from "../components/SaidaRapida";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -156,6 +157,8 @@ export default function Home() {
               e ferramentas de emergência. Juntas, podemos combater a violência
               contra a mulher.
             </p>
+
+            {/* Botão de Emergência */}
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <Link
                 to="/emergencia"
@@ -165,15 +168,16 @@ export default function Home() {
                 Botão de Emergência
               </Link>
             </div>
-            <a
-              href="https://www.youtube.com/receitas"
-              className="mt-6 inline-block rounded-lg bg-purple-100 px-4 py-2 text-xs text-violet-700 underline decoration-violet-400 underline-offset-2 transition hover:bg-purple-200"
-            >
-              Saída Rápida
-            </a>
+
+            {/* Botão Saída Rápida logo abaixo */}
+            <div className="mt-4">
+              <SaidaRapida modo="home" />
+            </div>
           </div>
         </div>
       </section>
+
+
 
       <nav
         aria-label="Acesso rápido"
@@ -442,9 +446,8 @@ export default function Home() {
                         </span>
 
                         <i
-                          className={`fa-solid fa-chevron-down shrink-0 text-sm text-pink-600 transition-transform duration-200 ${
-                            aberta ? "rotate-180" : ""
-                          }`}
+                          className={`fa-solid fa-chevron-down shrink-0 text-sm text-pink-600 transition-transform duration-200 ${aberta ? "rotate-180" : ""
+                            }`}
                           aria-hidden="true"
                         />
                       </button>

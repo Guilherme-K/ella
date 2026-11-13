@@ -1,4 +1,3 @@
-
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
@@ -44,7 +43,7 @@ export default function Header({ variant = 'public' }) {
 
   if (variant === 'admin') {
     return (
-      <header className="flex h-16 items-center gap-4 bg-white px-4 shadow-sm sm:px-6">
+      <header className="sticky top-0 z-40 flex h-16 items-center gap-4 bg-white px-4 shadow-sm sm:px-6">
         <Link
           to="/admin"
           className="flex shrink-0 items-center gap-2 text-pink-500"
@@ -111,7 +110,7 @@ export default function Header({ variant = 'public' }) {
   }
 
   return (
-    <header className="relative z-20 grid w-full grid-cols-3 grid-rows-2 items-center gap-x-3 gap-y-2 rounded-b-xl border border-purple-100 bg-white px-4 py-2 shadow-sm sm:flex sm:h-16 sm:justify-between sm:gap-5 sm:px-6 sm:py-0">
+    <header className="sticky top-0 z-40 grid w-full grid-cols-3 grid-rows-2 items-center gap-x-3 gap-y-2 rounded-b-xl border border-purple-100 bg-white/95 px-4 py-2 shadow-sm backdrop-blur-sm sm:flex sm:h-16 sm:justify-between sm:gap-5 sm:px-6 sm:py-0">
       <Link
         to="/"
         className="flex shrink-0 items-center gap-2 text-xs text-pink-500"

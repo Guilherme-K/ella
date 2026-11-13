@@ -1,5 +1,4 @@
 
-import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
     faUser,
@@ -7,10 +6,11 @@ import {
     faShieldHalved,
     faCalendarDays,
     faLock,
-    faArrowLeft,
     faUserGear,
     faCheckCircle
 } from '@fortawesome/free-solid-svg-icons';
+import BotaoVoltar from '../components/BotaoVoltar';
+
 
 export default function PerfilAdmin() {
     const administrador = {
@@ -42,13 +42,19 @@ export default function PerfilAdmin() {
                     </p>
                 </div>
 
-                <Link
-                    to="/admin"
-                    className="flex items-center gap-2 rounded-lg border border-violet-200 bg-white px-4 py-2 text-sm font-medium text-violet-800 transition hover:bg-violet-50"
-                >
-                    <FontAwesomeIcon icon={faArrowLeft} />
-                    Voltar
-                </Link>
+                            <div className="flex items-center justify-between">
+                <div>
+                    <h1 className="text-2xl font-bold text-violet-950">
+                        Meu perfil
+                    </h1>
+                    <p className="mt-1 text-sm text-gray-500">
+                        Visualize suas informações administrativas.
+                    </p>
+                </div>
+
+                <BotaoVoltar className="rounded-lg border border-violet-200 bg-white px-4 py-2 text-violet-800 hover:bg-violet-50 hover:text-violet-950" />
+            </div>
+
             </div>
 
             <section className="overflow-hidden rounded-2xl bg-white shadow-sm">

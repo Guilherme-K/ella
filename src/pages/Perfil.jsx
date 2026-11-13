@@ -3,6 +3,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCamera, faLock, faPen } from '@fortawesome/free-solid-svg-icons';
 import Avatar from '../components/Avatar';
 
+import BotaoVoltar from '../components/BotaoVoltar';
+
+
 // ---------------------------------------------------------------------------
 // TEMPORÁRIO: enquanto o back não existe, os dados abaixo são de exemplo.
 // TODO: trocar `usuarioExemplo` pelo usuário logado (useAuth ou GET /usuarios/me).
@@ -124,10 +127,13 @@ function Perfil() {
         setRascunho((atual) => ({ ...atual, [name]: type === 'checkbox' ? checked : value }));
     }
 
-    function salvar(e) {
+        function salvar(e) {
         e.preventDefault();
         // TODO: await PUT /usuarios/me com `rascunho` e só continuar se o back responder ok.
         setPerfil(rascunho);
+        if (rascunho.saidaRapida) {
+            localStorage.setItem('ella_link_saida_rapida', rascunho.saidaRapida);
+        }
         setEditando(false);
         mostrarAviso(MODO_TESTE ? 'Modo de teste: as alterações aparecem só nesta tela.' : 'Alterações salvas.');
     }

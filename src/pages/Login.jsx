@@ -1,7 +1,7 @@
-
 import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import womenArtwork from '../assets/mulheres.png'
+import BotaoVoltar from '../components/BotaoVoltar'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
@@ -75,6 +75,12 @@ export default function Login() {
 
       localStorage.setItem('usuarioLogado', JSON.stringify(usuario))
 
+      // Já deixa pronto para sincronizar o link de Saída Rápida vindo do banco no futuro
+      const linkSaidaBanco = usuario.saidaRapida || usuario.linkSaida
+      if (linkSaidaBanco) {
+        localStorage.setItem('ella_link_saida_rapida', linkSaidaBanco)
+      }
+
       if (dados.token) {
         localStorage.setItem('ella:token', dados.token)
       }
@@ -95,6 +101,11 @@ export default function Login() {
     <main className="relative flex flex-1 items-center justify-center overflow-hidden bg-purple-100 px-4 py-12">
       <section className="relative min-h-144 w-full max-w-sm overflow-hidden rounded-2xl bg-white px-8 py-9 shadow-md">
         <div className="relative z-10">
+          {/* Botão Voltar no topo do formulário */}
+          <div className="mb-4">
+            <BotaoVoltar />
+          </div>
+
           <h1 className="font-serif text-2xl font-bold leading-tight text-violet-950">
             Entrar
           </h1>
