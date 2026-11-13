@@ -1,6 +1,7 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faGithub } from '@fortawesome/free-brands-svg-icons'
 import { faArrowUpRightFromSquare, faHeart, faUsers } from '@fortawesome/free-solid-svg-icons'
+import BotaoVoltar from '../components/BotaoVoltar'
 
 const equipe = [
   {
@@ -22,8 +23,13 @@ const equipe = [
 
 export default function Contato() {
   return (
-    <main id="conteudo" tabIndex={-1} className="min-h-screen bg-slate-50 px-6 py-16">
+<main id="conteudo" tabIndex={-1} className="min-h-screen bg-slate-50 px-6 pt-8 pb-16">
       <div className="mx-auto max-w-5xl">
+        {/* Botão Voltar alinhado à esquerda no topo */}
+        <div className="mb-8 text-left">
+          <BotaoVoltar />
+        </div>
+
         <section className="mb-14 text-center">
           <span className="mb-4 inline-flex items-center gap-2 rounded-full bg-pink-100 px-4 py-2 text-sm font-semibold text-pink-700">
             <FontAwesomeIcon icon={faHeart} />

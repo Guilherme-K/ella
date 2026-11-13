@@ -1,4 +1,4 @@
-import VoltarLink from '../components/VoltarLink'
+import BotaoVoltar from '../components/BotaoVoltar'
 
 export default function Denuncia() {
   return (
@@ -6,7 +6,7 @@ export default function Denuncia() {
 
       <div className="max-w-5xl mx-auto">
 
-        <VoltarLink className="text-purple-900 mb-8" />
+<BotaoVoltar className="mb-8" />
 
         <h1 className="text-3xl font-bold text-purple-950 mb-3">
           Saiba como e onde denunciar

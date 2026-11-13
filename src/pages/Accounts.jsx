@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { userService } from '../services/userService'
+import BotaoVoltar from '../components/BotaoVoltar'
 
 const TIPOS_CONTA = {
   usuaria: { rotulo: 'Usuária', classe: 'bg-pink-100 text-pink-700' },
@@ -117,6 +118,11 @@ export default function Accounts() {
   return (
     <div className="min-h-screen flex-1 bg-purple-100 px-4 py-12">
       <section className="mx-auto max-w-3xl rounded-3xl bg-white p-6 shadow-xl sm:p-10">
+        {/* Botão Voltar no topo do card */}
+        <div className="mb-5">
+          <BotaoVoltar />
+        </div>
+
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <h1 className="font-serif text-3xl font-bold text-violet-950">

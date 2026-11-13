@@ -138,7 +138,7 @@ function Perfil() {
         }));
     }
 
-    async function salvar(event) {
+async function salvar(event) {
         event.preventDefault();
         setSalvando(true);
 
@@ -157,6 +157,10 @@ function Perfil() {
                     mostrarFoto: rascunho.mostrarFoto,
                 }),
             );
+
+            if (rascunho.saidaRapida) {
+                localStorage.setItem('ella_link_saida_rapida', rascunho.saidaRapida);
+            }
 
             const normalizado = normalizarPerfil(atualizado);
             setPerfil({ ...normalizado, saidaRapida: rascunho.saidaRapida, mostrarFoto: rascunho.mostrarFoto });

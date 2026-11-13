@@ -5,6 +5,9 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+
+import BotaoVoltar from '../components/BotaoVoltar'
+
 import {
     faHeart,
     faBullhorn,
@@ -68,37 +71,40 @@ function Voluntaria() {
     return (
         <main id="conteudo" tabIndex={-1} className="min-h-screen bg-[#f8f3ff]">
 
-            <section className="bg-gradient-to-r from-[#fce7f3] via-[#f5eaff] to-[#ede9fe] px-5 py-10 sm:py-14">
-                <div className="mx-auto flex max-w-5xl flex-col items-center gap-5 md:flex-row md:gap-8">
-
-                    <div className="w-full max-w-md text-center md:text-left">
-                        <span className="text-sm font-bold uppercase tracking-widest text-pink-600">
-                            Faça parte dessa rede
-                        </span>
-
-                        <h1 className="mt-3 font-serif text-4xl font-bold leading-tight text-[#4c1d95] sm:text-5xl">
-                            Quero ser voluntária
-                        </h1>
-
-                        <p className="mt-4 text-base leading-relaxed text-violet-800">
-                            Sua participação pode fazer a diferença na construção
-                            de uma rede de acolhimento, informação e apoio para mulheres.
-                        </p>
-
-                        
+                        <section className="bg-gradient-to-r from-[#fce7f3] via-[#f5eaff] to-[#ede9fe] px-5 pt-6 pb-10 sm:pt-8 sm:pb-14">
+                <div className="mx-auto max-w-5xl">
+                    {/* Botão Voltar alinhado à esquerda no topo */}
+                    <div className="mb-6 text-left">
+                        <BotaoVoltar />
                     </div>
 
-                    <div className="flex w-full max-w-sm justify-center md:max-w-md">
-                        <img
-                            src={imagemMulheres2}
-                            alt="Ilustração de mulheres representando união e apoio"
-                            className="w-full max-w-[320px] object-contain drop-shadow-sm md:max-w-[380px]"
-                        />
-                    </div>
+                    <div className="flex flex-col items-center gap-5 md:flex-row md:gap-8">
+                        <div className="w-full max-w-md text-center md:text-left">
+                            <span className="text-sm font-bold uppercase tracking-widest text-pink-600">
+                                Faça parte dessa rede
+                            </span>
 
+                            <h1 className="mt-3 font-serif text-4xl font-bold leading-tight text-[#4c1d95] sm:text-5xl">
+                                Quero ser voluntária
+                            </h1>
+
+                            <p className="mt-4 text-base leading-relaxed text-violet-800">
+                                Sua participação pode fazer a diferença na construção
+                                de uma rede de acolhimento, informação e apoio para mulheres.
+                            </p>
+                        </div>
+
+                        <div className="flex w-full max-w-sm justify-center md:max-w-md">
+                            <img
+                                src={imagemMulheres2}
+                                alt="Ilustração de mulheres representando união e apoio"
+                                className="w-full max-w-[320px] object-contain drop-shadow-sm md:max-w-[380px]"
+                            />
+                        </div>
+                    </div>
                 </div>
-
             </section>
+
 
 
             <section className="px-5 py-10 sm:py-14">

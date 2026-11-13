@@ -1,8 +1,6 @@
-
 import { useState } from 'react'
 import SavedChatMessage from '../components/SavedChatMessage'
-import QuickExitLink from '../components/QuickExitLink'
-import VoltarLink from '../components/VoltarLink'
+import BotaoVoltar from '../components/BotaoVoltar'
 import { useChatMessages } from '../hooks/useChatMessages'
 
 function ChatUsuario() {
@@ -43,16 +41,18 @@ function ChatUsuario() {
             <section className="bg-white rounded-3xl shadow-lg max-w-3xl mx-auto overflow-hidden">
 
                 <div className="flex items-center justify-between px-6 py-4 border-b border-violet-100 flex-wrap gap-3">
+                    <div className="flex items-center gap-4">
+                        <BotaoVoltar />
 
-                     <VoltarLink className="text-purple-900 mb-8" />
-                    <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-full bg-linear-to-br from-pink-300 to-purple-500 flex items-center justify-center text-white font-bold">
-                            M
-                        </div>
+                        <div className="flex items-center gap-3">
+                            <div className="w-12 h-12 rounded-full bg-linear-to-br from-pink-300 to-purple-500 flex items-center justify-center text-white font-bold">
+                                M
+                            </div>
 
-                        <div>
-                            <h2 className="font-bold text-[#4c1d95]">Maria</h2>
-                            <p className="text-xs text-gray-600">● Online</p>
+                            <div>
+                                <h2 className="font-bold text-[#4c1d95]">Maria</h2>
+                                <p className="text-xs text-gray-600">● Online</p>
+                            </div>
                         </div>
                     </div>
 
@@ -65,11 +65,6 @@ function ChatUsuario() {
                     </a>
                 </div>
 
-                <div className="px-6 py-2 border-b border-violet-100">
-                    <QuickExitLink className="text-sm text-gray-600 hover:text-[#9d174d] underline">
-                        Saída Rápida
-                    </QuickExitLink>
-                </div>
 
                 <div className="text-center py-6">
                     <span className="bg-[#f5f0ff] text-[#8050c9] text-xs px-4 py-2 rounded-full">
@@ -158,4 +153,4 @@ function ChatUsuario() {
     )
 }
 
-export default ChatUsuario
+export default ChatUsuario;

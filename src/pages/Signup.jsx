@@ -1,7 +1,7 @@
-
 import { useState } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { destinoPorPapel, obterUsuarioLogado } from '../utils/navegacao'
+import BotaoVoltar from '../components/BotaoVoltar'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000'
 
@@ -114,6 +114,11 @@ export default function Signup() {
   return (
     <main id="conteudo" tabIndex={-1} className="flex min-h-screen flex-1 items-center justify-center bg-purple-100 px-4 py-12">
       <section className="w-full max-w-md rounded-3xl bg-white p-8 shadow-xl">
+        {/* Botão Voltar no topo do formulário */}
+        <div className="mb-5">
+          <BotaoVoltar />
+        </div>
+
         <h1 className="font-serif text-3xl font-bold text-violet-950">
           Criar conta
         </h1>
@@ -212,12 +217,6 @@ export default function Signup() {
           </Link>
         </p>
 
-        <Link
-          to="/"
-          className="mt-3 inline-block text-sm text-pink-700 underline"
-        >
-          Voltar ao início
-        </Link>
       </section>
     </main>
   )

@@ -1,6 +1,8 @@
 import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import BotaoVoltar from '../components/BotaoVoltar'
+
 import {
   faHand,
   faBrain,
@@ -16,8 +18,11 @@ import {
   faPhone,
   faArrowRight,
   faShieldHalved,
-  faCircleInfo
+  faCircleInfo,
+  faEye,
+  faHandsHoldingCircle
 } from '@fortawesome/free-solid-svg-icons'
+
 
 const formasLegais = [
   {
@@ -238,6 +243,49 @@ const outrasManifestacoes = [
       'Busque orientação junto ao sindicato, à Defensoria Pública ou aos órgãos de proteção ao trabalhador.',
       'O Ligue 180 também pode orientar sobre serviços de atendimento às mulheres.'
     ]
+  },
+    {
+    id: 'perseguicao-stalking',
+    titulo: 'Perseguição (Stalking)',
+    etiqueta: 'Crime previsto no Código Penal (Art. 147-A)',
+    icone: faEye,
+    resumo:
+      'É o ato de perseguir a mulher repetidamente, por qualquer meio físico ou digital, ameaçando sua integridade física ou psicológica, restringindo sua liberdade de locomoção ou invadindo sua privacidade.',
+    exemplos: [
+      'Seguir a mulher na rua, vigiar sua casa, seu local de trabalho ou seus horários.',
+      'Aparecer de surpresa em lugares que ela frequenta para intimidá-la ou monitorá-la.',
+      'Enviar mensagens, ligações ou e-mails insistentes e indesejados, mesmo após ser bloqueado.',
+      'Monitorar sua localização por aplicativos, redes sociais ou rastreadores sem consentimento.',
+      'Entrar em contato com familiares, amigos ou colegas para obter informações sobre a rotina dela.'
+    ],
+    protecao: [
+      'Não responda às tentativas de contato e não tente confrontar o perseguidor sozinha.',
+      'Se for seguro, registre prints de mensagens, chamadas, datas, horários e locais onde a perseguição ocorreu.',
+      'Avise pessoas de confiança, vizinhos ou a portaria/segurança do seu trabalho ou residência sobre a situação.',
+      'Procure uma delegacia para registrar boletim de ocorrência e solicitar medidas protetivas de urgência.',
+      'Em caso de aproximação imediata ou risco, ligue 190. Para orientação gratuita, acione o Ligue 180.'
+    ]
+  },
+  {
+    id: 'diferentes-realidades',
+    titulo: 'Violência de gênero e diferentes realidades',
+    etiqueta: 'Olhar interseccional e direitos específicos',
+    icone: faHandsHoldingCircle,
+    resumo:
+      'A violência contra a mulher não acontece da mesma forma para todas. Fatores como racismo, LGBTfobia, capacitismo, etarismo e desigualdade social podem agravar os riscos e criar barreiras extras para pedir ajuda.',
+    exemplos: [
+      'Mulheres negras: enfrentam a combinação do machismo com o racismo estrutural, além de maiores barreiras no acesso à proteção institucional.',
+      'Mulheres LGBTQIAPN+: sofrem violências motivadas por preconceito, ameaças de exposição da orientação sexual ou identidade de gênero e rejeição familiar.',
+      'Mulheres com deficiência: podem ter sua autonomia limitada, sofrer isolamento ou depender financeiramente e fisicamente do próprio agressor.',
+      'Mulheres idosas: estão mais expostas a negligência, abandono, apropriação de aposentadoria ou benefícios e maus-tratos familiares.',
+      'Mulheres em vulnerabilidade social: enfrentam maior dificuldade financeira e falta de rede de apoio para sair de ambientes violentos.'
+    ],
+    protecao: [
+      'Toda mulher, independentemente de raça, identidade de gênero, orientação sexual, idade, deficiência ou renda, tem direito à proteção da Lei Maria da Penha.',
+      'O Ligue 180 oferece atendimento gratuito 24h, inclusive com opção de videochamada em Libras para mulheres surdas.',
+      'A Defensoria Pública garante orientação jurídica gratuita para quem não tem condições financeiras de contratar advocacia.',
+      'Centros de Referência (CRAS, CREAS e Centros de Atendimento à Mulher) oferecem acolhimento social e encaminhamento adaptado à realidade de cada mulher.'
+    ]
   }
 ]
 
@@ -360,9 +408,14 @@ export default function Informacoes() {
   }, [hash])
 
   return (
-    <main id="conteudo" tabIndex={-1} className="min-h-screen bg-[#fffafd] pb-16">
-      <section className="bg-gradient-to-r from-[#351064] via-[#5c1bb0] to-[#8b1cc7] px-5 py-16 text-white md:py-20">
+<main id="conteudo" tabIndex={-1} className="min-h-screen bg-[#fffafd] pb-16">
+      <section className="bg-gradient-to-r from-[#351064] via-[#5c1bb0] to-[#8b1cc7] px-5 pt-8 pb-16 text-white md:pt-10 md:pb-20">
         <div className="mx-auto max-w-6xl">
+          
+          <div className="mb-8">
+            <BotaoVoltar className="text-white hover:text-pink-200" />
+          </div>
+
           <p className="mb-3 text-sm font-bold uppercase tracking-[0.2em] text-pink-200">
             ELLA • Informação e acolhimento
           </p>
@@ -386,8 +439,8 @@ export default function Informacoes() {
           </a>
 
         </div>
-
       </section>
+
 
       <div className="mx-auto max-w-6xl space-y-14 px-5 py-12">
         <section id="o-que-e" className="scroll-mt-24">

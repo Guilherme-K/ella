@@ -1,7 +1,6 @@
-
 import { useState } from 'react'
 import SavedChatMessage from '../components/SavedChatMessage'
-import VoltarLink from '../components/VoltarLink'
+import BotaoVoltar from '../components/BotaoVoltar'
 import { useChatMessages } from '../hooks/useChatMessages'
 
 function ChatVoluntaria() {
@@ -41,18 +40,20 @@ function ChatVoluntaria() {
         <main id="conteudo" tabIndex={-1} className="bg-[#f3e8ff] min-h-screen py-10 px-4">
             <section className="bg-white rounded-3xl shadow-lg max-w-3xl mx-auto overflow-hidden">
 
-                <div className="px-6 pt-5">
-                    <VoltarLink className="text-purple-900" />
-                </div>
 
-                <div className="flex items-center gap-3 px-6 py-4 border-b border-violet-100">
-                    <div className="w-12 h-12 rounded-full bg-pink-300 flex items-center justify-center text-white font-bold">
-                        J
-                    </div>
+                <div className="flex items-center gap-4 px-6 py-4 border-b border-violet-100">
+                    <BotaoVoltar />
 
-                    <div>
-                        <h2 className="font-bold text-[#4c1d95]">Juliana</h2>
-                        <p className="text-xs text-gray-600">● Online</p>
+                    <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-full bg-pink-300 flex items-center justify-center text-white font-bold">
+                            J
+                        </div>
+
+                        <div>
+                            <h2 className="font-bold text-[#4c1d95]">Juliana</h2>
+                            <p className="text-xs text-gray-500">● Online</p>
+                        </div>
+
                     </div>
                 </div>
 
@@ -151,4 +152,4 @@ function ChatVoluntaria() {
     )
 }
 
-export default ChatVoluntaria
+export default ChatVoluntaria;

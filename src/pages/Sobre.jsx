@@ -1,6 +1,7 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faGithub } from '@fortawesome/free-brands-svg-icons'
 import { faHeart } from '@fortawesome/free-solid-svg-icons'
+import BotaoVoltar from '../components/BotaoVoltar'
 
 const equipe = [
   {
@@ -22,8 +23,12 @@ const equipe = [
 
 export default function Sobre() {
   return (
-    <main id="conteudo" tabIndex={-1} className="flex-1 bg-white">
-      <section className="bg-gradient-to-br from-pink-50 via-white to-purple-50 px-6 py-20">
+<main id="conteudo" tabIndex={-1} className="flex-1 bg-white">
+      <section className="bg-gradient-to-br from-pink-50 via-white to-purple-50 px-6 pt-8 pb-20">
+        {/* Botão Voltar alinhado à esquerda no topo */}
+        <div className="mx-auto mb-8 max-w-5xl text-left">
+          <BotaoVoltar />
+        </div>
         <div className="mx-auto max-w-5xl text-center">
           <span className="mb-5 inline-block rounded-full bg-pink-100 px-4 py-2 text-sm font-semibold text-pink-700">
             Conheça a ELLA

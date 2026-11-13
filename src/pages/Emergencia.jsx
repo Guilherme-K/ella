@@ -1,4 +1,5 @@
 import { BASE_URL } from '../services/httpClient'
+import BotaoVoltar from '../components/BotaoVoltar'
 
 const API_URL = BASE_URL
 
@@ -42,6 +43,11 @@ export default function Emergencia() {
   return (
     <main id="conteudo" tabIndex={-1} className="min-h-screen bg-[#c91d70] px-5 py-10 text-white">
       <section className="mx-auto flex w-full max-w-md flex-col items-center">
+
+        {/* Botão Voltar alinhado à esquerda no topo e com cor clara para dar contraste */}
+        <div className="mb-6 w-full text-left">
+          <BotaoVoltar className="text-white hover:text-pink-200" />
+        </div>
 
         <i className="fa-solid fa-triangle-exclamation mb-3 text-5xl" />
 
