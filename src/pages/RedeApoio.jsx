@@ -1,5 +1,6 @@
 
 import { useEffect, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 
 import { supportNetworkService } from '../services/supportNetworkService'
 import { imagemDaRede } from '../constants/supportNetworks'
@@ -201,31 +202,44 @@ export default function RedeApoio() {
             <>
               <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {visiveis.map((rede) => (
-                  <article
+                  <Link
                     key={rede.id}
-                    className="flex flex-col overflow-hidden rounded-2xl border border-purple-100 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+                    to={`/apoio/${rede.id}`}
+                    className="group flex flex-col overflow-hidden rounded-2xl border border-purple-100 bg-white shadow-sm transition hover:-translate-y-1 hover:border-pink-200 hover:shadow-md"
                   >
-                    <img
-                      src={imagemDaRede(rede.imagem)}
-                      alt={`Imagem ilustrativa de ${rede.nome}`}
-                      loading="lazy"
-                      className="h-44 w-full object-cover"
-                    />
+                    <div className="relative h-44 overflow-hidden">
+                      <img
+                        src={imagemDaRede(rede.imagem)}
+                        alt={`Imagem ilustrativa de ${rede.nome}`}
+                        loading="lazy"
+                        className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                      />
+
+                      {rede.categoria && (
+                        <span className="absolute left-4 top-4 rounded-full bg-white/95 px-3 py-1 text-xs font-semibold text-pink-700 shadow-sm">
+                          {rede.categoria}
+                        </span>
+                      )}
+                    </div>
 
                     <div className="flex flex-1 flex-col p-6">
-                      <span className="text-xs font-semibold uppercase tracking-wider text-pink-700">
-                        Rede de apoio
-                      </span>
-
-                      <h3 className="mt-2 font-serif text-xl font-bold text-violet-950">
+                      <h3 className="font-serif text-xl font-bold text-violet-950">
                         {rede.nome}
                       </h3>
 
                       <p className="mt-3 flex-1 text-sm leading-7 text-gray-600">
                         {rede.descricao}
                       </p>
+
+                      <span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-pink-700">
+                        Ver detalhes
+                        <i
+                          className="fa-solid fa-arrow-right text-xs transition group-hover:translate-x-1"
+                          aria-hidden="true"
+                        />
+                      </span>
                     </div>
-                  </article>
+                  </Link>
                 ))}
               </div>
 

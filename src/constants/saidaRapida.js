@@ -4,7 +4,7 @@ export const PREFERENCIAS_KEY = 'ella:preferencias';
 // Só aceita sites desta lista (nunca texto livre), para ninguém salvar um link
 // malicioso. A mesma lista é usada na Home, no chat e em "Minha área".
 export const SITES_SAIDA_RAPIDA = [
-  { nome: 'Google', url: 'https://www.google.com.br' },
+  { nome: 'youtube', url: 'https://www.youtube.com' },
   { nome: 'Wikipédia', url: 'https://pt.wikipedia.org' },
   { nome: 'G1', url: 'https://g1.globo.com' },
 ];

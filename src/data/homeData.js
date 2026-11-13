@@ -41,34 +41,188 @@ export const violenceTypes = [
 
 export const supportServices = [
   {
-    icon: 'fa-brain',
+    id: 'psicologos',
+    nome: 'Psicólogos',
     title: 'Psicólogos',
+    categoria: 'Saúde mental e acolhimento',
+    descricao:
+      'Atendimento voluntário e acolhimento emocional com foco em escuta qualificada e fortalecimento psicológico.',
     description: 'Atendimento voluntário',
+    detalhes:
+      'Profissionais voluntários de psicologia oferecem acolhimento e suporte emocional para mulheres em situação de vulnerabilidade.',
+    imagem: '/redes/psicologia.svg',
+    image: '/redes/psicologia.svg',
+    telefone: '188',
+    site: 'https://site.cfp.org.br',
+    icon: 'fa-brain',
   },
   {
-    icon: 'fa-people-roof',
+    id: 'assistencia-social',
+    nome: 'Assistência Social',
     title: 'Assistência Social',
+    categoria: 'Assistência social',
+    descricao:
+      'Atendimento pelo CRAS e CREAS para proteção social, garantia de direitos e acesso a programas socioassistenciais.',
     description: 'CRAS / CREAS',
+    detalhes:
+      'Os Centros de Referência (CRAS e CREAS) acolhem famílias e pessoas em situação de risco, oferecendo orientação e benefícios.',
+    imagem: '/redes/comunidade.svg',
+    image: '/redes/comunidade.svg',
+    site: 'https://www.gov.br/mds/pt-br/acoes-e-programas/SUAS/unidades-de-atendimento',
+    icon: 'fa-people-roof',
   },
   {
-    icon: 'fa-heart',
+    id: 'ongs-movimentos',
+    nome: 'ONGs e Movimentos Sociais',
     title: 'ONGs e Movimentos Sociais',
+    categoria: 'Acolhimento e orientação',
+    descricao:
+      'Organizações da sociedade civil dedicadas à defesa dos direitos das mulheres, acolhimento e orientação comunitária.',
     description: 'Acolhimento e orientação',
+    detalhes:
+      'Rede solidária de apoio mútuo, capacitação, assessoria jurídica comunitária e encaminhamentos.',
+    imagem: '/redes/acolhimento.svg',
+    image: '/redes/acolhimento.svg',
+    site: 'https://www.geledes.org.br',
+    icon: 'fa-heart',
   },
   {
-    icon: 'fa-building-columns',
+    id: 'orgaos-governamentais',
+    nome: 'Órgãos Governamentais',
     title: 'Órgãos Governamentais',
+    categoria: 'Segurança e proteção',
+    descricao:
+      'Delegacias da Mulher, Ministério Público, Defensoria Pública e Disque 190 para proteção imediata e cumprimento das leis.',
     description: 'Delegacias da Mulher, Ministério Público e Disque 190',
+    detalhes:
+      'Canais públicos oficiais para investigação, aplicação de medidas protetivas e garantia dos direitos da mulher.',
+    imagem: '/redes/seguranca.svg',
+    image: '/redes/seguranca.svg',
+    telefone: '190',
+    site: 'https://www.gov.br/mulheres/pt-br',
+    icon: 'fa-building-columns',
   },
   {
-    icon: 'fa-hands-holding-circle',
+    id: 'terapia-ocupacional',
+    nome: 'Terapia Ocupacional',
     title: 'Terapia Ocupacional',
+    categoria: 'Autonomia e bem-estar',
+    descricao:
+      'Suporte especializado para promover a autonomia, reinserção nas atividades cotidianas e reconstrução de projetos de vida.',
     description: 'Suporte para autonomia e bem-estar',
+    detalhes:
+      'Acompanhamento para recuperação funcional, resgate da autoestima, rotina segura e fortalecimento da independência.',
+    imagem: '/redes/terapia.svg',
+    image: '/redes/terapia.svg',
+    site: 'https://coffito.gov.br',
+    icon: 'fa-hands-holding-circle',
   },
   {
-    icon: 'fa-handshake-angle',
+    id: 'voluntarios',
+    nome: 'Voluntários',
     title: 'Voluntários',
+    categoria: 'Rede colaborativa',
+    descricao:
+      'Pessoas e profissionais dispostos a doar tempo, talento e carinho para apoiar quem mais precisa.',
     description: 'Faça parte dessa rede',
+    detalhes:
+      'Iniciativas de voluntariado integradas à plataforma ELLA para apoio em acolhimento, orientação e capacitação.',
+    imagem: '/redes/voluntariado.svg',
+    image: '/redes/voluntariado.svg',
+    site: '/voluntaria',
+    icon: 'fa-handshake-angle',
+  },
+  {
+    id: 'ligue-180',
+    nome: 'Ligue 180',
+    title: 'Ligue 180',
+    categoria: 'Orientação e atendimento',
+    descricao:
+      'Central gratuita de atendimento à mulher: orienta sobre direitos, informa serviços e recebe denúncias, 24 horas por dia.',
+    description: 'Central gratuita de atendimento à mulher',
+    detalhes:
+      'Gratuito, disponível 24 horas por dia, todos os dias. Também atende pelo WhatsApp (61) 9610-0180.',
+    imagem: '/redes/orientacao.svg',
+    image: '/redes/orientacao.svg',
+    telefone: '180',
+    site: 'https://www.gov.br/mulheres/pt-br/ligue180',
+    icon: 'fa-phone',
+  },
+  {
+    id: 'delegacias-da-mulher',
+    nome: 'Delegacias da Mulher',
+    title: 'Delegacias da Mulher',
+    categoria: 'Segurança e proteção',
+    descricao:
+      'Unidades policiais especializadas no atendimento de mulheres em situação de violência, com acolhimento e encaminhamento.',
+    description: 'Unidades policiais especializadas',
+    detalhes:
+      'Quando não houver uma delegacia especializada na cidade, também é possível procurar uma delegacia comum.',
+    imagem: '/redes/seguranca.svg',
+    image: '/redes/seguranca.svg',
+    telefone: '190',
+    site: 'https://www.gov.br/mj/pt-br/assuntos/sua-seguranca/seguranca-publica/susp-mulheres/violencia-domestica-e-familiar',
+    icon: 'fa-shield-halved',
+  },
+  {
+    id: 'casa-da-mulher-brasileira',
+    nome: 'Casa da Mulher Brasileira',
+    title: 'Casa da Mulher Brasileira',
+    categoria: 'Atendimento integrado',
+    descricao:
+      'Espaço público que reúne acolhimento, apoio psicossocial, atendimento policial, jurídico e alojamento de passagem.',
+    description: 'Acolhimento e atendimento integrado',
+    detalhes:
+      'Pode oferecer apoio psicossocial, atendimento policial, jurídico, alojamento de passagem e outros serviços, conforme a unidade.',
+    imagem: '/redes/acolhimento.svg',
+    image: '/redes/acolhimento.svg',
+    site: 'https://www.gov.br/mulheres/pt-br/acesso-a-informacao/acoes-e-programas/casa-da-mulher-brasileira',
+    icon: 'fa-house-chimney-window',
+  },
+  {
+    id: 'defensoria-publica',
+    nome: 'Defensoria Pública',
+    title: 'Defensoria Pública',
+    categoria: 'Orientação jurídica',
+    descricao:
+      'Oferece orientação e assistência jurídica gratuita para quem não pode contratar advogado ou advogada.',
+    description: 'Assistência jurídica gratuita',
+    detalhes:
+      'Pode orientar sobre direitos, medidas protetivas e procedimentos judiciais.',
+    imagem: '/redes/justica.svg',
+    image: '/redes/justica.svg',
+    site: 'https://www.gov.br/mulheres/pt-br/central-de-conteudos/noticias/2026/agosto-defeso-eleitoral/especial-lei-maria-da-penha-saiba-onde-e-como-buscar-ajuda-em-casos-de-violencia-domestica-e-familiar',
+    icon: 'fa-scale-balanced',
+  },
+  {
+    id: 'creas',
+    nome: 'CREAS',
+    title: 'CREAS',
+    categoria: 'Assistência social',
+    descricao:
+      'Centro de assistência social para pessoas e famílias em situação de risco ou com direitos violados.',
+    description: 'Centro de referência especializado',
+    detalhes:
+      'Pode oferecer acompanhamento especializado, orientação e encaminhamentos para outros serviços públicos.',
+    imagem: '/redes/comunidade.svg',
+    image: '/redes/comunidade.svg',
+    site: 'https://www.gov.br/mds/pt-br/acoes-e-programas/SUAS/unidades-de-atendimento/centro-de-referencia-especializado-de-assistencia-social-creas',
+    icon: 'fa-people-group',
+  },
+  {
+    id: 'servicos-de-saude',
+    nome: 'Serviços de Saúde',
+    title: 'Serviços de Saúde',
+    categoria: 'Saúde e acolhimento',
+    descricao:
+      'Unidades de saúde que atendem necessidades da mulher e orientam sobre os serviços disponíveis na rede pública.',
+    description: 'Unidades de saúde pública',
+    detalhes:
+      'Unidades básicas de saúde e hospitais podem fazer parte dos caminhos de atendimento, conforme a necessidade.',
+    imagem: '/redes/saude.svg',
+    image: '/redes/saude.svg',
+    site: 'https://www.gov.br/saude/pt-br',
+    icon: 'fa-heart-pulse',
   },
 ]
 

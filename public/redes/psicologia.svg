@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 240" role="img" aria-label="Psicologia e atendimento voluntário">
+  <defs>
+    <linearGradient id="bg-psi" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fce7f3"/>
+      <stop offset="1" stop-color="#ede9fe"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="240" fill="url(#bg-psi)"/>
+  <circle cx="70" cy="58" r="36" fill="#f9a8d4" opacity=".45"/>
+  <circle cx="334" cy="182" r="44" fill="#c4b5fd" opacity=".45"/>
+  <!-- Brain outline with gentle heart -->
+  <g fill="#fff" stroke="#6d28d9" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M190 74c-16 0-30 10-34 24-12 2-22 12-22 26 0 10 6 18 14 22-2 4-4 10-4 16 0 16 12 28 28 28 6 0 12-2 18-6v-110z"/>
+    <path d="M210 74c16 0 30 10 34 24 12 2 22 12 22 26 0 10-6 18-14 22 2 4 4 10 4 16 0 16-12 28-28 28-6 0-12-2-18-6v-110z"/>
+  </g>
+  <path d="M200 138c-8-7-16-14-16-22a10 10 0 0 1 16-6 10 10 0 0 1 16 6c0 8-8 15-16 22z" fill="#db2777"/>
+  <circle cx="168" cy="112" r="3" fill="#6d28d9"/>
+  <circle cx="232" cy="112" r="3" fill="#6d28d9"/>
+</svg>

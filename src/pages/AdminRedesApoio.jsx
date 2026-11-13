@@ -5,6 +5,7 @@ import {
     faHandHoldingHeart,
     faImage,
     faPenToSquare,
+    faPhone,
     faPlus,
     faRotate,
     faTrashCan,
@@ -14,12 +15,19 @@ import {
 
 import { supportNetworkService } from '../services/supportNetworkService';
 import {
+    CATEGORIAS_REDE,
     IMAGENS_REDES,
+    MAX_CARACTERES_CATEGORIA,
+    MAX_CARACTERES_DETALHES,
     MAX_CARACTERES_NOME,
+    MAX_CARACTERES_SITE,
+    MAX_CARACTERES_TELEFONE,
     MAX_IMAGEM_BYTES,
     MAX_PALAVRAS_DESCRICAO,
     contarPalavras,
-    imagemDaRede
+    imagemDaRede,
+    linkTelefone,
+    siteSeguro
 } from '../constants/supportNetworks';
 
 const TIPOS_ACEITOS = ['image/png', 'image/jpeg', 'image/webp'];
@@ -43,7 +51,11 @@ function lerArquivoComoDataUrl(arquivo) {
 const formularioVazio = {
     id: null,
     nome: '',
+    categoria: '',
     descricao: '',
+    detalhes: '',
+    site: '',
+    telefone: '',
     imagem: ''
 };
 
@@ -111,7 +123,11 @@ export default function AdminRedesApoio() {
         setForm({
             id: rede.id,
             nome: rede.nome,
+            categoria: rede.categoria || '',
             descricao: rede.descricao,
+            detalhes: rede.detalhes || '',
+            site: rede.site || '',
+            telefone: rede.telefone || '',
             imagem: rede.imagem || ''
         });
         setErroForm('');
@@ -158,10 +174,21 @@ export default function AdminRedesApoio() {
         event.preventDefault();
 
         const nome = form.nome.trim();
+        const categoria = form.categoria.trim();
         const descricao = form.descricao.trim();
+        const detalhes = form.detalhes.trim();
+        const site = form.site.trim();
+        const telefone = form.telefone.trim();
 
         if (!nome) {
             setErroForm('Informe o nome da rede de apoio.');
+            return;
+        }
+
+        if (categoria.length > MAX_CARACTERES_CATEGORIA) {
+            setErroForm(
+                `A categoria deve ter no máximo ${MAX_CARACTERES_CATEGORIA} caracteres.`
+            );
             return;
         }
 
@@ -177,6 +204,32 @@ export default function AdminRedesApoio() {
             return;
         }
 
+        if (detalhes.length > MAX_CARACTERES_DETALHES) {
+            setErroForm(
+                `Os detalhes devem ter no máximo ${MAX_CARACTERES_DETALHES} caracteres.`
+            );
+            return;
+        }
+
+        if (site && !siteSeguro(site)) {
+            setErroForm('Informe um site válido começando com http:// ou https://.');
+            return;
+        }
+
+        if (telefone.length > MAX_CARACTERES_TELEFONE) {
+            setErroForm(
+                `O telefone deve ter no máximo ${MAX_CARACTERES_TELEFONE} caracteres.`
+            );
+            return;
+        }
+
+        if (telefone && !/^[0-9+()\s.-]+$/.test(telefone)) {
+            setErroForm(
+                'Informe um telefone válido, usando apenas números e os símbolos + ( ) - .'
+            );
+            return;
+        }
+
         const editando = Boolean(form.id);
         setSalvando(true);
         setErroForm('');
@@ -184,7 +237,11 @@ export default function AdminRedesApoio() {
         try {
             const dados = {
                 nome,
+                categoria: categoria || null,
                 descricao,
+                detalhes: detalhes || null,
+                site: site || null,
+                telefone: telefone || null,
                 imagem: form.imagem || null
             };
 
@@ -334,6 +391,81 @@ export default function AdminRedesApoio() {
                                     className={`${campo} resize-y`}
                                 />
                             </div>
+
+                            <div>
+                                <label htmlFor="rede-categoria" className="mb-1 block text-sm font-semibold text-[#2e1065]">
+                                    Categoria
+                                </label>
+                                <input
+                                    id="rede-categoria"
+                                    name="categoria"
+                                    type="text"
+                                    list="rede-categorias"
+                                    value={form.categoria}
+                                    onChange={mudarCampo}
+                                    maxLength={MAX_CARACTERES_CATEGORIA}
+                                    placeholder="Ex.: Segurança e proteção"
+                                    className={campo}
+                                />
+                                <datalist id="rede-categorias">
+                                    {CATEGORIAS_REDE.map((categoria) => (
+                                        <option key={categoria} value={categoria} />
+                                    ))}
+                                </datalist>
+                                <p className="mt-1 text-xs text-gray-600">
+                                    Aparece como etiqueta no card e na página do serviço.
+                                </p>
+                            </div>
+
+                            <div>
+                                <label htmlFor="rede-detalhes" className="mb-1 block text-sm font-semibold text-[#2e1065]">
+                                    Como funciona
+                                </label>
+                                <textarea
+                                    id="rede-detalhes"
+                                    name="detalhes"
+                                    value={form.detalhes}
+                                    onChange={mudarCampo}
+                                    rows={3}
+                                    maxLength={MAX_CARACTERES_DETALHES}
+                                    placeholder="Informações extras exibidas na página do serviço."
+                                    className={`${campo} resize-y`}
+                                />
+                            </div>
+
+                            <div className="grid gap-4 sm:grid-cols-2">
+                                <div>
+                                    <label htmlFor="rede-site" className="mb-1 block text-sm font-semibold text-[#2e1065]">
+                                        Site
+                                    </label>
+                                    <input
+                                        id="rede-site"
+                                        name="site"
+                                        type="url"
+                                        value={form.site}
+                                        onChange={mudarCampo}
+                                        maxLength={MAX_CARACTERES_SITE}
+                                        placeholder="https://..."
+                                        className={campo}
+                                    />
+                                </div>
+
+                                <div>
+                                    <label htmlFor="rede-telefone" className="mb-1 block text-sm font-semibold text-[#2e1065]">
+                                        Telefone
+                                    </label>
+                                    <input
+                                        id="rede-telefone"
+                                        name="telefone"
+                                        type="tel"
+                                        value={form.telefone}
+                                        onChange={mudarCampo}
+                                        maxLength={MAX_CARACTERES_TELEFONE}
+                                        placeholder="Ex.: 180"
+                                        className={campo}
+                                    />
+                                </div>
+                            </div>
                         </div>
 
                         <div className="space-y-3 rounded-2xl bg-[#faf5ff] p-4">
@@ -384,6 +516,20 @@ export default function AdminRedesApoio() {
                             <p className="text-xs text-gray-600">
                                 PNG, JPEG ou WebP, até 2 MB. Sem envio, a imagem padrão é usada.
                             </p>
+
+                            <div>
+                                <label htmlFor="rede-imagem-url" className="mb-1 block text-xs font-semibold text-[#2e1065]">
+                                    Ou link de imagem externa (API / Unsplash / Web)
+                                </label>
+                                <input
+                                    id="rede-imagem-url"
+                                    type="url"
+                                    value={form.imagem && form.imagem.startsWith('http') ? form.imagem : ''}
+                                    onChange={(e) => setForm((atual) => ({ ...atual, imagem: e.target.value.trim() }))}
+                                    placeholder="https://exemplo.com/imagem.jpg"
+                                    className={campo}
+                                />
+                            </div>
 
                             <div>
                                 <p className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-gray-600">
@@ -487,12 +633,47 @@ export default function AdminRedesApoio() {
                             />
 
                             <div className="flex flex-1 flex-col p-5">
-                                <h2 className="font-serif text-lg text-[#2e1065]">
-                                    {rede.nome}
-                                </h2>
+                                <div className="flex flex-wrap items-center gap-2">
+                                    <h2 className="font-serif text-lg text-[#2e1065]">
+                                        {rede.nome}
+                                    </h2>
+
+                                    {rede.categoria && (
+                                        <span className="rounded-full bg-pink-100 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-pink-700">
+                                            {rede.categoria}
+                                        </span>
+                                    )}
+                                </div>
+
                                 <p className="mt-2 flex-1 text-sm leading-6 text-gray-600">
                                     {rede.descricao}
                                 </p>
+
+                                {(rede.telefone || rede.site) && (
+                                    <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-violet-800">
+                                        {rede.telefone && (
+                                            <a
+                                                href={linkTelefone(rede.telefone)}
+                                                className="inline-flex items-center gap-1.5 underline underline-offset-4 hover:text-pink-700"
+                                            >
+                                                <FontAwesomeIcon icon={faPhone} />
+                                                {rede.telefone}
+                                            </a>
+                                        )}
+
+                                        {rede.site && siteSeguro(rede.site) && (
+                                            <a
+                                                href={siteSeguro(rede.site)}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="inline-flex items-center gap-1.5 underline underline-offset-4 hover:text-pink-700"
+                                            >
+                                                Site
+                                                <span className="sr-only">(abre em nova aba)</span>
+                                            </a>
+                                        )}
+                                    </div>
+                                )}
 
                                 <div className="mt-4 flex flex-wrap gap-2">
                                     <button

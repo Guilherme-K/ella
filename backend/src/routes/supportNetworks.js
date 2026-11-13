@@ -9,11 +9,16 @@ import { authenticate, requireRole } from '../middlewares/auth.js';
 const router = Router();
 
 const MAX_NAME_LENGTH = 120;
+const MAX_CATEGORY_LENGTH = 80;
 const MAX_DESCRIPTION_LENGTH = 600;
+const MAX_DETAILS_LENGTH = 600;
+const MAX_WEBSITE_LENGTH = 500;
+const MAX_PHONE_LENGTH = 40;
 const MAX_DESCRIPTION_WORDS = 30;
 const MAX_IMAGE_BYTES = 2 * 1024 * 1024;
 const PRESET_IMAGE = /^\/redes\/[a-z0-9-]+\.svg$/;
 const IMAGE_DATA_URL = /^data:image\/(png|jpeg|webp);base64,([A-Za-z0-9+/=]+)$/;
+const PHONE_PATTERN = /^[0-9+()\s.-]+$/;
 
 function countWords(text) {
   return text.split(/\s+/).filter(Boolean).length;
@@ -72,6 +77,113 @@ function readDescription(value, { required = true } = {}) {
   return description;
 }
 
+function readCategory(value) {
+  if (value === undefined) return undefined;
+  if (value === null || value === '') return null;
+
+  if (typeof value !== 'string') {
+    throw createError(400, 'Categoria inválida');
+  }
+
+  const category = value.trim();
+
+  if (!category) return null;
+
+  if (category.length > MAX_CATEGORY_LENGTH) {
+    throw createError(
+      400,
+      `A categoria deve ter no máximo ${MAX_CATEGORY_LENGTH} caracteres`,
+    );
+  }
+
+  return category;
+}
+
+function readDetails(value) {
+  if (value === undefined) return undefined;
+  if (value === null || value === '') return null;
+
+  if (typeof value !== 'string') {
+    throw createError(400, 'Detalhes inválidos');
+  }
+
+  const details = value.trim();
+
+  if (!details) return null;
+
+  if (details.length > MAX_DETAILS_LENGTH) {
+    throw createError(
+      400,
+      `Os detalhes devem ter no máximo ${MAX_DETAILS_LENGTH} caracteres`,
+    );
+  }
+
+  return details;
+}
+
+function readWebsite(value) {
+  if (value === undefined) return undefined;
+  if (value === null || value === '') return null;
+
+  if (typeof value !== 'string') {
+    throw createError(400, 'Site inválido');
+  }
+
+  const website = value.trim();
+
+  if (!website) return null;
+
+  if (website.length > MAX_WEBSITE_LENGTH) {
+    throw createError(
+      400,
+      `O site deve ter no máximo ${MAX_WEBSITE_LENGTH} caracteres`,
+    );
+  }
+
+  let parsed;
+
+  try {
+    parsed = new URL(website);
+  } catch {
+    throw createError(400, 'Informe um site válido começando com http:// ou https://');
+  }
+
+  if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+    throw createError(400, 'Informe um site válido começando com http:// ou https://');
+  }
+
+  return website;
+}
+
+function readPhone(value) {
+  if (value === undefined) return undefined;
+  if (value === null || value === '') return null;
+
+  if (typeof value !== 'string') {
+    throw createError(400, 'Telefone inválido');
+  }
+
+  const phone = value.trim();
+
+  if (!phone) return null;
+
+  if (phone.length > MAX_PHONE_LENGTH) {
+    throw createError(
+      400,
+      `O telefone deve ter no máximo ${MAX_PHONE_LENGTH} caracteres`,
+    );
+  }
+
+  if (!PHONE_PATTERN.test(phone)) {
+    throw createError(
+      400,
+      'Informe um telefone válido, usando apenas números e os símbolos + ( ) - .',
+    );
+  }
+
+  return phone;
+}
+
 function readImage(value) {
   if (value === undefined) return undefined;
   if (value === null || value === '') return null;
@@ -87,10 +199,23 @@ function readImage(value) {
     return image;
   }
 
+  // URLs externas (ex.: APIs grátis, Unsplash, links web)
+  if (/^https?:\/\//i.test(image)) {
+    try {
+      new URL(image);
+      return image;
+    } catch {
+      throw createError(400, 'URL de imagem inválida');
+    }
+  }
+
   const match = IMAGE_DATA_URL.exec(image);
 
   if (!match) {
-    throw createError(400, 'Envie uma imagem PNG, JPEG ou WebP');
+    throw createError(
+      400,
+      'Envie uma imagem PNG, JPEG, WebP, uma URL válida ou selecione uma imagem padrão',
+    );
   }
 
   const base64 = match[2];
@@ -108,7 +233,11 @@ function serializeNetwork(network) {
   return {
     ...network,
     nome: network.name,
+    categoria: network.category,
     descricao: network.description,
+    detalhes: network.details,
+    site: network.website,
+    telefone: network.phone,
     imagem: network.image,
   };
 }
@@ -136,6 +265,13 @@ router.get('/', async (req, res) => {
   res.json(networks.map(serializeNetwork));
 });
 
+// GET /api/redes-apoio/:id
+router.get('/:id', async (req, res) => {
+  const network = await findNetwork(Number(req.params.id));
+
+  res.json(serializeNetwork(network));
+});
+
 // POST /api/redes-apoio
 router.post('/', authenticate, requireRole('admin'), async (req, res) => {
   const data = req.body ?? {};
@@ -143,7 +279,11 @@ router.post('/', authenticate, requireRole('admin'), async (req, res) => {
   const network = await prisma.supportNetwork.create({
     data: {
       name: readName(data.name ?? data.nome),
+      category: readCategory(data.category ?? data.categoria) ?? null,
       description: readDescription(data.description ?? data.descricao),
+      details: readDetails(data.details ?? data.detalhes) ?? null,
+      website: readWebsite(data.website ?? data.site) ?? null,
+      phone: readPhone(data.phone ?? data.telefone) ?? null,
       image: readImage(data.image ?? data.imagem) ?? null,
     },
   });
@@ -167,6 +307,22 @@ router.patch('/:id', authenticate, requireRole('admin'), async (req, res) => {
     changes.description = readDescription(
       data.description ?? data.descricao,
     );
+  }
+
+  if (data.category !== undefined || data.categoria !== undefined) {
+    changes.category = readCategory(data.category ?? data.categoria);
+  }
+
+  if (data.details !== undefined || data.detalhes !== undefined) {
+    changes.details = readDetails(data.details ?? data.detalhes);
+  }
+
+  if (data.website !== undefined || data.site !== undefined) {
+    changes.website = readWebsite(data.website ?? data.site);
+  }
+
+  if (data.phone !== undefined || data.telefone !== undefined) {
+    changes.phone = readPhone(data.phone ?? data.telefone);
   }
 
   if (data.image !== undefined || data.imagem !== undefined) {

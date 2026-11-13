@@ -23,6 +23,7 @@ import Sobre from './pages/Sobre'
 import MainLayout from './layouts/MainLayout'
 import AdminLayout from './layouts/AdminLayout'
 import RedeApoio from './pages/RedeApoio'
+import RedeApoioDetalhe from './pages/RedeApoioDetalhe'
 import Contato from './pages/Contato'
 import Perfil from './pages/Perfil'
 import NaoEncontrada from './pages/NaoEncontrada'
@@ -41,6 +42,7 @@ export default function App() {
         <Route path="/informacoes" element={<Informacoes />} />
         <Route path="/voluntaria" element={<Voluntaria />} />
         <Route path="/apoio" element={<RedeApoio />} />
+        <Route path="/apoio/:id" element={<RedeApoioDetalhe />} />
         <Route path="/contato" element={<Contato />} />
         <Route path="/sobre" element={<Sobre />} />
         <Route

@@ -1,9 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import womenArtwork from "../assets/mulheres.png";
 import { homeLinks, supportServices, violenceTypes } from "../data/homeData";
 import { BASE_URL } from "../services/httpClient";
 import QuickExitLink from "../components/QuickExitLink";
+import { supportNetworkService } from "../services/supportNetworkService";
+import { imagemDaRede } from "../constants/supportNetworks";
 
 const API_URL = BASE_URL;
 
@@ -62,9 +64,27 @@ const perguntasFrequentes = [
 
 export default function Home() {
   const [buscaApoio, setBuscaApoio] = useState("");
+  const [redesApoio, setRedesApoio] = useState(supportServices);
   const [perguntaAberta, setPerguntaAberta] = useState(null);
   const [totalAcionamentos, setTotalAcionamentos] = useState(null);
   const [erroContagem, setErroContagem] = useState(false);
+
+  useEffect(() => {
+    let ativo = true;
+
+    supportNetworkService
+      .list()
+      .then((lista) => {
+        if (ativo && Array.isArray(lista) && lista.length > 0) {
+          setRedesApoio(lista);
+        }
+      })
+      .catch(() => {});
+
+    return () => {
+      ativo = false;
+    };
+  }, []);
 
   useEffect(() => {
     let ativo = true;
@@ -107,27 +127,40 @@ export default function Home() {
     };
   }, []);
 
-  const servicosFiltrados = supportServices.filter((service) => {
+  const servicosFiltrados = useMemo(() => {
     const pesquisa = buscaApoio
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '')
       .toLowerCase()
       .trim();
 
-    if (pesquisa.length < 2) return true;
+    if (!pesquisa) {
+      return redesApoio.slice(0, 6);
+    }
 
-    const titulo = service.title
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .toLowerCase();
+    return redesApoio.filter((service) => {
+      const nome = String(service.nome || service.title || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase();
 
-    const descricao = service.description
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .toLowerCase();
+      const categoria = String(service.categoria || service.category || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase();
 
-    return titulo.includes(pesquisa) || descricao.includes(pesquisa);
-  });
+      const descricao = String(service.descricao || service.description || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase();
+
+      return (
+        nome.includes(pesquisa) ||
+        categoria.includes(pesquisa) ||
+        descricao.includes(pesquisa)
+      );
+    });
+  }, [buscaApoio, redesApoio]);
 
   return (
     <main id="conteudo" tabIndex={-1} className="flex-1 bg-white">
@@ -309,32 +342,63 @@ export default function Home() {
             />
           </label>
 
-          <div className="mx-auto mt-8 grid max-w-5xl gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mx-auto mt-8 grid max-w-6xl gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {servicosFiltrados.length > 0 ? (
-              servicosFiltrados.map((service) => (
-                <article
-                  key={service.title}
-                  className="flex min-h-36 flex-col items-center justify-center rounded-2xl bg-purple-100 px-5 py-6 text-center"
+              servicosFiltrados.map((rede) => (
+                <Link
+                  key={rede.id || rede.nome || rede.title}
+                  to={`/apoio/${rede.id}`}
+                  className="group flex flex-col overflow-hidden rounded-2xl border border-purple-100 bg-white shadow-sm transition hover:-translate-y-1 hover:border-pink-200 hover:shadow-md"
                 >
-                  <i
-                    className={`fa-solid ${service.icon} text-2xl text-violet-900`}
-                    aria-hidden="true"
-                  />
+                  <div className="relative h-44 overflow-hidden">
+                    <img
+                      src={imagemDaRede(rede.imagem || rede.image)}
+                      alt={`Imagem ilustrativa de ${rede.nome || rede.title}`}
+                      loading="lazy"
+                      className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                    />
 
-                  <h3 className="mt-3 font-serif text-base font-bold text-violet-950">
-                    {service.title}
-                  </h3>
+                    {(rede.categoria || rede.category) && (
+                      <span className="absolute left-4 top-4 rounded-full bg-white/95 px-3 py-1 text-xs font-semibold text-pink-700 shadow-sm">
+                        {rede.categoria || rede.category}
+                      </span>
+                    )}
+                  </div>
 
-                  <p className="mt-4 text-xs text-violet-950">
-                    {service.description}
-                  </p>
-                </article>
+                  <div className="flex flex-1 flex-col p-6">
+                    <h3 className="font-serif text-xl font-bold text-violet-950">
+                      {rede.nome || rede.title}
+                    </h3>
+
+                    <p className="mt-3 flex-1 text-sm leading-7 text-gray-600">
+                      {rede.descricao || rede.description}
+                    </p>
+
+                    <span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-pink-700">
+                      Ver detalhes
+                      <i
+                        className="fa-solid fa-arrow-right text-xs transition group-hover:translate-x-1"
+                        aria-hidden="true"
+                      />
+                    </span>
+                  </div>
+                </Link>
               ))
             ) : (
               <p className="col-span-full py-8 text-center text-sm text-violet-700">
                 Nenhum serviço encontrado. Tente pesquisar por outro nome ou especialidade.
               </p>
             )}
+          </div>
+
+          <div className="mt-8 text-center">
+            <Link
+              to="/apoio"
+              className="inline-flex items-center gap-2 rounded-full bg-pink-700 px-6 py-3 text-sm font-semibold text-white transition hover:bg-pink-800"
+            >
+              Ver todas as redes de apoio
+              <i className="fa-solid fa-arrow-right" aria-hidden="true" />
+            </Link>
           </div>
 
           <section

@@ -44,10 +44,15 @@ model ChatMessage {
 }
 
 // Cards da Rede de Apoio exibidos em /apoio e administrados pelo painel.
+// Cada card tem sua própria página de detalhes (/apoio/:id).
 model SupportNetwork {
   id          Int      @id @default(autoincrement())
   name        String   @db.VarChar(120)
+  category    String?  @db.VarChar(80)
   description String   @db.VarChar(600)
+  details     String?  @db.VarChar(600)
+  website     String?  @db.VarChar(500)
+  phone       String?  @db.VarChar(40)
   image       String?  @db.LongText
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
