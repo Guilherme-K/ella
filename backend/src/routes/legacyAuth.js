@@ -31,6 +31,7 @@ const userFilter = {
   bio: true,
   city: true,
   phone: true,
+  areasAtuacao: true,
   createdAt: true,
 };
 
@@ -45,6 +46,7 @@ function serializeUser(user) {
     nome: user.name,
     apelido: user.nickname,
     tipo: user.role,
+    areas_atuacao: user.areasAtuacao,
   };
 }
 

@@ -71,6 +71,19 @@ export const userService = {
     return data.user
   },
 
+  // POST /api/users/me/voluntaria (inscrição de voluntária)
+  // O backend valida o token, atualiza cidade/telefone/áreas e troca o tipo
+  // da conta para "voluntaria" (ou "psicologa" ao escolher "Profissional").
+  registerVolunteer: async (dados) => {
+    const data = await httpClient.post(
+      `${ENDPOINT}/me/voluntaria`,
+      dados,
+      { token: getToken() },
+    )
+    saveCurrentUser(data.user)
+    return data.user
+  },
+
   // GET /api/users/:id
   getById: (id) => httpClient.get(`${ENDPOINT}/${id}`),
 

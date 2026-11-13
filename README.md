@@ -31,6 +31,8 @@ A URL da API é lida de `VITE_API_URL` (veja `.env.example`); por padrão,
 - `src/pages/Accounts.jsx` — listagem e pesquisa das contas cadastradas
   (`GET /api/users`, visível apenas para o admin).
 - `src/pages/Perfil.jsx` — Minha área (`GET`/`PATCH /api/users/me`).
+- `src/pages/Voluntaria.jsx` — inscrição de voluntária
+  (`POST /api/users/me/voluntaria`, com cidade, telefone e áreas de ajuda).
 - `src/pages/PerfilAdmin.jsx` — perfil do admin (`GET`/`PATCH /api/users/me`).
 - `src/pages/DashboardAdmin.jsx` — dashboard do admin com dados reais de
   `GET /api/users` (totais, tipos de conta, evolução das contas,

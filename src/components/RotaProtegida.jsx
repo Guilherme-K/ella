@@ -1,29 +1,21 @@
-
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
 
-function obterUsuario() {
-  try {
-    return JSON.parse(localStorage.getItem('usuarioLogado') || 'null')
-  } catch {
-    return null
-  }
-}
+import { normalizarPapel, obterUsuarioLogado } from '../utils/navegacao'
 
-function obterPapel(usuario) {
-  const papel = usuario?.tipo || usuario?.papel || usuario?.role || ''
-
-  return papel
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-}
-
-export default function RotaProtegida({ papeisPermitidos }) {
+export default function RotaProtegida({
+  papeisPermitidos,
+  exigirToken = false,
+}) {
   const location = useLocation()
-  const usuario = obterUsuario()
-  const papel = obterPapel(usuario)
+  const usuario = obterUsuarioLogado()
+  const papel = normalizarPapel(usuario)
 
-  if (!usuario?.id) {
+  // `exigirToken` garante que não basta ter dados antigos no localStorage:
+  // é preciso uma sessão válida salva após o login.
+  if (
+    !usuario?.id ||
+    (exigirToken && !localStorage.getItem('ella:token'))
+  ) {
     return (
       <Navigate
         to="/login"

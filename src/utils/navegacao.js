@@ -9,7 +9,20 @@ export function obterUsuarioLogado() {
 }
 
 export function normalizarPapel(usuario) {
-  return (usuario?.tipo || usuario?.papel || usuario?.role || '')
+  // O administrador é identificado tanto por "tipo" quanto por "accountType":
+  // o backend devolve ambos para manter compatibilidade com o frontend antigo.
+  if (usuario?.tipo === 'admin' || usuario?.accountType === 'admin') {
+    return 'admin'
+  }
+
+  const papel =
+    usuario?.accountType ||
+    usuario?.tipo ||
+    usuario?.papel ||
+    usuario?.role ||
+    ''
+
+  return papel
     .toLowerCase()
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')

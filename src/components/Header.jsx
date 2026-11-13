@@ -6,25 +6,11 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 import Brand from './Brand'
 import Avatar from './Avatar'
-
-function obterUsuario() {
-  try {
-    return JSON.parse(localStorage.getItem('usuarioLogado') || 'null')
-  } catch {
-    return null
-  }
-}
-
-function normalizarPapel(usuario) {
-  return (usuario?.tipo || usuario?.papel || usuario?.role || '')
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-}
+import { normalizarPapel, obterUsuarioLogado } from '../utils/navegacao'
 
 export default function Header({ variant = 'public' }) {
   const navigate = useNavigate()
-  const usuario = obterUsuario()
+  const usuario = obterUsuarioLogado()
   const papel = normalizarPapel(usuario)
 
   const destinos = {

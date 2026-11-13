@@ -7,6 +7,8 @@ import { useNavigate } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import BotaoVoltar from '../components/BotaoVoltar'
+import { userService } from '../services/userService'
+import { obterUsuarioLogado } from '../utils/navegacao'
 
 import {
     faHeart,
@@ -18,15 +20,20 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 
 function Voluntaria() {
-    const [dados, setDados] = useState({
-        nome: '',
-        email: '',
-        telefone: '',
-        cidade: '',
+    const [dados, setDados] = useState(() => {
+        const logado = obterUsuarioLogado()
+
+        return {
+            nome: logado?.nome || logado?.name || '',
+            email: logado?.email || '',
+            telefone: logado?.telefone || logado?.phone || '',
+            cidade: logado?.cidade || logado?.city || '',
+        }
     })
 
     const [ajuda, setAjuda] = useState([])
     const [erro, setErro] = useState('')
+    const [enviando, setEnviando] = useState(false)
     const navigate = useNavigate()
 
     function handleChange(e) {
@@ -49,16 +56,36 @@ function Voluntaria() {
 
 
 
-    function handleSubmit(e) {
+    async function handleSubmit(e) {
         e.preventDefault()
+        setErro('')
 
         if (ajuda.length === 0) {
             setErro('Escolha pelo menos uma forma de ajudar.')
             return
         }
 
-        console.log({ ...dados, areas: ajuda })
-        navigate('/voluntaria/agradecimentovoluntaria')
+        if (!userService.getToken()) {
+            setErro('Para se inscrever, crie sua conta ou entre nela primeiro.')
+            return
+        }
+
+        setEnviando(true)
+
+        try {
+            await userService.registerVolunteer({
+                email: dados.email.trim(),
+                telefone: dados.telefone.trim(),
+                cidade: dados.cidade.trim(),
+                areas: ajuda,
+            })
+
+            navigate('/voluntaria/agradecimentovoluntaria')
+        } catch (error) {
+            setErro(error.message || 'Não foi possível enviar a inscrição.')
+        } finally {
+            setEnviando(false)
+        }
     }
 
     const opcoes = [
@@ -277,10 +304,11 @@ function Voluntaria() {
                             </div>
 
                             <button
-                                className="mx-auto mt-6 block rounded-full bg-pink-700 px-10 py-3 font-semibold text-white shadow-sm transition hover:bg-pink-800 focus:outline-none focus:ring-2 focus:ring-pink-400 focus:ring-offset-2"
+                                className="mx-auto mt-6 block rounded-full bg-pink-700 px-10 py-3 font-semibold text-white shadow-sm transition hover:bg-pink-800 focus:outline-none focus:ring-2 focus:ring-pink-400 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
                                 type="submit"
+                                disabled={enviando}
                             >
-                                Quero ser voluntária
+                                {enviando ? 'Enviando...' : 'Quero ser voluntária'}
                             </button>
 
                         </form>

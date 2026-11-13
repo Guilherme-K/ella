@@ -31,6 +31,7 @@ const userFilter = {
   bio: true,
   city: true,
   phone: true,
+  areasAtuacao: true,
   createdAt: true,
 };
 
@@ -43,6 +44,7 @@ function serializeUser(user) {
     nome: user.name,
     apelido: user.nickname,
     tipo: user.role,
+    areas_atuacao: user.areasAtuacao,
   };
 }
 
@@ -112,6 +114,27 @@ function readPhoto(value) {
   return dataUrl;
 }
 
+// Formas de ajuda do cadastro de voluntárias (mesmas opções da página
+// /voluntaria). "Profissional" indica atuação profissional e passa a conta
+// para o tipo "psicologa".
+const VOLUNTEER_AREAS = ['Acolhimento', 'Divulgação', 'Eventos', 'Profissional'];
+
+function readAreas(value) {
+  if (value === undefined) return undefined;
+  if (value === null) return null;
+
+  const raw = Array.isArray(value) ? value : String(value).split(',');
+  const areas = [
+    ...new Set(raw.map((area) => String(area).trim()).filter(Boolean)),
+  ];
+
+  if (!areas.every((area) => VOLUNTEER_AREAS.includes(area))) {
+    throw createError(400, 'Forma de ajudar inválida');
+  }
+
+  return VOLUNTEER_AREAS.filter((area) => areas.includes(area)).join(', ');
+}
+
 async function buildProfileChanges(data) {
   const changes = {};
 
@@ -146,6 +169,12 @@ async function buildProfileChanges(data) {
 
   if (data.phone !== undefined || data.telefone !== undefined) {
     changes.phone = readOptionalString(data.phone ?? data.telefone);
+  }
+
+  if (data.areasAtuacao !== undefined || data.areas_atuacao !== undefined) {
+    changes.areasAtuacao = readAreas(
+      data.areasAtuacao ?? data.areas_atuacao,
+    );
   }
 
   if (data.avatar !== undefined) {
@@ -273,6 +302,72 @@ router.post('/login', async (req, res) => {
   const token = generateToken(userWithoutPassword);
 
   res.json({ user: serializeUser(userWithoutPassword), token });
+});
+
+// POST /api/users/me/voluntaria
+// Inscrição de voluntária: atualiza os dados da própria conta autenticada.
+// Quem escolhe "Profissional" passa a ser do tipo "psicologa"; o papel de
+// administrador nunca é alterado por esta rota.
+router.post('/me/voluntaria', authenticate, async (req, res) => {
+  const data = req.body ?? {};
+
+  const current = await prisma.user.findUniqueOrThrow({
+    where: { id: req.user.id },
+    select: { email: true, role: true, accountType: true },
+  });
+
+  if (current.role === 'admin') {
+    throw createError(403, 'Esta conta não pode se inscrever como voluntária');
+  }
+
+  if (
+    data.email !== undefined &&
+    normalizeEmail(data.email) !== normalizeEmail(current.email)
+  ) {
+    throw createError(
+      403,
+      'O e-mail informado não corresponde à conta autenticada',
+    );
+  }
+
+  const city = readOptionalString(data.city ?? data.cidade);
+  if (!city) {
+    throw createError(400, 'Informe a sua cidade');
+  }
+  if (city.length > 100) {
+    throw createError(400, 'Cidade inválida');
+  }
+
+  const phone = readOptionalString(data.phone ?? data.telefone);
+  if (phone && phone.length > 20) {
+    throw createError(400, 'Telefone inválido');
+  }
+
+  const areas = readAreas(
+    data.areas ?? data.areasAtuacao ?? data.areas_atuacao,
+  );
+  if (!areas) {
+    throw createError(400, 'Escolha pelo menos uma forma de ajudar');
+  }
+
+  const accountType =
+    current.role === 'psicologa' || areas.includes('Profissional')
+      ? 'psicologa'
+      : 'voluntaria';
+
+  const user = await prisma.user.update({
+    where: { id: req.user.id },
+    data: {
+      role: accountType,
+      accountType,
+      city,
+      phone,
+      areasAtuacao: areas,
+    },
+    select: userFilter,
+  });
+
+  res.json({ user: serializeUser(user) });
 });
 
 // GET /api/users/:id

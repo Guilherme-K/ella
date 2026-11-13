@@ -135,6 +135,7 @@ A API ficará disponível em `http://127.0.0.1:5000`.
 | GET | `/api/users` | Lista os usuários (sem senha) | Bearer token (admin) |
 | GET | `/api/users/me` | Exibe o usuário autenticado | Bearer token |
 | PATCH | `/api/users/me` | Atualiza perfil/avatar/foto do usuário autenticado | Bearer token |
+| POST | `/api/users/me/voluntaria` | Inscrição de voluntária (cidade, telefone e áreas) | Bearer token |
 | GET | `/api/users/:id` | Exibe um usuário | Não |
 | POST | `/api/users` | Cadastra um usuário | Não |
 | POST | `/api/users/login` | Login e geração do token JWT | Não |
@@ -230,6 +231,29 @@ frontend com **DiceBear** (`@dicebear/core` e `@dicebear/styles`), a partir
 das definições em `src/data/avatars.js`. Os presets usam apenas os estilos
 da linha de arte do Lorelei: `lorelei`, `lorelei-neutral`, `adventurer` e
 `adventurer-neutral`.
+
+### Inscrição de voluntária
+
+A página `/voluntaria` salva a inscrição na conta autenticada e atualiza o
+tipo de conta. As formas de ajuda aceitas são `Acolhimento`, `Divulgação`,
+`Eventos` e `Profissional` (esta última passa a conta para `psicologa`):
+
+```http
+POST /api/users/me/voluntaria
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "email": "maria@example.com",
+  "telefone": "(11) 98765-4321",
+  "cidade": "São Paulo - SP",
+  "areas": ["Acolhimento", "Eventos"]
+}
+```
+
+O e-mail, quando enviado, precisa ser o mesmo da conta do token. Contas
+`admin` não podem usar esta rota. Os dados ficam em `city`, `phone` e
+`areasAtuacao` (devolvido também como `areas_atuacao`).
 
 ### Foto de perfil
 

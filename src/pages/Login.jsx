@@ -1,19 +1,14 @@
 import { useState } from 'react'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import womenArtwork from '../assets/mulheres.png'
-import { destinoPorPapel, obterUsuarioLogado } from '../utils/navegacao'
+import {
+  destinoPorPapel,
+  normalizarPapel,
+  obterUsuarioLogado,
+} from '../utils/navegacao'
 import BotaoVoltar from '../components/BotaoVoltar'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000'
-
-function normalizarPapel(usuario) {
-  const papel = usuario?.tipo || usuario?.papel || usuario?.role || ''
-
-  return papel
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-}
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -58,6 +53,13 @@ export default function Login() {
 
       if (!usuario?.id) {
         setMessage('Não foi possível identificar os dados da sua conta.')
+        return
+      }
+
+      const token = dados.token || usuario.token
+
+      if (typeof token !== 'string' || !token.trim()) {
+        setMessage('O servidor não retornou o token de acesso. Tente novamente.')
         return
       }
 
