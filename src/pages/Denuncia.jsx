@@ -1,15 +1,12 @@
+import BotaoVoltar from '../components/BotaoVoltar'
+
 export default function Denuncia() {
   return (
     <main className="min-h-screen bg-[#fff5ff] px-6 py-10">
 
       <div className="max-w-5xl mx-auto">
 
-        <button
-          onClick={() => window.history.back()}
-          className="text-purple-900 mb-8"
-        >
-          ← Voltar
-        </button>
+        <BotaoVoltar className="mb-8" />
 
         <h1 className="text-3xl font-bold text-purple-950 mb-3">
           Saiba como e onde denunciar
@@ -69,7 +66,7 @@ export default function Denuncia() {
             </p>
 
             <a
-              href="#"
+              href="tel:190"
               className="block text-center bg-pink-600 text-white rounded-full py-3"
             >
               Ligar

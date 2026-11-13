@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Navigate } from 'react-router-dom'
 import { formatarHora, lerUsuarioLogado, useChat } from '../services/useChat'
+import BotaoVoltar from '../components/BotaoVoltar'
 
 function ChatUsuario() {
     const usuario = lerUsuarioLogado()
@@ -42,26 +43,23 @@ function ChatUsuario() {
             <section className="bg-white rounded-3xl shadow-lg max-w-3xl mx-auto overflow-hidden">
 
                 <div className="flex items-center justify-between px-6 py-4 border-b border-violet-100 flex-wrap gap-3">
+                    <div className="flex items-center gap-4">
+                        <BotaoVoltar />
 
-                     <button
-          onClick={() => window.history.back()}
-          className="text-purple-900 mb-8"
-        >
-          ← Voltar
-        </button>
-                    <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-full bg-linear-to-br from-pink-300 to-purple-500 flex items-center justify-center text-white font-bold">
-                            M
-                        </div>
+                        <div className="flex items-center gap-3">
+                            <div className="w-12 h-12 rounded-full bg-linear-to-br from-pink-300 to-purple-500 flex items-center justify-center text-white font-bold">
+                                M
+                            </div>
 
-                        <div>
-                            <h2 className="font-bold text-[#4c1d95]">Maria</h2>
-                            <p className="text-xs text-gray-500">● Online</p>
+                            <div>
+                                <h2 className="font-bold text-[#4c1d95]">Maria</h2>
+                                <p className="text-xs text-gray-500">● Online</p>
+                            </div>
                         </div>
                     </div>
 
                     <a
-                        href="#"
+                        href="tel:180"
                         className="flex items-center justify-center gap-2 bg-pink-600 text-white rounded-full py-2 px-4 text-sm font-semibold hover:bg-pink-700 transition"
                     >
                         <i className="fa-solid fa-phone" />

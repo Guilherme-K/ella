@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import womenArtwork from '../assets/mulheres.png'
+import BotaoVoltar from '../components/BotaoVoltar'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
@@ -25,12 +26,12 @@ export default function Login() {
   const [carregando, setCarregando] = useState(false)
 
   const navigate = useNavigate()
+  const location = useLocation()
 
   async function submit(event) {
     event.preventDefault()
     setMessage('')
     setCarregando(true)
-
     try {
       const resposta = await fetch(`${API_URL}/login`, {
         method: 'POST',
@@ -92,7 +93,17 @@ export default function Login() {
       localStorage.setItem('usuarioLogado', JSON.stringify(usuario))
       localStorage.setItem('ella:token', token)
 
-      navigate(destinos[papel], { replace: true })
+      // Já deixa pronto para sincronizar o link de Saída Rápida vindo do banco no futuro
+      const linkSaidaBanco = usuario.saidaRapida || usuario.linkSaida
+      if (linkSaidaBanco) {
+        localStorage.setItem('ella_link_saida_rapida', linkSaidaBanco)
+      }
+
+      const destinoAnterior = location.state?.from
+
+      navigate(destinoAnterior || destinos[papel], {
+        replace: true,
+      })
     } catch {
       setMessage('Não foi possível conectar ao servidor. Tente novamente.')
     } finally {
@@ -104,6 +115,11 @@ export default function Login() {
     <main className="relative flex flex-1 items-center justify-center overflow-hidden bg-purple-100 px-4 py-12">
       <section className="relative min-h-144 w-full max-w-sm overflow-hidden rounded-2xl bg-white px-8 py-9 shadow-md">
         <div className="relative z-10">
+          {/* Botão Voltar no topo do formulário */}
+          <div className="mb-4">
+            <BotaoVoltar />
+          </div>
+
           <h1 className="font-serif text-2xl font-bold leading-tight text-violet-950">
             Entrar
           </h1>

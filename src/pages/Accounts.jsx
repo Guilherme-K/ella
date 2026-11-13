@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import BotaoVoltar from '../components/BotaoVoltar'
 
 function lerUsuarioLogado() {
   try {
@@ -32,6 +33,11 @@ export default function Accounts() {
   return (
     <main className="min-h-screen flex-1 bg-purple-100 px-4 py-12">
       <section className="mx-auto max-w-3xl rounded-3xl bg-white p-6 shadow-xl sm:p-10">
+        {/* Botão Voltar no topo do card */}
+        <div className="mb-5">
+          <BotaoVoltar />
+        </div>
+
         <h1 className="font-serif text-3xl font-bold text-violet-950">
           Contas cadastradas
         </h1>
