@@ -13,21 +13,33 @@ import BotaoVoltar from '../components/BotaoVoltar';
 
 
 export default function PerfilAdmin() {
-    const administrador = {
-        nome: 'Admin ELLA',
-        email: 'admin@ella.com',
-        cargo: 'Administradora',
-        status: 'Conta ativa',
-        cadastro: 'Novembro de 2026',
-        permissoes: [
-            'Gerenciar usuárias',
-            'Gerenciar voluntárias',
-            'Acompanhar atendimentos',
-            'Gerenciar denúncias',
-            'Administrar conteúdos',
-            'Acessar relatórios'
-        ]
+    const usuario = JSON.parse(
+        localStorage.getItem('usuarioLogado') || 'null'
+    );
+
+    const cargos = {
+        usuaria: 'Usuária',
+        voluntaria: 'Voluntária',
+        psicologa: 'Psicóloga',
+        admin: 'Administradora'
     };
+
+    const permissoes = [
+        'Gerenciar usuárias',
+        'Gerenciar voluntárias',
+        'Acompanhar atendimentos',
+        'Gerenciar denúncias',
+        'Administrar conteúdos',
+        'Acessar relatórios'
+    ];
+
+    if (!usuario || usuario.tipo !== 'admin') {
+        return (
+            <div className="p-6 text-center text-violet-950">
+                Acesso não autorizado.
+            </div>
+        );
+    }
 
     return (
         <div className="mx-auto max-w-5xl space-y-6">
@@ -42,19 +54,7 @@ export default function PerfilAdmin() {
                     </p>
                 </div>
 
-                            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-2xl font-bold text-violet-950">
-                        Meu perfil
-                    </h1>
-                    <p className="mt-1 text-sm text-gray-500">
-                        Visualize suas informações administrativas.
-                    </p>
-                </div>
-
                 <BotaoVoltar className="rounded-lg border border-violet-200 bg-white px-4 py-2 text-violet-800 hover:bg-violet-50 hover:text-violet-950" />
-            </div>
-
             </div>
 
             <section className="overflow-hidden rounded-2xl bg-white shadow-sm">
@@ -68,17 +68,17 @@ export default function PerfilAdmin() {
 
                         <div className="pb-2">
                             <h2 className="text-xl font-bold text-gray-800">
-                                {administrador.nome}
+                                {usuario.nome}
                             </h2>
                             <p className="text-sm text-gray-500">
-                                {administrador.cargo}
+                                {cargos[usuario.tipo]}
                             </p>
                         </div>
 
                         <div className="sm:ml-auto sm:pb-3">
                             <span className="inline-flex items-center gap-2 rounded-full bg-emerald-100 px-3 py-1.5 text-xs font-semibold text-emerald-700">
                                 <FontAwesomeIcon icon={faCheckCircle} />
-                                {administrador.status}
+                                Perfil administrativo
                             </span>
                         </div>
                     </div>
@@ -89,10 +89,7 @@ export default function PerfilAdmin() {
 
                 <section className="space-y-4 rounded-2xl bg-white p-6 shadow-sm lg:col-span-2">
                     <div className="flex items-center gap-3 border-b border-gray-100 pb-4">
-                        <FontAwesomeIcon
-                            icon={faUserGear}
-                            className="text-violet-700"
-                        />
+                        <FontAwesomeIcon icon={faUserGear} className="text-violet-700" />
                         <h3 className="font-bold text-violet-950">
                             Informações da conta
                         </h3>
@@ -104,7 +101,7 @@ export default function PerfilAdmin() {
                                 Nome
                             </p>
                             <p className="font-medium text-gray-800">
-                                {administrador.nome}
+                                {usuario.nome}
                             </p>
                         </div>
 
@@ -113,7 +110,7 @@ export default function PerfilAdmin() {
                                 Tipo de conta
                             </p>
                             <p className="font-medium text-gray-800">
-                                {administrador.cargo}
+                                {cargos[usuario.tipo]}
                             </p>
                         </div>
 
@@ -122,11 +119,8 @@ export default function PerfilAdmin() {
                                 E-mail
                             </p>
                             <p className="flex items-center gap-2 break-all font-medium text-gray-800">
-                                <FontAwesomeIcon
-                                    icon={faEnvelope}
-                                    className="text-violet-500"
-                                />
-                                {administrador.email}
+                                <FontAwesomeIcon icon={faEnvelope} className="text-violet-500" />
+                                {usuario.email}
                             </p>
                         </div>
 
@@ -135,11 +129,10 @@ export default function PerfilAdmin() {
                                 Data de cadastro
                             </p>
                             <p className="flex items-center gap-2 font-medium text-gray-800">
-                                <FontAwesomeIcon
-                                    icon={faCalendarDays}
-                                    className="text-violet-500"
-                                />
-                                {administrador.cadastro}
+                                <FontAwesomeIcon icon={faCalendarDays} className="text-violet-500" />
+                                {usuario.criado_em
+                                    ? new Date(usuario.criado_em).toLocaleDateString('pt-BR')
+                                    : 'Não informada'}
                             </p>
                         </div>
                     </div>
@@ -147,10 +140,7 @@ export default function PerfilAdmin() {
 
                 <section className="rounded-2xl bg-white p-6 shadow-sm">
                     <div className="mb-5 flex items-center gap-3 border-b border-gray-100 pb-4">
-                        <FontAwesomeIcon
-                            icon={faLock}
-                            className="text-violet-700"
-                        />
+                        <FontAwesomeIcon icon={faLock} className="text-violet-700" />
                         <h3 className="font-bold text-violet-950">
                             Segurança
                         </h3>
@@ -185,10 +175,7 @@ export default function PerfilAdmin() {
 
             <section className="rounded-2xl bg-white p-6 shadow-sm">
                 <div className="mb-5 flex items-center gap-3 border-b border-gray-100 pb-4">
-                    <FontAwesomeIcon
-                        icon={faShieldHalved}
-                        className="text-violet-700"
-                    />
+                    <FontAwesomeIcon icon={faShieldHalved} className="text-violet-700" />
                     <h3 className="font-bold text-violet-950">
                         Permissões da conta
                     </h3>
@@ -199,15 +186,12 @@ export default function PerfilAdmin() {
                 </p>
 
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                    {administrador.permissoes.map((permissao) => (
+                    {permissoes.map((permissao) => (
                         <div
                             key={permissao}
                             className="flex items-center gap-3 rounded-xl bg-violet-50 p-3"
                         >
-                            <FontAwesomeIcon
-                                icon={faCheckCircle}
-                                className="text-violet-600"
-                            />
+                            <FontAwesomeIcon icon={faCheckCircle} className="text-violet-600" />
                             <span className="text-sm text-violet-950">
                                 {permissao}
                             </span>

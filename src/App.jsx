@@ -23,13 +23,13 @@ import AdminLayout from './layouts/AdminLayout'
 import RedeApoio from './pages/RedeApoio'
 import Contato from './pages/Contato'
 import Perfil from './pages/Perfil'
+import PerfilVoluntaria from './pages/PerfilVoluntaria'
+import PerfilPsicologa from './pages/PerfilPsicologa'
 
 import RotaProtegida from './components/RotaProtegida'
 import Acessibilidade from './components/Acessibilidade'
 import VLibrasWidget from './components/VLibrasWidget'
-
 import SaidaRapida from './components/SaidaRapida'
-
 
 export default function App() {
   return (
@@ -64,20 +64,71 @@ export default function App() {
             }
           >
             <Route path="/contas" element={<Accounts />} />
+          </Route>
+
+          <Route
+            element={<RotaProtegida exigirToken papeisPermitidos={['usuaria']} />}
+          >
             <Route path="/perfiluser" element={<Perfil />} />
+          </Route>
+
+          <Route
+            element={
+              <RotaProtegida exigirToken papeisPermitidos={['voluntaria']} />
+            }
+          >
+            <Route path="/perfilvoluntaria" element={<PerfilVoluntaria />} />
+          </Route>
+
+          <Route
+            element={
+              <RotaProtegida exigirToken papeisPermitidos={['psicologa']} />
+            }
+          >
+            <Route path="/perfilpsicologa" element={<PerfilPsicologa />} />
+          </Route>
+
+          <Route
+            element={
+              <RotaProtegida
+                exigirToken
+                papeisPermitidos={[
+                  'usuaria',
+                  'voluntaria',
+                  'psicologa',
+                  'admin',
+                ]}
+              />
+            }
+          >
             <Route path="/chat" element={<Chat />} />
           </Route>
 
-          <Route element={<RotaProtegida papeisPermitidos={['usuaria']} />}>
+          <Route
+            element={
+              <RotaProtegida exigirToken papeisPermitidos={['usuaria']} />
+            }
+          >
             <Route path="/chatusuario" element={<ChatUsuario />} />
           </Route>
 
-          <Route element={<RotaProtegida papeisPermitidos={['voluntaria']} />}>
+          <Route
+            element={
+              <RotaProtegida
+                exigirToken
+                papeisPermitidos={['voluntaria', 'psicologa']}
+              />
+            }
+          >
             <Route path="/chatvoluntaria" element={<ChatVoluntaria />} />
           </Route>
         </Route>
 
-        <Route element={<RotaProtegida papeisPermitidos={['admin']} />}>
+        <Route
+          element={
+            <RotaProtegida exigirToken papeisPermitidos={['admin']} />
+          }
+        >
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<DashboardAdmin />} />
             <Route path="chats" element={<ChatAdmin />} />

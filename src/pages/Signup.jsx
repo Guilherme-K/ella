@@ -63,6 +63,7 @@ export default function Signup() {
       }
 
       const usuarioRecebido = dados.usuario || dados.user || dados
+      const token = dados.token || usuarioRecebido.token
 
       if (usuarioRecebido?.id) {
         const usuario = {
@@ -72,13 +73,20 @@ export default function Signup() {
             usuarioRecebido.papel ||
             usuarioRecebido.role ||
             'usuaria',
+          accountType:
+            usuarioRecebido.accountType ||
+            dados.accountType ||
+            usuarioRecebido.tipo ||
+            'usuaria',
+        }
+
+        if (typeof token !== 'string' || !token.trim()) {
+          setMessage('Cadastro realizado. Entre na sua conta para continuar.')
+          return
         }
 
         localStorage.setItem('usuarioLogado', JSON.stringify(usuario))
-
-        if (dados.token) {
-          localStorage.setItem('ella:token', dados.token)
-        }
+        localStorage.setItem('ella:token', token)
 
         navigate('/contas', { replace: true })
         return

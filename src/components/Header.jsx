@@ -17,7 +17,17 @@ function obterUsuario() {
 }
 
 function normalizarPapel(usuario) {
-  return (usuario?.tipo || usuario?.papel || usuario?.role || '')
+  if (usuario?.tipo === 'admin' || usuario?.accountType === 'admin') {
+    return 'admin'
+  }
+
+  return (
+    usuario?.accountType ||
+    usuario?.tipo ||
+    usuario?.papel ||
+    usuario?.role ||
+    ''
+  )
     .toLowerCase()
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
@@ -30,8 +40,8 @@ export default function Header({ variant = 'public' }) {
 
   const destinos = {
     usuaria: '/perfiluser',
-    voluntaria: '/chatvoluntaria',
-    psicologa: '/contas',
+    voluntaria: '/perfilvoluntaria',
+    psicologa: '/perfilpsicologa',
     admin: '/admin',
   }
 

@@ -1,16 +1,41 @@
 import { useState } from 'react'
+import { Navigate } from 'react-router-dom'
+import { formatarHora, lerUsuarioLogado, useChat } from '../services/useChat'
 import BotaoVoltar from '../components/BotaoVoltar'
 
 function ChatVoluntaria() {
+    const usuario = lerUsuarioLogado()
+    const { mensagens, carregando, erro, enviar, editar, excluir } = useChat()
     const [mensagem, setMensagem] = useState('')
-    const [mensagens, setMensagens] = useState([])
+    const [editandoId, setEditandoId] = useState(null)
+    const [textoEdicao, setTextoEdicao] = useState('')
 
-    function enviarMensagem(event) {
+    if (!usuario?.id || !localStorage.getItem('ella:token')) {
+        return <Navigate to="/login" replace />
+    }
+
+    if (!['voluntaria', 'psicologa'].includes(usuario.accountType || usuario.tipo)) {
+        return <Navigate to="/chat" replace />
+    }
+
+    const inicial = (usuario.nome || 'V').trim().charAt(0).toUpperCase()
+
+    async function enviarMensagem(event) {
         event.preventDefault()
         if (!mensagem.trim()) return
 
-        setMensagens([...mensagens, mensagem])
-        setMensagem('')
+        if (await enviar(mensagem)) {
+            setMensagem('')
+        }
+    }
+
+    async function salvarEdicao(id) {
+        if (!textoEdicao.trim()) return
+
+        if (await editar(id, textoEdicao)) {
+            setEditandoId(null)
+            setTextoEdicao('')
+        }
     }
 
     return (
@@ -40,41 +65,58 @@ function ChatVoluntaria() {
 
                 <div className="px-5 pb-8 space-y-5">
 
-                    <div className="flex items-start gap-3">
-                        <div className="w-10 h-10 rounded-full bg-pink-300 flex items-center justify-center text-white font-bold shrink-0">
-                            J
-                        </div>
+                    {carregando && (
+                        <p className="text-center text-sm text-[#a29bc9]">Carregando mensagens...</p>
+                    )}
 
-                        <div className="max-w-[75%] px-4 py-3 rounded-2xl rounded-tl-sm bg-[#f9d8f5] text-[#5540a0]">
-                            <p className="text-sm">
-                                Olá, Mariana. Estou passando por uma situação difícil e gostaria de conversar.
-                            </p>
-                            <p className="text-right text-[10px] text-[#a29bc9] mt-2">10:14</p>
-                        </div>
-                    </div>
+                    {erro && (
+                        <p role="alert" className="text-center text-sm text-pink-600">{erro}</p>
+                    )}
 
-                    <div className="flex items-start gap-3 justify-end">
-                        <div className="max-w-[75%] px-4 py-3 rounded-2xl rounded-tr-sm bg-[#f1efff] text-[#50449b]">
-                            <p className="text-sm">
-                                Olá, Juliana! Estou aqui para ouvir você. Pode conversar comigo com tranquilidade.
-                            </p>
-                            <p className="text-right text-[10px] text-[#a29bc9] mt-2">10:16</p>
-                        </div>
+                    {!carregando && mensagens.length === 0 && !erro && (
+                        <p className="text-center text-sm text-[#a29bc9]">Você ainda não tem mensagens. Escreva a primeira abaixo.</p>
+                    )}
 
-                        <div className="w-10 h-10 rounded-full bg-purple-400 flex items-center justify-center text-white font-bold shrink-0">
-                            M
-                        </div>
-                    </div>
-
-                    {mensagens.map((item, index) => (
-                        <div key={index} className="flex items-start gap-3 justify-end">
+                    {mensagens.map((item) => (
+                        <div key={item.id} className="flex items-start gap-3 justify-end">
                             <div className="max-w-[75%] px-4 py-3 rounded-2xl rounded-tr-sm bg-[#f1efff] text-[#50449b]">
-                                <p className="text-sm wrap-break-word">{item}</p>
-                                <p className="text-right text-[10px] text-[#a29bc9] mt-2">Agora</p>
+                                {editandoId === item.id ? (
+                                    <div className="flex flex-col gap-2">
+                                        <input
+                                            type="text"
+                                            value={textoEdicao}
+                                            onChange={(event) => setTextoEdicao(event.target.value)}
+                                            aria-label="Editar mensagem"
+                                            className="rounded border border-violet-200 bg-white px-2 py-1 text-sm outline-none"
+                                        />
+                                        <div className="flex justify-end gap-3 text-xs">
+                                            <button type="button" onClick={() => salvarEdicao(item.id)} className="text-green-700">Salvar</button>
+                                            <button type="button" onClick={() => setEditandoId(null)} className="text-[#8050c9]">Cancelar</button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <>
+                                        <p className="text-sm wrap-break-word">{item.mensagem}</p>
+                                        <div className="mt-2 flex items-center justify-end gap-3 text-[10px] text-[#a29bc9]">
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setEditandoId(item.id)
+                                                    setTextoEdicao(item.mensagem)
+                                                }}
+                                                className="underline"
+                                            >
+                                                Editar
+                                            </button>
+                                            <button type="button" onClick={() => excluir(item.id)} className="underline">Excluir</button>
+                                            <span>{formatarHora(item.enviada_em)}</span>
+                                        </div>
+                                    </>
+                                )}
                             </div>
 
                             <div className="w-10 h-10 rounded-full bg-purple-400 flex items-center justify-center text-white font-bold shrink-0">
-                                M
+                                {inicial}
                             </div>
                         </div>
                     ))}
@@ -105,4 +147,4 @@ function ChatVoluntaria() {
     )
 }
 
-export default ChatVoluntaria;
+export default ChatVoluntaria

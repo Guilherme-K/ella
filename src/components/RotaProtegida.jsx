@@ -10,7 +10,16 @@ function obterUsuario() {
 }
 
 function obterPapel(usuario) {
-  const papel = usuario?.tipo || usuario?.papel || usuario?.role || ''
+  if (usuario?.tipo === 'admin' || usuario?.accountType === 'admin') {
+    return 'admin'
+  }
+
+  const papel =
+    usuario?.accountType ||
+    usuario?.tipo ||
+    usuario?.papel ||
+    usuario?.role ||
+    ''
 
   return papel
     .toLowerCase()
@@ -18,12 +27,15 @@ function obterPapel(usuario) {
     .replace(/[\u0300-\u036f]/g, '')
 }
 
-export default function RotaProtegida({ papeisPermitidos }) {
+export default function RotaProtegida({
+  papeisPermitidos,
+  exigirToken = false,
+}) {
   const location = useLocation()
   const usuario = obterUsuario()
   const papel = obterPapel(usuario)
 
-  if (!usuario?.id) {
+  if (!usuario?.id || (exigirToken && !localStorage.getItem('ella:token'))) {
     return (
       <Navigate
         to="/login"
@@ -34,7 +46,14 @@ export default function RotaProtegida({ papeisPermitidos }) {
   }
 
   if (papeisPermitidos && !papeisPermitidos.includes(papel)) {
-    return <Navigate to="/" replace />
+    const destinos = {
+      usuaria: '/chatusuario',
+      voluntaria: '/chatvoluntaria',
+      psicologa: '/chatvoluntaria',
+      admin: '/admin',
+    }
+
+    return <Navigate to={destinos[papel] || '/'} replace />
   }
 
   return <Outlet />

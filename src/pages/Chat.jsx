@@ -1,26 +1,24 @@
-
 import { Navigate } from 'react-router-dom'
+import { lerUsuarioLogado } from '../services/useChat'
 
 function Chat() {
-  let usuario = null
+  const usuario = lerUsuarioLogado()
 
-  try {
-    usuario = JSON.parse(localStorage.getItem('usuarioLogado') || 'null')
-  } catch {
-    usuario = null
-  }
-
-  if (!usuario?.id) {
+  if (!usuario?.id || !localStorage.getItem('ella:token')) {
     return <Navigate to="/login" replace />
   }
 
-  const tipo = (usuario.tipo || usuario.papel || usuario.role || '')
+  const tipo = (
+    usuario.tipo === 'admin'
+      ? 'admin'
+      : usuario.accountType || usuario.tipo || usuario.papel || usuario.role || ''
+  )
     .toLowerCase()
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
 
   if (tipo === 'admin') {
-    return <Navigate to="/admin/chats" replace />
+    return <Navigate to="/admin" replace />
   }
 
   if (tipo === 'voluntaria') {
@@ -32,7 +30,7 @@ function Chat() {
   }
 
   if (tipo === 'psicologa') {
-    return <Navigate to="/" replace />
+    return <Navigate to="/chatvoluntaria" replace />
   }
 
   return <Navigate to="/" replace />

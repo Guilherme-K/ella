@@ -6,9 +6,13 @@ import BotaoVoltar from '../components/BotaoVoltar'
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
 function normalizarPapel(usuario) {
-  const papel = usuario?.tipo || usuario?.papel || usuario?.role || ''
+  if (usuario?.tipo === 'admin' || usuario?.accountType === 'admin') {
+    return 'admin'
+  }
 
-  return papel
+  const tipo = usuario?.accountType || usuario?.tipo || 'usuaria'
+
+  return tipo
     .toLowerCase()
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
@@ -28,7 +32,6 @@ export default function Login() {
     event.preventDefault()
     setMessage('')
     setCarregando(true)
-
     try {
       const resposta = await fetch(`${API_URL}/login`, {
         method: 'POST',
@@ -52,7 +55,22 @@ export default function Login() {
         return
       }
 
-      const usuario = dados.usuario || dados.user || dados
+      const usuarioRecebido = dados.usuario || dados.user || dados
+      const token = dados.token || usuarioRecebido.token
+
+      if (typeof token !== 'string' || !token.trim()) {
+        setMessage('O servidor não retornou o token de acesso. Tente novamente.')
+        return
+      }
+
+      const usuario = {
+        ...usuarioRecebido,
+        accountType:
+          usuarioRecebido.accountType ||
+          dados.accountType ||
+          usuarioRecebido.tipo ||
+          'usuaria',
+      }
 
       if (!usuario?.id) {
         setMessage('Não foi possível identificar os dados da sua conta.')
@@ -62,27 +80,23 @@ export default function Login() {
       const papel = normalizarPapel(usuario)
 
       const destinos = {
-        usuaria: '/contas',
+        usuaria: '/chatusuario',
         voluntaria: '/chatvoluntaria',
-        psicologa: '/contas',
+        psicologa: '/chatvoluntaria',
         admin: '/admin',
       }
-
       if (!destinos[papel]) {
         setMessage('O tipo de acesso desta conta não foi identificado.')
         return
       }
 
       localStorage.setItem('usuarioLogado', JSON.stringify(usuario))
+      localStorage.setItem('ella:token', token)
 
       // Já deixa pronto para sincronizar o link de Saída Rápida vindo do banco no futuro
       const linkSaidaBanco = usuario.saidaRapida || usuario.linkSaida
       if (linkSaidaBanco) {
         localStorage.setItem('ella_link_saida_rapida', linkSaidaBanco)
-      }
-
-      if (dados.token) {
-        localStorage.setItem('ella:token', dados.token)
       }
 
       const destinoAnterior = location.state?.from

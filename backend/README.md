@@ -87,7 +87,8 @@ npm run prisma:studio
 npm run dev
 ```
 
-A API ficará disponível em `http://127.0.0.1:5000`.
+A API ficará disponível em `http://localhost:3000` por padrão. A porta pode
+ser alterada pela variável `PORT`.
 
 ## Endpoints
 
@@ -178,4 +179,3 @@ import { userService } from '../services/userService'
 const { user, token } = await userService.login({ email, password })
 // O token fica salvo em localStorage na chave "ella:token"
 ```
-

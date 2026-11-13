@@ -3,18 +3,19 @@ import { useLocation } from 'react-router-dom';
 
 export default function SaidaRapida({ modo = 'global', className = '' }) {
   const LINK_PADRAO = 'https://youtube.com';
-  const [urlDestino, setUrlDestino] = useState(LINK_PADRAO);
+  const [urlDestino, setUrlDestino] = useState(() => {
+    return localStorage.getItem('ella_link_saida_rapida') || LINK_PADRAO;
+  });
   const [mostrarFlutuante, setMostrarFlutuante] = useState(false);
   
   const ancoraRef = useRef(null);
   const location = useLocation();
 
-  useEffect(() => {
-    const linkPersonalizado = localStorage.getItem('ella_link_saida_rapida');
-    if (linkPersonalizado && linkPersonalizado.trim() !== '') {
-      setUrlDestino(linkPersonalizado);
-    }
+  const acionarSaida = () => {
+    window.location.replace(urlDestino);
+  };
 
+  useEffect(() => {
     let ultimoEsc = 0;
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
@@ -47,10 +48,6 @@ export default function SaidaRapida({ modo = 'global', className = '' }) {
 
     return () => observador.disconnect();
   }, [modo]);
-
-  const acionarSaida = () => {
-    window.location.replace(urlDestino);
-  };
 
 
   if (modo === 'global' && location.pathname === '/') {
