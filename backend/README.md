@@ -121,7 +121,7 @@ A API ficará disponível em `http://127.0.0.1:5000`.
 | GET | `/teste-banco` | Testa a conexão com o banco | Não |
 | POST | `/cadastro` | Cadastro (compatível com o frontend da main) | Não |
 | POST | `/login` | Login (compatível com o frontend da main) | Não |
-| GET | `/api/users` | Lista os usuários (sem senha) | Não |
+| GET | `/api/users` | Lista os usuários (sem senha) | Bearer token (admin) |
 | GET | `/api/users/me` | Exibe o usuário autenticado | Bearer token |
 | PATCH | `/api/users/me` | Atualiza perfil/avatar/foto do usuário autenticado | Bearer token |
 | GET | `/api/users/:id` | Exibe um usuário | Não |
@@ -129,6 +129,8 @@ A API ficará disponível em `http://127.0.0.1:5000`.
 | POST | `/api/users/login` | Login e geração do token JWT | Não |
 | PATCH | `/api/users/:id` | Atualiza os próprios dados | Bearer token |
 | DELETE | `/api/users/:id` | Exclui a própria conta | Bearer token |
+| POST | `/api/emergencia/acionamentos` | Registra um acionamento do botão de emergência | Não |
+| GET | `/api/emergencia/acionamentos/total` | Retorna o total de acionamentos | Não |
 
 ### Cadastro
 
@@ -139,12 +141,16 @@ Content-Type: application/json
 {
   "name": "Maria Silva",
   "email": "maria@example.com",
-  "password": "12345678"
+  "password": "12345678",
+  "accountType": "psicologa",
+  "crm": "CRP 00/000000"
 }
 ```
 
 Também é aceito o campo `nome` no lugar de `name`, para facilitar a
-integração futura com o formulário atual do frontend.
+integração futura com o formulário atual do frontend. O `accountType` aceita
+`usuaria` (padrão), `voluntaria` ou `psicologa`; o `crm` só é salvo para
+psicólogas e não passa por validação de formato.
 
 ### Login
 
@@ -167,6 +173,8 @@ Resposta:
     "name": "Maria Silva",
     "email": "maria@example.com",
     "role": "usuaria",
+    "accountType": "usuaria",
+    "crm": null,
     "avatar": "avatar-1",
     "photo": null,
     "nickname": null,
@@ -237,17 +245,25 @@ Authorization: Bearer <token>
 
 ```prisma
 model User {
+  id          Int      @id @default(autoincrement())
+  email       String   @unique
+  name        String?
+  password    String?
+  role        String   @default("usuaria")
+  accountType String   @default("usuaria")
+  crm         String?
+  avatar      String   @default("avatar-1")
+  photo       String?  @db.LongText
+  nickname    String?
+  bio         String?  @db.Text
+  city        String?
+  phone       String?
+  createdAt   DateTime @default(now())
+}
+
+model EmergencyCall {
   id        Int      @id @default(autoincrement())
-  email     String   @unique
-  name      String?
-  password  String?
-  role      String   @default("usuaria")
-  avatar    String   @default("avatar-1")
-  photo     String?  @db.LongText
-  nickname  String?
-  bio       String?  @db.Text
-  city      String?
-  phone     String?
+  type      String   @default("ligacao_policial")
   createdAt DateTime @default(now())
 }
 ```
@@ -258,15 +274,18 @@ As telas de cadastro, login e contas usam a API:
 
 - `src/pages/Signup.jsx` chama `POST /cadastro`.
 - `src/pages/Login.jsx` chama `POST /login`.
-- `src/pages/Accounts.jsx` chama `GET /api/users` para exibir as contas.
+- `src/pages/Accounts.jsx` chama `GET /api/users` (somente admin) para exibir
+  e pesquisar as contas.
 - `src/pages/Perfil.jsx` (Minha área) chama `GET` e `PATCH /api/users/me`.
 - `src/pages/PerfilAdmin.jsx` mostra os dados do admin e permite trocar o avatar ou enviar uma foto.
+- `src/pages/Home.jsx` e `src/pages/Emergencia.jsx` usam as rotas
+  `/api/emergencia/acionamentos` para contabilizar os acionamentos.
 
 As rotas `/cadastro` e `/login` são de compatibilidade com o frontend da
 `main` e usam o Prisma por baixo dos panos. Elas retornam os campos
-`id`, `nome`, `email`, `tipo`, `avatar` e `token`, no formato esperado
-pelas telas atuais. O login também devolve `role`, para o redirecionamento
-por papel (`admin` → `/admin`).
+`id`, `nome`, `email`, `tipo`, `accountType`, `crm`, `avatar` e `token`, no
+formato esperado pelas telas atuais. O login também devolve `role`, para o
+redirecionamento por papel (`admin` → `/admin`).
 
 A camada de serviços em `src/services/` continua disponível:
 

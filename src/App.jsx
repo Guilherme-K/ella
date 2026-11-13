@@ -58,9 +58,12 @@ export default function App() {
             />
           }
         >
-          <Route path="/contas" element={<Accounts />} />
           <Route path="/perfiluser" element={<Perfil />} />
           <Route path="/chat" element={<Chat />} />
+        </Route>
+
+        <Route element={<RotaProtegida papeisPermitidos={['admin']} />}>
+          <Route path="/contas" element={<Accounts />} />
         </Route>
 
         <Route element={<RotaProtegida papeisPermitidos={['usuaria']} />}>

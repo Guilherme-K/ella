@@ -32,7 +32,7 @@ export default function Header({ variant = 'public' }) {
   const destinos = {
     usuaria: '/perfiluser',
     voluntaria: '/chatvoluntaria',
-    psicologa: '/contas',
+    psicologa: '/perfiluser',
     admin: '/admin',
   }
 
@@ -46,8 +46,9 @@ export default function Header({ variant = 'public' }) {
     return (
       <header className="flex h-16 items-center gap-4 bg-white px-4 shadow-sm sm:px-6">
         <Link
-          to="/admin"
+          to="/"
           className="flex shrink-0 items-center gap-2 text-pink-500"
+          aria-label="ELLA — página inicial"
         >
           <Brand className="h-9 w-9" />
           <span className="hidden sm:inline">ELLA</span>

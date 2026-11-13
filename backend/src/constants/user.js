@@ -5,6 +5,13 @@ export const USER_ROLES = ['usuaria', 'voluntaria', 'psicologa', 'admin'];
 
 export const DEFAULT_ROLE = 'usuaria';
 
+// Tipo de conta escolhido no cadastro. O papel (role) continua sendo "usuaria"
+// para todas elas; o tipo serve para a administração diferenciar voluntárias e
+// psicólogas no painel.
+export const ACCOUNT_TYPES = ['usuaria', 'voluntaria', 'psicologa'];
+
+export const DEFAULT_ACCOUNT_TYPE = 'usuaria';
+
 // Avatares pré-setados. O banco guarda apenas o identificador.
 export const AVATAR_IDS = [
   'avatar-1',

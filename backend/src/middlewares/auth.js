@@ -1,10 +1,13 @@
 import createError from '../utils/createError.js';
 import { verifyToken } from '../utils/jwt.js';
+import { prisma } from '../lib/prisma.js';
 
 // Middleware de autenticação:
 // exige o cabeçalho "Authorization: Bearer <token>".
 // Se o token for válido, guarda os dados do usuário em req.user.
-function authenticate(req, res, next) {
+// O papel é lido do banco (e não apenas do token) para que tokens antigos,
+// emitidos antes da inclusão do papel, continuem funcionando.
+async function authenticate(req, res, next) {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -13,12 +16,24 @@ function authenticate(req, res, next) {
 
   const token = authHeader.split(' ')[1];
 
+  let payload;
+
   try {
-    const payload = verifyToken(token);
-    req.user = { id: Number(payload.sub), email: payload.email };
+    payload = verifyToken(token);
   } catch {
     throw createError(401, 'Token inválido ou expirado');
   }
+
+  const user = await prisma.user.findUnique({
+    where: { id: Number(payload.sub) },
+    select: { id: true, email: true, role: true },
+  });
+
+  if (!user) {
+    throw createError(401, 'Usuário do token não existe mais');
+  }
+
+  req.user = user;
 
   next();
 }
@@ -36,4 +51,16 @@ function onlySelf(req, res, next) {
   next();
 }
 
-export { authenticate, onlySelf };
+// Exige que o usuário autenticado tenha um dos papéis informados.
+// Deve ser usado DEPOIS de authenticate.
+function requireRole(...roles) {
+  return (req, res, next) => {
+    if (!req.user || !roles.includes(req.user.role)) {
+      throw createError(403, 'Você não tem permissão para acessar este recurso');
+    }
+
+    next();
+  };
+}
+
+export { authenticate, onlySelf, requireRole };

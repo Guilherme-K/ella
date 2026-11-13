@@ -7,7 +7,8 @@ import { prisma } from '../lib/prisma.js';
 import createError from '../utils/createError.js';
 
 import { generateToken } from '../utils/jwt.js';
-import { authenticate, onlySelf } from '../middlewares/auth.js';
+import { authenticate, onlySelf, requireRole } from '../middlewares/auth.js';
+import { normalizeAccountType, readCrm } from '../utils/accountType.js';
 import {
   AVATAR_IDS,
   DEFAULT_AVATAR,
@@ -22,6 +23,8 @@ const userFilter = {
   name: true,
   email: true,
   role: true,
+  accountType: true,
+  crm: true,
   avatar: true,
   photo: true,
   nickname: true,
@@ -162,8 +165,8 @@ async function buildProfileChanges(data) {
 }
 
 // GET /api/users
-// Exibe os usuários cadastrados (sem a senha).
-router.get('/', async (req, res) => {
+// Exibe os usuários cadastrados (sem a senha). Apenas administradores.
+router.get('/', authenticate, requireRole('admin'), async (req, res) => {
   const users = await prisma.user.findMany({
     select: userFilter,
     orderBy: { id: 'asc' },
@@ -202,7 +205,9 @@ router.patch('/me', authenticate, async (req, res) => {
 });
 
 // POST /api/users
-// Cadastro de usuário. O cadastro público sempre cria uma "usuaria".
+// Cadastro de usuário. O cadastro público cria "usuaria" (role) e permite
+// escolher o tipo de conta (usuária, voluntária ou psicóloga) para exibição
+// no painel admin. Psicólogas podem informar CRM (sem validação).
 router.post('/', async (req, res) => {
   const data = req.body ?? {};
 
@@ -212,12 +217,19 @@ router.post('/', async (req, res) => {
 
   validatePassword(data.password);
 
+  const accountType = normalizeAccountType(data.accountType ?? data.tipoConta);
+  if (!accountType) {
+    throw createError(400, 'Tipo de conta inválido');
+  }
+
   const user = await prisma.user.create({
     data: {
       email: normalizeEmail(data.email),
       name: readName(data),
       password: await bcrypt.hash(data.password, 10),
       role: DEFAULT_ROLE,
+      accountType,
+      crm: accountType === 'psicologa' ? readCrm(data.crm) : null,
       avatar: DEFAULT_AVATAR,
     },
     select: userFilter,

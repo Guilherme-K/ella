@@ -11,16 +11,25 @@ datasource db {
 }
 
 model User {
+  id          Int      @id @default(autoincrement())
+  email       String   @unique
+  name        String?
+  password    String?
+  role        String   @default("usuaria")
+  accountType String   @default("usuaria")
+  crm         String?
+  avatar      String   @default("avatar-1")
+  photo       String?  @db.LongText
+  nickname    String?
+  bio         String?  @db.Text
+  city        String?
+  phone       String?
+  createdAt   DateTime @default(now())
+}
+
+// Registro dos acionamentos do botão de emergência (ligação para o 190).
+model EmergencyCall {
   id        Int      @id @default(autoincrement())
-  email     String   @unique
-  name      String?
-  password  String?
-  role      String   @default("usuaria")
-  avatar    String   @default("avatar-1")
-  photo     String?  @db.LongText
-  nickname  String?
-  bio       String?  @db.Text
-  city      String?
-  phone     String?
+  type      String   @default("ligacao_policial")
   createdAt DateTime @default(now())
 }

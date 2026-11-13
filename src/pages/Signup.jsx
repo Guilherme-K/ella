@@ -16,6 +16,8 @@ export default function Signup() {
     email: '',
     password: '',
   })
+  const [tipoConta, setTipoConta] = useState('usuaria')
+  const [crm, setCrm] = useState('')
   const [confirmarSenha, setConfirmarSenha] = useState('')
   const [message, setMessage] = useState('')
   const [carregando, setCarregando] = useState(false)
@@ -48,6 +50,8 @@ export default function Signup() {
           nome: form.nome.trim(),
           email: form.email.trim(),
           password: form.password,
+          tipoConta,
+          crm: tipoConta === 'psicologa' ? crm.trim() : undefined,
         }),
       })
 
@@ -72,6 +76,10 @@ export default function Signup() {
             usuarioRecebido.papel ||
             usuarioRecebido.role ||
             'usuaria',
+          tipoConta:
+            usuarioRecebido.tipoConta ||
+            usuarioRecebido.accountType ||
+            tipoConta,
         }
 
         localStorage.setItem('usuarioLogado', JSON.stringify(usuario))
@@ -80,7 +88,7 @@ export default function Signup() {
           localStorage.setItem('ella:token', dados.token)
         }
 
-        navigate('/contas', { replace: true })
+        navigate('/perfiluser', { replace: true })
         return
       }
 
@@ -132,6 +140,40 @@ export default function Signup() {
               />
             </label>
           ))}
+
+          <label className="block text-sm font-medium text-violet-600">
+            Tipo de conta
+
+            <select
+              name="tipoConta"
+              value={tipoConta}
+              onChange={(event) => setTipoConta(event.target.value)}
+              className="mt-2 block w-full rounded-xl border border-purple-100 bg-purple-50 px-4 py-3 text-sm outline-none focus:border-pink-300"
+            >
+              <option value="usuaria">Usuária</option>
+              <option value="voluntaria">Voluntária</option>
+              <option value="psicologa">Psicóloga</option>
+            </select>
+          </label>
+
+          {tipoConta === 'psicologa' && (
+            <label className="block text-sm font-medium text-violet-600">
+              CRM
+
+              <input
+                type="text"
+                name="crm"
+                value={crm}
+                onChange={(event) => setCrm(event.target.value)}
+                placeholder="Informe seu CRM (opcional)"
+                className="mt-2 block w-full rounded-xl border border-purple-100 bg-purple-50 px-4 py-3 text-sm outline-none focus:border-pink-300"
+              />
+
+              <span className="mt-1 block text-xs font-normal text-violet-400">
+                O CRM é apenas informativo e não passa por validação.
+              </span>
+            </label>
+          )}
 
           <label className="block text-sm font-medium text-violet-600">
             Confirmar senha

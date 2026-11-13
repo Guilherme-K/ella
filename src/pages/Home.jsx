@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import womenArtwork from "../assets/mulheres.png";
 import { homeLinks, supportServices, violenceTypes } from "../data/homeData";
+import { BASE_URL } from "../services/httpClient";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const API_URL = BASE_URL;
 
 const perguntasFrequentes = [
   {

@@ -1,4 +1,6 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+import { BASE_URL } from '../services/httpClient'
+
+const API_URL = BASE_URL
 
 export default function Emergencia() {
   function registrarAcionamentoPolicia() {

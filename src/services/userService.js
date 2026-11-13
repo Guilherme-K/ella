@@ -28,6 +28,7 @@ function normalizeUser(user) {
     nome: user.name ?? user.nome,
     apelido: user.nickname ?? user.apelido,
     tipo: user.role ?? user.tipo,
+    tipoConta: user.accountType ?? user.tipoConta,
   }
 }
 
@@ -50,8 +51,8 @@ function clearSession() {
 }
 
 export const userService = {
-  // GET /api/users
-  list: () => httpClient.get(ENDPOINT),
+  // GET /api/users (somente admin — o backend valida o token e o papel)
+  list: () => httpClient.get(ENDPOINT, { token: getToken() }),
 
   // GET /api/users/me (usuário autenticado)
   me: async () => {

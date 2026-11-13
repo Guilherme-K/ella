@@ -62,10 +62,10 @@ export default function Login() {
       const papel = normalizarPapel(usuario)
 
       const destinos = {
-        usuaria: '/contas',
-        voluntaria: '/chatvoluntaria',
-        psicologa: '/contas',
         admin: '/admin',
+        voluntaria: '/chatvoluntaria',
+        psicologa: '/perfiluser',
+        usuaria: '/perfiluser',
       }
 
       if (!destinos[papel]) {

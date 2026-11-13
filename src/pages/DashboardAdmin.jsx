@@ -2,16 +2,18 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-    faBrain, faCalendarDays, faChevronRight, faComments, faDownload, faHeart,
-    faRotate, faUserGear, faUserPlus, faUsers,
+    faBell, faBrain, faCalendarDays, faChevronRight, faComments, faDownload,
+    faHeart, faRotate, faUserGear, faUserPlus, faUsers,
 } from '@fortawesome/free-solid-svg-icons';
 
 import Avatar from '../components/Avatar';
+import { BASE_URL } from '../services/httpClient';
 import { userService } from '../services/userService';
 
 // Dados reais das contas cadastradas. O projeto ainda não possui eventos,
 // denúncias, conteúdos ou atendimentos persistidos, então o dashboard mostra
-// apenas o que existe hoje no banco: contas, papéis e preenchimento de perfil.
+// apenas o que existe hoje no banco: contas, tipos de conta e preenchimento
+// de perfil.
 
 const PAPEIS = {
     usuaria: { rotulo: 'Usuária', cor: '#e11d8f', classe: 'bg-pink-100 text-pink-700' },
@@ -70,9 +72,25 @@ function tempoRelativo(valor) {
 }
 
 function papelDe(usuario) {
-    const role = usuario.role ?? usuario.tipo;
+    // O papel (role) é sempre "usuaria" para as novas voluntárias e
+    // psicólogas; o tipo de conta (accountType) é o que diferencia a exibição
+    // no painel. Contas antigas com role própria continuam sendo reconhecidas.
+    const role = String(usuario.role ?? usuario.tipo ?? '')
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '');
 
-    return PAPEIS[role] ? role : 'usuaria';
+    if (role === 'admin') return 'admin';
+    if (role === 'voluntaria' || role === 'psicologa') return role;
+
+    const tipo = String(usuario.accountType ?? usuario.tipoConta ?? '')
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '');
+
+    if (tipo === 'voluntaria' || tipo === 'psicologa') return tipo;
+
+    return 'usuaria';
 }
 
 function contarPorPapel(usuarios) {
@@ -181,11 +199,12 @@ function exportarContas(usuarios) {
     );
 
     const linhas = [
-        ['Nome', 'E-mail', 'Tipo', 'Cidade', 'Cadastro', 'Perfil'],
+        ['Nome', 'E-mail', 'Tipo', 'CRM', 'Cidade', 'Cadastro', 'Perfil'],
         ...ordenados.map((usuario) => [
             usuario.name ?? usuario.nome ?? '',
             usuario.email ?? '',
             PAPEIS[papelDe(usuario)].rotulo,
+            usuario.crm ?? '',
             usuario.city ?? usuario.cidade ?? '',
             formatarData(usuario.createdAt),
             perfilPreenchido(usuario).rotulo,
@@ -194,16 +213,38 @@ function exportarContas(usuarios) {
 
     // BOM e ponto e vírgula para abrir corretamente no Excel em português.
     const csv = `\uFEFF${linhas.map((linha) => linha.map(escaparCsv).join(';')).join('\r\n')}`;
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
+    const nomeArquivo = `ella-contas-${new Date().toISOString().slice(0, 10)}.csv`;
 
-    link.href = url;
-    link.download = `ella-contas-${new Date().toISOString().slice(0, 10)}.csv`;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    window.setTimeout(() => URL.revokeObjectURL(url), 0);
+    try {
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+
+        // Compatibilidade com versões antigas do Edge/IE.
+        if (window.navigator?.msSaveOrOpenBlob) {
+            window.navigator.msSaveOrOpenBlob(blob, nomeArquivo);
+            return;
+        }
+
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+
+        link.href = url;
+        link.download = nomeArquivo;
+        link.rel = 'noopener';
+        link.style.display = 'none';
+
+        document.body.appendChild(link);
+        link.click();
+
+        // Mantém o link e a URL vivos por tempo suficiente para o navegador
+        // concluir o download antes da limpeza.
+        window.setTimeout(() => {
+            link.remove();
+            URL.revokeObjectURL(url);
+        }, 1500);
+    } catch (error) {
+        console.error('Não foi possível exportar o CSV:', error);
+        window.alert('Não foi possível gerar o arquivo CSV. Tente novamente.');
+    }
 }
 
 function GraficoLinhas({ meses, series }) {
@@ -259,6 +300,8 @@ function AdminDashboard() {
     const [carregando, setCarregando] = useState(true);
     const [erro, setErro] = useState('');
     const [recarregar, setRecarregar] = useState(0);
+    const [totalEmergencia, setTotalEmergencia] = useState(null);
+    const [erroEmergencia, setErroEmergencia] = useState(false);
 
     useEffect(() => {
         let ativo = true;
@@ -284,6 +327,46 @@ function AdminDashboard() {
 
         return () => {
             ativo = false;
+        };
+    }, [recarregar]);
+
+    // Indicador de emergência: mesma informação exibida na Home.
+    useEffect(() => {
+        let ativo = true;
+
+        async function carregarEmergencia() {
+            try {
+                const resposta = await fetch(`${BASE_URL}/api/emergencia/acionamentos/total`);
+                const dados = await resposta.json().catch(() => ({}));
+
+                if (!resposta.ok) {
+                    throw new Error(dados?.error || 'Não foi possível consultar os acionamentos.');
+                }
+
+                const total = Number(dados.total);
+
+                if (!Number.isFinite(total)) {
+                    throw new Error('Contagem inválida.');
+                }
+
+                if (ativo) {
+                    setTotalEmergencia(total);
+                    setErroEmergencia(false);
+                }
+            } catch {
+                if (ativo) {
+                    setErroEmergencia(true);
+                }
+            }
+        }
+
+        carregarEmergencia();
+
+        const intervalo = window.setInterval(carregarEmergencia, 10000);
+
+        return () => {
+            ativo = false;
+            window.clearInterval(intervalo);
         };
     }, [recarregar]);
 
@@ -424,7 +507,7 @@ function AdminDashboard() {
                             </section>
 
                             <section className={card}>
-                                <h2 className={titulo}>Contas por papel</h2>
+                                <h2 className={titulo}>Contas por tipo</h2>
                                 <ul className="space-y-3">
                                     {distribuicao.map((item) => (
                                         <li key={item.role}>
@@ -445,7 +528,7 @@ function AdminDashboard() {
                                 </ul>
                                 <p className="mt-4 text-xs text-gray-500">
                                     {resumo.total > 0
-                                        ? `${papelDestaque.rotulo} é o papel mais comum (${papelDestaque.pct}% das contas).`
+                                        ? `${papelDestaque.rotulo} é o tipo mais comum (${papelDestaque.pct}% das contas).`
                                         : 'Nenhuma conta cadastrada ainda.'}
                                 </p>
                             </section>
@@ -473,12 +556,13 @@ function AdminDashboard() {
                             </div>
 
                             <div className="overflow-x-auto">
-                                <table className="w-full min-w-[640px] text-left text-sm">
+                                <table className="w-full min-w-[720px] text-left text-sm">
                                     <thead className="text-xs uppercase tracking-wide text-gray-400">
                                         <tr>
                                             <th className="py-2 font-medium">Conta</th>
                                             <th className="font-medium">E-mail</th>
                                             <th className="font-medium">Tipo</th>
+                                            <th className="font-medium">CRM</th>
                                             <th className="font-medium">Cadastro</th>
                                             <th className="font-medium">Perfil</th>
                                         </tr>
@@ -508,6 +592,9 @@ function AdminDashboard() {
                                                         <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${papel.classe}`}>
                                                             {papel.rotulo}
                                                         </span>
+                                                    </td>
+                                                    <td className="text-xs text-gray-600">
+                                                        {usuario.crm || '—'}
                                                     </td>
                                                     <td className="tabular-nums text-gray-600">
                                                         <span className="block">{formatarData(usuario.createdAt)}</span>
@@ -549,6 +636,43 @@ function AdminDashboard() {
                                     </li>
                                 ))}
                             </ul>
+                        </section>
+
+                        <section className={card}>
+                            <h2 className={titulo}>Indicador de emergência</h2>
+
+                            <div className="flex items-center gap-4 rounded-2xl bg-pink-50 px-4 py-4">
+                                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white text-pink-600">
+                                    <FontAwesomeIcon icon={faBell} />
+                                </span>
+
+                                <div>
+                                    <p className="font-serif text-3xl tabular-nums text-[#2e1065]">
+                                        {totalEmergencia === null
+                                            ? '—'
+                                            : totalEmergencia.toLocaleString('pt-BR')}
+                                    </p>
+                                    <p className="mt-0.5 text-xs text-gray-500">
+                                        Acionamentos registrados
+                                    </p>
+                                </div>
+                            </div>
+
+                            <p className="mt-3 text-xs text-gray-500">
+                                {totalEmergencia === null
+                                    ? erroEmergencia
+                                        ? 'Não foi possível consultar a contagem agora.'
+                                        : 'Carregando contagem...'
+                                    : 'Mesmo número exibido na Home. Atualizado automaticamente.'}
+                            </p>
+
+                            <Link
+                                to="/emergencia"
+                                className="mt-3 inline-flex items-center gap-2 text-sm text-[#5b21b6] underline underline-offset-4"
+                            >
+                                Abrir página de emergência
+                                <FontAwesomeIcon icon={faChevronRight} className="text-xs" />
+                            </Link>
                         </section>
 
                         <section className={card}>

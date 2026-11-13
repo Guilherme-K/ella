@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 
 import { prisma } from '../lib/prisma.js';
 import { generateToken } from '../utils/jwt.js';
+import { normalizeAccountType, readCrm } from '../utils/accountType.js';
 import {
   DEFAULT_AVATAR,
   DEFAULT_ROLE,
@@ -22,6 +23,8 @@ const userFilter = {
   name: true,
   email: true,
   role: true,
+  accountType: true,
+  crm: true,
   avatar: true,
   photo: true,
   nickname: true,
@@ -59,7 +62,7 @@ router.get('/teste-banco', async (req, res) => {
 
 router.post('/cadastro', async (req, res) => {
   try {
-    const { nome, email, password } = req.body ?? {};
+    const { nome, email, password, accountType, tipoConta, crm } = req.body ?? {};
 
     if (!nome || !email || !password) {
       return res.status(400).json({
@@ -70,6 +73,14 @@ router.post('/cadastro', async (req, res) => {
     if (String(password).length < 6) {
       return res.status(400).json({
         erro: 'A senha deve ter pelo menos 6 caracteres.',
+      });
+    }
+
+    const normalizedType = normalizeAccountType(accountType ?? tipoConta);
+
+    if (!normalizedType) {
+      return res.status(400).json({
+        erro: 'Tipo de conta inválido.',
       });
     }
 
@@ -92,6 +103,8 @@ router.post('/cadastro', async (req, res) => {
         email: normalizedEmail,
         password: await bcrypt.hash(password, 10),
         role: DEFAULT_ROLE,
+        accountType: normalizedType,
+        crm: normalizedType === 'psicologa' ? readCrm(crm) : null,
         avatar: DEFAULT_AVATAR,
       },
       select: userFilter,

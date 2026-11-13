@@ -19,10 +19,12 @@ app.use(express.urlencoded({ extended: false, limit: '8mb' }));
 import indexRouter from './routes/index.js';
 import usersRouter from './routes/users.js';
 import legacyAuthRouter from './routes/legacyAuth.js';
+import emergencyRouter from './routes/emergency.js';
 
 app.use('/', indexRouter);
 app.use('/', legacyAuthRouter);
 app.use('/api/users', usersRouter);
+app.use('/api/emergencia', emergencyRouter);
 
 // 404
 app.use((req, res) => {
