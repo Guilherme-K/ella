@@ -49,8 +49,8 @@ informar um **CRM**, que é apenas exibido (não há validação de formato).
 
 A conta administrativa é criada pelo seed:
 
-- **E-mail:** `admin@email.com`
-- **Senha:** `admin1234`
+- **E-mail:** `elladmin@email.com`
+- **Senha:** `12345678`
 - Acesso em `/admin`
 
 A rota `/contas` e a listagem `GET /api/users` são restritas ao admin. A logo

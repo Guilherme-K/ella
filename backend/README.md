@@ -97,8 +97,8 @@ O seed cria (ou atualiza) a conta administrativa de forma idempotente:
 npm run prisma:seed
 ```
 
-- E-mail: `admin@email.com`
-- Senha: `admin1234`
+- E-mail: `elladmin@email.com`
+- Senha: `12345678`
 - Papel: `admin` (acesso à rota `/admin`)
 
 O cadastro público sempre cria o papel `usuaria`; os demais papéis

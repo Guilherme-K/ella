@@ -6,8 +6,8 @@ import bcrypt from 'bcryptjs';
 import { prisma } from '../src/lib/prisma.js';
 import { DEFAULT_AVATAR } from '../src/constants/user.js';
 
-const ADMIN_EMAIL = 'admin@email.com';
-const ADMIN_PASSWORD = 'admin1234';
+const ADMIN_EMAIL = 'elladmin@email.com';
+const ADMIN_PASSWORD = '12345678';
 const ADMIN_NAME = 'Admin ELLA';
 
 async function main() {
