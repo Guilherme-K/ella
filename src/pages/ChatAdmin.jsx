@@ -6,6 +6,8 @@ import {
     faPhone, faShieldHalved, faTriangleExclamation, faUser, faVideo,
 } from '@fortawesome/free-solid-svg-icons';
 import Avatar from '../components/Avatar';
+import SavedChatMessage from '../components/SavedChatMessage';
+import { useChatMessages } from '../hooks/useChatMessages';
 
 const usuario = { nome: 'Mariana Costa', papel: 'Voluntária' };
 
@@ -51,29 +53,45 @@ const classeTag = (tag) =>
 
 function ChatAdmin() {
     const [selecionadoId, setSelecionadoId] = useState(1);
-    const [mensagens, setMensagens] = useState(mensagensIniciais);
+    const [mensagens] = useState(mensagensIniciais);
     const [texto, setTexto] = useState('');
+    const [enviando, setEnviando] = useState(false);
+    const [erroEnvio, setErroEnvio] = useState('');
+    const {
+        mensagens: salvas,
+        carregando,
+        erro,
+        enviar: salvarMensagem,
+        editar,
+        excluir,
+    } = useChatMessages(`admin:${selecionadoId}`);
 
     const conversa = conversas.find((c) => c.id === selecionadoId);
     const lista = mensagens[selecionadoId] ?? [];
 
-    function enviar(e) {
+    async function enviar(e) {
         e.preventDefault();
-        if (!texto.trim()) return;
+        const limpo = texto.trim();
+        if (!limpo || enviando) return;
 
-        const nova = {
-            de: 'voluntaria',
-            texto: texto.trim(),
-            hora: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
-        };
+        setEnviando(true);
+        setErroEnvio('');
 
-        setMensagens((atual) => ({ ...atual, [selecionadoId]: [...(atual[selecionadoId] ?? []), nova] }));
-        setTexto('');
+        try {
+            await salvarMensagem(limpo);
+            setTexto('');
+        } catch (error) {
+            setErroEnvio(
+                error.message || 'Não foi possível salvar a mensagem.',
+            );
+        } finally {
+            setEnviando(false);
+        }
     }
 
     return (
-            <div className="grid gap-4 lg:h-[680px] lg:grid-cols-[19rem_1fr_19rem]">
-                <section className={`${card} flex min-h-0 flex-col`} aria-label="Conversas">
+            <div className="grid gap-4 xl:h-[680px] xl:grid-cols-[19rem_1fr_19rem]">
+                <section className={`${card} flex min-h-0 min-w-0 flex-col`} aria-label="Conversas">
                     <div className="flex items-center justify-between p-4">
                         <h1 className="text-xl font-bold">Chats</h1>
                         <div className="flex gap-3 text-xs">
@@ -94,9 +112,9 @@ function ChatAdmin() {
                                     <span className="min-w-0 flex-1">
                                         <span className="flex justify-between gap-2">
                                             <span className="text-sm font-semibold">{c.nome}</span>
-                                            <span className="text-xs text-gray-400">{c.hora}</span>
+                                            <span className="text-xs text-gray-600">{c.hora}</span>
                                         </span>
-                                        <span className="block truncate text-xs text-gray-500">{c.previa}</span>
+                                        <span className="block truncate text-xs text-gray-600">{c.previa}</span>
                                         <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] ${classeTag(c.tag)}`}>{c.tag}</span>
                                     </span>
                                 </button>
@@ -105,8 +123,8 @@ function ChatAdmin() {
                     </ul>
                 </section>
 
-                <section className={`${card} flex min-h-[520px] min-w-0 flex-col lg:min-h-0`} aria-label={`Conversa com ${conversa.nome}`}>
-                    <div className="flex items-center gap-3 border-b border-violet-100 p-4">
+                <section className={`${card} flex min-h-[520px] min-w-0 flex-col xl:min-h-0`} aria-label={`Conversa com ${conversa.nome}`}>
+                    <div className="flex flex-wrap items-center gap-3 border-b border-violet-100 p-4">
                         <Avatar nome={conversa.nome} />
                         <div className="mr-auto">
                             <h2 className="font-bold">{conversa.nome}</h2>
@@ -127,7 +145,7 @@ function ChatAdmin() {
                     <div className="flex-1 space-y-4 overflow-y-auto p-4">
                         <p className="mx-auto w-fit rounded-full bg-violet-100 px-3 py-1 text-xs">Hoje, 10 de maio de 2025</p>
                         {lista.length === 0 && (
-                            <p className="text-center text-sm text-gray-500">Nenhuma mensagem nesta conversa de exemplo.</p>
+                            <p className="text-center text-sm text-gray-600">Nenhuma mensagem nesta conversa de exemplo.</p>
                         )}
                         {lista.map((m, i) => {
                             const minha = m.de === 'voluntaria';
@@ -136,7 +154,7 @@ function ChatAdmin() {
                                     <Avatar nome={minha ? usuario.nome : conversa.nome} tamanho="h-8 w-8" />
                                     <div className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm ${minha ? 'bg-pink-100' : 'bg-violet-100'}`}>
                                         <p>{m.texto}</p>
-                                        <p className="mt-1 text-right text-[10px] text-gray-500">
+                                        <p className="mt-1 text-right text-[10px] text-gray-600">
                                             {m.hora}
                                             {minha && <FontAwesomeIcon icon={faCheckDouble} className="ml-1 text-violet-500" />}
                                         </p>
@@ -144,14 +162,45 @@ function ChatAdmin() {
                                 </div>
                             );
                         })}
+
+                        {carregando && (
+                            <p className="text-center text-xs text-gray-600">
+                                Carregando mensagens salvas...
+                            </p>
+                        )}
+
+                        {erro && (
+                            <p role="alert" className="text-center text-xs text-red-600">
+                                {erro}
+                            </p>
+                        )}
+
+                        {salvas.map((m) => (
+                            <SavedChatMessage
+                                key={m.id}
+                                mensagem={m}
+                                alinhadaDireita
+                                classeBalao="bg-pink-100 text-[#4c1d95]"
+                                onEditar={editar}
+                                onExcluir={excluir}
+                                avatar={<Avatar nome={usuario.nome} tamanho="h-8 w-8" />}
+                            />
+                        ))}
                     </div>
 
+                    {erroEnvio && (
+                        <p role="alert" className="px-4 pb-2 text-xs text-red-600">
+                            {erroEnvio}
+                        </p>
+                    )}
+
                     <form onSubmit={enviar} className="flex items-center gap-2 border-t border-violet-100 p-3">
-                        <div className="flex flex-1 items-center gap-3 rounded-full bg-violet-50 px-4 py-2">
+                        <div className="flex min-w-0 flex-1 items-center gap-3 rounded-full bg-violet-50 px-4 py-2">
                             <input
                                 type="text"
                                 value={texto}
                                 onChange={(e) => setTexto(e.target.value)}
+                                maxLength={2000}
                                 placeholder="Digite sua mensagem..."
                                 aria-label="Mensagem"
                                 className="min-w-0 flex-1 bg-transparent text-sm outline-none"
@@ -159,14 +208,14 @@ function ChatAdmin() {
                             <button type="button" aria-label="Anexar arquivo" className="text-[#5b21b6]"><FontAwesomeIcon icon={faPaperclip} /></button>
                             <button type="button" aria-label="Emojis" className="text-[#5b21b6]"><FontAwesomeIcon icon={faFaceSmile} /></button>
                         </div>
-                        <button type="submit" aria-label="Enviar mensagem"
-                            className="flex h-10 w-10 items-center justify-center rounded-full bg-pink-500 text-white">
+                        <button type="submit" aria-label="Enviar mensagem" disabled={enviando}
+                            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-pink-500 text-white disabled:opacity-60">
                             <FontAwesomeIcon icon={faPaperPlane} />
                         </button>
                     </form>
                 </section>
 
-                <aside className="min-h-0 space-y-4 overflow-y-auto" aria-label="Informações da usuária">
+                <aside className="min-h-0 min-w-0 space-y-4 overflow-y-auto" aria-label="Informações da usuária">
                     <section className={`${card} p-4`}>
                         <div className="flex items-center gap-3">
                             <Avatar nome={conversa.nome} tamanho="h-14 w-14" />
@@ -174,7 +223,7 @@ function ChatAdmin() {
                                 <h2 className="font-bold">{conversa.nome}</h2>
                                 <p className="flex items-center gap-1 text-xs"><span className="h-2 w-2 rounded-full bg-emerald-500" />Online</p>
                                 
-                                <p className="text-xs text-gray-500">26 anos · São Paulo - SP</p>
+                                <p className="text-xs text-gray-600">26 anos · São Paulo - SP</p>
                                 <span className="rounded-full bg-violet-100 px-2 py-0.5 text-[10px]">Usuária</span>
                             </div>
                         </div>

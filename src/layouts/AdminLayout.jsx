@@ -9,11 +9,14 @@ import {
     faFileLines,
     faShieldHalved,
     faChartColumn,
-    faGear
+    faGear,
+    faUserGear,
+    faHandHoldingHeart
 } from '@fortawesome/free-solid-svg-icons';
 
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import SkipLink from '../components/SkipLink';
 
 const menu = [
     {
@@ -26,11 +29,25 @@ const menu = [
         nome: 'Chats',
         caminho: '/admin/chats',
         icone: faComments
+    },
+    {
+        nome: 'Redes de Apoio',
+        caminho: '/admin/redes',
+        icone: faHandHoldingHeart
+    },
+    {
+        nome: 'Contas',
+        caminho: '/admin/contas',
+        icone: faUsers
+    },
+    {
+        nome: 'Perfil',
+        caminho: '/admin/perfil',
+        icone: faUserGear
     }
 ];
 
 const menuEmDesenvolvimento = [
-    { nome: 'Usuárias', icone: faUsers },
     { nome: 'Voluntárias', icone: faHeart },
     { nome: 'Eventos', icone: faCalendarDays },
     { nome: 'Conteúdos', icone: faFileLines },
@@ -42,6 +59,7 @@ const menuEmDesenvolvimento = [
 export default function AdminLayout() {
     return (
         <div className="flex min-h-screen flex-col">
+            <SkipLink />
             <Header variant="admin" />
 
             <div className="flex flex-1 bg-[#f5f0ff]">
@@ -62,6 +80,7 @@ export default function AdminLayout() {
                                 to={item.caminho}
                                 end={item.end}
                                 title={item.nome}
+                                aria-label={item.nome}
                                 className={({ isActive }) =>
                                     `flex items-center justify-center gap-3 rounded-xl px-3 py-3 transition-colors md:justify-start ${
                                         isActive
@@ -103,7 +122,7 @@ export default function AdminLayout() {
                     </nav>
                 </aside>
 
-                <main className="min-w-0 flex-1 overflow-x-hidden p-4 md:p-8">
+                <main id="conteudo" tabIndex={-1} className="min-w-0 flex-1 overflow-x-hidden p-4 md:p-8">
                     <Outlet />
                 </main>
             </div>

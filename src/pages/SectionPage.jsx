@@ -1,13 +1,19 @@
-import { Link, useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 import { sections } from '../data/homeData'
+import BotaoVoltar from '../components/BotaoVoltar'
 
 export default function SectionPage() {
   const { pathname } = useLocation()
   const section = sections[pathname]
 
   return (
-    <main className="flex-1 bg-linear-to-br from-pink-50 to-purple-100 px-6 py-14 sm:px-10 sm:py-20">
+    <main className="flex-1 bg-linear-to-br from-pink-50 to-purple-100 px-6 py-10 sm:px-10 sm:py-16">
       <article className="mx-auto max-w-4xl rounded-3xl border border-white bg-white/90 p-7 shadow-sm sm:p-12">
+        {/* Botão Voltar no topo do card */}
+        <div className="mb-6">
+          <BotaoVoltar />
+        </div>
+
         <p className="text-xs font-semibold uppercase tracking-widest text-pink-500">
           {section.eyebrow}
         </p>
@@ -29,7 +35,7 @@ export default function SectionPage() {
             <div className="mt-5 flex flex-wrap gap-3">
               <a
                 href="tel:180"
-                className="rounded-full bg-pink-500 px-5 py-2 text-sm font-semibold text-white transition hover:bg-pink-600"
+                className="rounded-full bg-pink-700 px-5 py-2 text-sm font-semibold text-white transition hover:bg-pink-800"
               >
                 Ligar 180
               </a>
@@ -42,12 +48,6 @@ export default function SectionPage() {
             </div>
           )}
         </section>
-        <Link
-          to="/"
-          className="mt-7 inline-block text-sm font-medium text-pink-600 underline underline-offset-2"
-        >
-          Voltar ao início
-        </Link>
       </article>
     </main>
   )

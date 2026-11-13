@@ -1,6 +1,7 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faGithub } from '@fortawesome/free-brands-svg-icons'
 import { faHeart } from '@fortawesome/free-solid-svg-icons'
+import BotaoVoltar from '../components/BotaoVoltar'
 
 const equipe = [
   {
@@ -22,8 +23,12 @@ const equipe = [
 
 export default function Sobre() {
   return (
-    <main className="flex-1 bg-white">
-      <section className="bg-gradient-to-br from-pink-50 via-white to-purple-50 px-6 py-20">
+<main id="conteudo" tabIndex={-1} className="flex-1 bg-white">
+      <section className="bg-gradient-to-br from-pink-50 via-white to-purple-50 px-6 pt-8 pb-20">
+        {/* Botão Voltar alinhado à esquerda no topo */}
+        <div className="mx-auto mb-8 max-w-5xl text-left">
+          <BotaoVoltar />
+        </div>
         <div className="mx-auto max-w-5xl text-center">
           <span className="mb-5 inline-block rounded-full bg-pink-100 px-4 py-2 text-sm font-semibold text-pink-700">
             Conheça a ELLA
@@ -31,7 +36,7 @@ export default function Sobre() {
 
           <h1 className="mb-6 text-4xl font-bold tracking-tight text-gray-900 md:text-5xl">
             Mais do que uma plataforma,
-            <span className="block text-pink-600">
+            <span className="block text-pink-700">
               uma rede de apoio.
             </span>
           </h1>
@@ -48,7 +53,7 @@ export default function Sobre() {
       <section className="px-6 py-16">
         <div className="mx-auto grid max-w-5xl gap-10 md:grid-cols-2 md:items-center">
           <div>
-            <span className="text-sm font-semibold uppercase tracking-wider text-pink-600">
+            <span className="text-sm font-semibold uppercase tracking-wider text-pink-700">
               Nossa proposta
             </span>
 
@@ -91,7 +96,7 @@ export default function Sobre() {
 
       <section className="bg-gray-50 px-6 py-16">
         <div className="mx-auto max-w-5xl text-center">
-          <span className="text-sm font-semibold uppercase tracking-wider text-pink-600">
+          <span className="text-sm font-semibold uppercase tracking-wider text-pink-700">
             Por trás do projeto
           </span>
 

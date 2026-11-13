@@ -7,7 +7,13 @@ import { prisma } from '../lib/prisma.js';
 import createError from '../utils/createError.js';
 
 import { generateToken } from '../utils/jwt.js';
-import { authenticate, onlySelf } from '../middlewares/auth.js';
+import { authenticate, onlySelf, requireRole } from '../middlewares/auth.js';
+import { normalizeAccountType, readCrm } from '../utils/accountType.js';
+import {
+  AVATAR_IDS,
+  DEFAULT_AVATAR,
+  DEFAULT_ROLE,
+} from '../constants/user.js';
 
 const router = Router();
 
@@ -16,9 +22,29 @@ const userFilter = {
   id: true,
   name: true,
   email: true,
+  role: true,
+  accountType: true,
+  crm: true,
   avatar: true,
-  tipo: true,
+  photo: true,
+  nickname: true,
+  bio: true,
+  city: true,
+  phone: true,
+  createdAt: true,
 };
+
+// Mantém também os nomes usados pelo frontend (nome, apelido, tipo).
+function serializeUser(user) {
+  if (!user) return user;
+
+  return {
+    ...user,
+    nome: user.name,
+    apelido: user.nickname,
+    tipo: user.role,
+  };
+}
 
 function normalizeEmail(email) {
   return String(email).trim().toLowerCase();
@@ -30,25 +56,158 @@ function readName(data) {
   return typeof name === 'string' ? name.trim() : null;
 }
 
+function readOptionalString(value) {
+  if (value === undefined) return undefined;
+  if (value === null) return null;
+
+  const text = String(value).trim();
+  return text.length > 0 ? text : null;
+}
+
 function validatePassword(password) {
-  if (!password || typeof password !== 'string' || password.length < 8) {
-    throw createError(400, 'Senha obrigatória e com no mínimo 8 caracteres');
+  if (!password || typeof password !== 'string' || password.length < 6) {
+    throw createError(400, 'Senha obrigatória e com no mínimo 6 caracteres');
   }
 }
 
+function readAvatar(value) {
+  if (value === undefined) return undefined;
+
+  if (!AVATAR_IDS.includes(value)) {
+    throw createError(400, 'Avatar inválido');
+  }
+
+  return value;
+}
+
+// Foto de perfil enviada pelo frontend como data URL (base64).
+// Limite de 2 MB, apenas PNG, JPEG e WebP.
+const MAX_PHOTO_BYTES = 2 * 1024 * 1024;
+const PHOTO_DATA_URL = /^data:image\/(png|jpeg|webp);base64,([A-Za-z0-9+/=]+)$/;
+
+function readPhoto(value) {
+  if (value === undefined) return undefined;
+  if (value === null || value === '') return null;
+
+  if (typeof value !== 'string') {
+    throw createError(400, 'Foto inválida');
+  }
+
+  const dataUrl = value.trim();
+  const match = PHOTO_DATA_URL.exec(dataUrl);
+
+  if (!match) {
+    throw createError(400, 'Envie uma imagem PNG, JPEG ou WebP');
+  }
+
+  // Cada 4 caracteres base64 representam 3 bytes; desconta o padding.
+  const base64 = match[2];
+  const padding = base64.endsWith('==') ? 2 : base64.endsWith('=') ? 1 : 0;
+  const bytes = Math.floor((base64.length * 3) / 4) - padding;
+
+  if (bytes > MAX_PHOTO_BYTES) {
+    throw createError(400, 'A foto deve ter no máximo 2 MB');
+  }
+
+  return dataUrl;
+}
+
+async function buildProfileChanges(data) {
+  const changes = {};
+
+  if (data.email !== undefined) {
+    if (!data.email) {
+      throw createError(400, 'E-mail não pode ficar vazio');
+    }
+    changes.email = normalizeEmail(data.email);
+  }
+
+  if (data.name !== undefined || data.nome !== undefined) {
+    const name = readName(data);
+
+    if (!name) {
+      throw createError(400, 'Nome não pode ficar vazio');
+    }
+
+    changes.name = name;
+  }
+
+  if (data.nickname !== undefined || data.apelido !== undefined) {
+    changes.nickname = readOptionalString(data.nickname ?? data.apelido);
+  }
+
+  if (data.bio !== undefined) {
+    changes.bio = readOptionalString(data.bio);
+  }
+
+  if (data.city !== undefined || data.cidade !== undefined) {
+    changes.city = readOptionalString(data.city ?? data.cidade);
+  }
+
+  if (data.phone !== undefined || data.telefone !== undefined) {
+    changes.phone = readOptionalString(data.phone ?? data.telefone);
+  }
+
+  if (data.avatar !== undefined) {
+    changes.avatar = readAvatar(data.avatar);
+  }
+
+  if (data.photo !== undefined) {
+    changes.photo = readPhoto(data.photo);
+  }
+
+  if (data.password !== undefined) {
+    validatePassword(data.password);
+    changes.password = await bcrypt.hash(data.password, 10);
+  }
+
+  return changes;
+}
+
 // GET /api/users
-// Exibe os usuários cadastrados (sem a senha).
-router.get('/', async (req, res) => {
+// Exibe os usuários cadastrados (sem a senha). Apenas administradores.
+router.get('/', authenticate, requireRole('admin'), async (req, res) => {
   const users = await prisma.user.findMany({
     select: userFilter,
     orderBy: { id: 'asc' },
   });
 
-  res.json(users);
+  res.json(users.map(serializeUser));
+});
+
+// GET /api/users/me
+// Exibe os dados do usuário autenticado (usado pela página Minha área).
+router.get('/me', authenticate, async (req, res) => {
+  const user = await prisma.user.findUniqueOrThrow({
+    where: { id: req.user.id },
+    select: userFilter,
+  });
+
+  res.json({ user: serializeUser(user) });
+});
+
+// PATCH /api/users/me
+// Atualiza os dados do próprio usuário autenticado.
+router.patch('/me', authenticate, async (req, res) => {
+  const changes = await buildProfileChanges(req.body ?? {});
+
+  if (Object.keys(changes).length === 0) {
+    throw createError(400, 'Nenhum dado válido para atualizar');
+  }
+
+  const user = await prisma.user.update({
+    where: { id: req.user.id },
+    data: changes,
+    select: userFilter,
+  });
+
+  res.json({ user: serializeUser(user) });
 });
 
 // POST /api/users
-// Cadastro de usuário.
+// Cadastro de usuário. O cadastro público cria "usuaria" (role) e permite
+// escolher o tipo de conta (usuária, voluntária ou psicóloga) para exibição
+// no painel admin. Psicólogas podem informar CRM (sem validação).
 router.post('/', async (req, res) => {
   const data = req.body ?? {};
 
@@ -58,23 +217,25 @@ router.post('/', async (req, res) => {
 
   validatePassword(data.password);
 
-  const normalizedEmail = normalizeEmail(data.email);
-  const tipo =
-    data.tipo ||
-    (normalizedEmail.includes('admin') ? 'admin' : 'usuario');
+  const accountType = normalizeAccountType(data.accountType ?? data.tipoConta);
+  if (!accountType) {
+    throw createError(400, 'Tipo de conta inválido');
+  }
 
   const user = await prisma.user.create({
     data: {
-      email: normalizedEmail,
+      email: normalizeEmail(data.email),
       name: readName(data),
       password: await bcrypt.hash(data.password, 10),
-      avatar: data.avatar ? String(data.avatar).trim() : null,
-      tipo,
+      role: DEFAULT_ROLE,
+      accountType,
+      crm: accountType === 'psicologa' ? readCrm(data.crm) : null,
+      avatar: DEFAULT_AVATAR,
     },
     select: userFilter,
   });
 
-  res.status(201).json(user);
+  res.status(201).json(serializeUser(user));
 });
 
 // POST /api/users/login
@@ -86,12 +247,10 @@ router.post('/login', async (req, res) => {
     throw createError(401, 'O usuário e a senha são obrigatórios');
   }
 
-  const normalizedEmail = normalizeEmail(data.email);
-
   // findUnique (sem OrThrow) para não revelar se o e-mail existe.
   const user = await prisma.user.findUnique({
     where: {
-      email: normalizedEmail,
+      email: normalizeEmail(data.email),
     },
     select: {
       ...userFilter,
@@ -108,16 +267,12 @@ router.post('/login', async (req, res) => {
     throw createError(401, 'Usuário ou senha incorreto(s)');
   }
 
-  const { password: _password, ...userWithoutPassword } = user;
-  const userWithTipo = {
-    ...userWithoutPassword,
-    tipo:
-      userWithoutPassword.tipo ||
-      (normalizedEmail.includes('admin') ? 'admin' : 'usuario'),
-  };
-  const token = generateToken(userWithTipo);
+  const userWithoutPassword = { ...user };
+  delete userWithoutPassword.password;
 
-  res.json({ user: userWithTipo, token });
+  const token = generateToken(userWithoutPassword);
+
+  res.json({ user: serializeUser(userWithoutPassword), token });
 });
 
 // GET /api/users/:id
@@ -134,40 +289,14 @@ router.get('/:id', async (req, res) => {
     select: userFilter,
   });
 
-  res.json({ user });
+  res.json({ user: serializeUser(user) });
 });
 
 // PATCH /api/users/:id
-// Atualiza os próprios dados ou os dados editados por um administrador. Exige token JWT.
+// Atualiza os próprios dados. Exige token JWT.
 router.patch('/:id', authenticate, onlySelf, async (req, res) => {
   const id = Number(req.params.id);
-  const data = req.body ?? {};
-
-  const changes = {};
-
-  if (data.email !== undefined) {
-    if (!data.email) {
-      throw createError(400, 'E-mail não pode ficar vazio');
-    }
-    changes.email = normalizeEmail(data.email);
-  }
-
-  if (data.name !== undefined || data.nome !== undefined) {
-    changes.name = readName(data);
-  }
-
-  if (data.avatar !== undefined) {
-    changes.avatar = data.avatar ? String(data.avatar).trim() : null;
-  }
-
-  if (data.tipo !== undefined) {
-    changes.tipo = String(data.tipo).trim();
-  }
-
-  if (data.password !== undefined && data.password !== '') {
-    validatePassword(data.password);
-    changes.password = await bcrypt.hash(data.password, 10);
-  }
+  const changes = await buildProfileChanges(req.body ?? {});
 
   if (Object.keys(changes).length === 0) {
     throw createError(400, 'Nenhum dado válido para atualizar');
@@ -179,11 +308,11 @@ router.patch('/:id', authenticate, onlySelf, async (req, res) => {
     select: userFilter,
   });
 
-  res.json({ user });
+  res.json({ user: serializeUser(user) });
 });
 
 // DELETE /api/users/:id
-// Exclui a conta. Exige token JWT (próprio usuário ou admin).
+// Exclui a própria conta. Exige token JWT.
 router.delete('/:id', authenticate, onlySelf, async (req, res) => {
   const id = Number(req.params.id);
 

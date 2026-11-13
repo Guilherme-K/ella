@@ -1,255 +1,269 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import {
-  faUserPlus,
-  faArrowRotateRight,
-  faPen,
-  faShieldHalved,
-  faRightFromBracket,
-} from '@fortawesome/free-solid-svg-icons'
-import Avatar from '../components/Avatar'
-import ProfileModal from '../components/ProfileModal'
 import { userService } from '../services/userService'
+import BotaoVoltar from '../components/BotaoVoltar'
+
+const TIPOS_CONTA = {
+  usuaria: { rotulo: 'Usuária', classe: 'bg-pink-100 text-pink-700' },
+  voluntaria: {
+    rotulo: 'Voluntária',
+    classe: 'bg-violet-100 text-violet-700',
+  },
+  psicologa: {
+    rotulo: 'Psicóloga',
+    classe: 'bg-fuchsia-100 text-fuchsia-700',
+  },
+}
+
+function obterTipoConta(user) {
+  const role = normalizarTexto(user.role)
+
+  if (role === 'voluntaria' || role === 'psicologa') {
+    return TIPOS_CONTA[role]
+  }
+
+  const tipo = normalizarTexto(user.accountType || role || 'usuaria')
+
+  return TIPOS_CONTA[tipo] || TIPOS_CONTA.usuaria
+}
+
+function normalizarTexto(valor) {
+  return String(valor ?? '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim()
+}
+
+function formatarData(valor) {
+  if (!valor) return '—'
+
+  const data = new Date(valor)
+
+  if (Number.isNaN(data.getTime())) return '—'
+
+  return data.toLocaleDateString('pt-BR')
+}
 
 export default function Accounts() {
   const [users, setUsers] = useState([])
+  const [busca, setBusca] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [selectedUserToEdit, setSelectedUserToEdit] = useState(null)
-  const [editModalOpen, setEditModalOpen] = useState(false)
   const navigate = useNavigate()
 
-  const currentUser = userService.getCurrentUser()
-  const isAdmin =
-    currentUser?.tipo === 'admin' ||
-    currentUser?.role === 'admin' ||
-    currentUser?.email?.toLowerCase().includes('admin')
+  async function carregarContas() {
+    setLoading(true)
+    setError('')
+
+    try {
+      const dados = await userService.list()
+      setUsers(Array.isArray(dados) ? dados : [])
+    } catch (err) {
+      setError(err.message || 'Não foi possível carregar as contas.')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   useEffect(() => {
-    let ignore = false
+    let ativo = true
 
-    userService.list()
-      .then((dados) => {
-        if (!ignore) {
-          setUsers(Array.isArray(dados) ? dados : [])
-          setError('')
-          setLoading(false)
-        }
-      })
-      .catch((err) => {
-        if (!ignore) {
+    async function carregar() {
+      try {
+        const dados = await userService.list()
+        if (ativo) setUsers(Array.isArray(dados) ? dados : [])
+      } catch (err) {
+        if (ativo) {
           setError(err.message || 'Não foi possível carregar as contas.')
-          setLoading(false)
         }
-      })
-
-    // Ouve alterações de autenticação ou edição de perfil para atualizar a lista em tempo real
-    function handleUpdate() {
-      userService.list()
-        .then((dados) => {
-          if (!ignore) {
-            setUsers(Array.isArray(dados) ? dados : [])
-          }
-        })
-        .catch(() => {})
+      } finally {
+        if (ativo) setLoading(false)
+      }
     }
 
-    window.addEventListener('auth-change', handleUpdate)
-    window.addEventListener('storage', handleUpdate)
+    carregar()
 
     return () => {
-      ignore = true
-      window.removeEventListener('auth-change', handleUpdate)
-      window.removeEventListener('storage', handleUpdate)
+      ativo = false
     }
   }, [])
 
-  function recarregarManualmente() {
-    setLoading(true)
-    userService.list()
-      .then((dados) => {
-        setUsers(Array.isArray(dados) ? dados : [])
-        setError('')
-      })
-      .catch((err) => {
-        setError(err.message || 'Erro ao carregar contas.')
-      })
-      .finally(() => {
-        setLoading(false)
-      })
-  }
+  const usuariosFiltrados = useMemo(() => {
+    const termo = normalizarTexto(busca)
+
+    if (!termo) return users
+
+    return users.filter((user) => {
+      const campos = [
+        user.name,
+        user.nome,
+        user.email,
+        user.city,
+        user.cidade,
+        user.crm,
+        user.id,
+        obterTipoConta(user).rotulo,
+      ]
+
+      return campos.some((campo) => normalizarTexto(campo).includes(termo))
+    })
+  }, [busca, users])
 
   function sair() {
     userService.clearSession()
     navigate('/')
   }
 
-  function handleEditUser(user) {
-    setSelectedUserToEdit(user)
-    setEditModalOpen(true)
-  }
-
   return (
-    <main className="min-h-screen flex-1 bg-purple-100 px-4 py-12">
-      <section className="mx-auto max-w-4xl rounded-3xl bg-white p-6 shadow-xl sm:p-10 border border-purple-100">
-        <div className="flex flex-wrap items-center justify-between gap-4 pb-5 border-b border-purple-100">
+    <div className="min-h-screen flex-1 bg-purple-100 px-4 py-12">
+      <section className="mx-auto max-w-3xl rounded-3xl bg-white p-6 shadow-xl sm:p-10">
+        {/* Botão Voltar no topo do card */}
+        <div className="mb-5">
+          <BotaoVoltar />
+        </div>
+
+        <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <div className="flex items-center gap-3">
-              <h1 className="font-serif text-2xl sm:text-3xl font-bold text-violet-950">
-                Contas Cadastradas
-              </h1>
-              <span className="rounded-full bg-purple-100 px-3 py-0.5 text-xs font-semibold text-violet-700">
-                {users.length} {users.length === 1 ? 'conta' : 'contas'}
-              </span>
-            </div>
-            <p className="mt-1 text-xs text-violet-500">
-              Contas registradas no banco de dados MySQL da plataforma ELLA
+            <h1 className="font-serif text-3xl font-bold text-violet-950">
+              Contas cadastradas
+            </h1>
+            <p className="mt-2 text-sm text-violet-600">
+              Contas registradas no banco de dados da plataforma.
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={recarregarManualmente}
-              title="Recarregar lista"
-              className="flex h-9 w-9 items-center justify-center rounded-xl border border-purple-200 text-violet-600 hover:bg-purple-50 transition"
-            >
-              <FontAwesomeIcon icon={faArrowRotateRight} className={loading ? 'animate-spin' : ''} />
-            </button>
-
-            {isAdmin && (
-              <Link
-                to="/administrador"
-                className="flex items-center gap-1.5 rounded-xl bg-purple-100 px-3.5 py-2 text-xs font-semibold text-violet-800 hover:bg-purple-200 transition"
-              >
-                <FontAwesomeIcon icon={faShieldHalved} className="text-pink-500" />
-                Painel do Administrador
-              </Link>
-            )}
-
-            <Link
-              to="/cadastro"
-              className="flex items-center gap-1.5 rounded-xl bg-pink-400 px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-pink-500 transition"
-            >
-              <FontAwesomeIcon icon={faUserPlus} />
-              Adicionar Conta
-            </Link>
-          </div>
+          <Link
+            to="/admin"
+            className="rounded-lg border border-purple-200 px-4 py-2 text-sm text-violet-600 transition hover:bg-violet-50"
+          >
+            Voltar ao painel
+          </Link>
         </div>
 
-        {/* Lista de Contas */}
-        <div className="mt-6 divide-y divide-purple-100">
-          {loading && users.length === 0 && (
-            <div className="py-12 text-center text-sm text-violet-400">
-              <FontAwesomeIcon icon={faArrowRotateRight} className="animate-spin mr-2" />
-              Carregando contas cadastradas...
-            </div>
+        <div className="mt-6 flex flex-wrap items-center gap-3">
+          <div className="relative flex-1">
+            <i
+              className="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-xs text-violet-600"
+              aria-hidden="true"
+            />
+
+            <input
+              type="search"
+              value={busca}
+              onChange={(event) => setBusca(event.target.value)}
+              placeholder="Pesquisar por nome, e-mail, cidade ou CRM..."
+              aria-label="Pesquisar contas cadastradas"
+              className="w-full rounded-xl border border-purple-100 bg-purple-50 py-2.5 pl-9 pr-3 text-sm text-violet-800 outline-none placeholder:text-violet-300 focus:border-pink-300"
+            />
+          </div>
+
+          <button
+            type="button"
+            onClick={carregarContas}
+            disabled={loading}
+            className="rounded-lg border border-purple-200 px-4 py-2 text-sm text-violet-600 transition hover:bg-violet-50 disabled:cursor-not-allowed"
+          >
+            Atualizar
+          </button>
+        </div>
+
+        <p className="mt-3 text-xs text-violet-600">
+          {usuariosFiltrados.length} de {users.length} conta(s) exibida(s).
+        </p>
+
+        <div className="mt-4 divide-y divide-purple-100">
+          {loading && (
+            <p className="py-5 text-sm text-violet-600">Carregando contas...</p>
           )}
 
           {error && (
-            <div role="alert" className="my-4 rounded-xl bg-pink-50 border border-pink-200 p-4 text-xs text-pink-700">
+            <p role="alert" className="py-5 text-sm text-pink-600">
               {error}
-            </div>
+            </p>
           )}
 
           {!loading && !error && users.length === 0 && (
-            <p className="py-10 text-center text-sm text-violet-400">
+            <p className="py-5 text-sm text-violet-600">
               Nenhuma conta cadastrada ainda.
             </p>
           )}
 
           {!loading &&
             !error &&
-            users.map((user) => {
-              const isCurrent = currentUser && Number(currentUser.id) === Number(user.id)
-              const userIsAdmin = user.tipo === 'admin' || user.email?.toLowerCase().includes('admin')
-              const displayName = user.name ?? user.nome ?? 'Sem nome'
+            users.length > 0 &&
+            usuariosFiltrados.length === 0 && (
+              <p className="py-5 text-sm text-violet-600">
+                Nenhuma conta encontrada para “{busca}”.
+              </p>
+            )}
+
+          {!loading &&
+            !error &&
+            usuariosFiltrados.map((user) => {
+              const tipo = obterTipoConta(user)
 
               return (
                 <div
                   key={user.id}
-                  className="flex flex-wrap items-center justify-between gap-4 py-4 hover:bg-purple-50/40 rounded-xl px-2 transition"
+                  className="flex flex-wrap items-center justify-between gap-3 py-4"
                 >
-                  <div className="flex items-center gap-3.5">
-                    <Avatar
-                      nome={displayName}
-                      avatar={user.avatar}
-                      tamanho="h-11 w-11"
-                      className="shadow-sm"
-                    />
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <p className="font-semibold text-sm text-violet-900">
-                          {displayName}
-                        </p>
-                        {isCurrent && (
-                          <span className="rounded-full bg-pink-100 px-2 py-0.5 text-[10px] font-bold text-pink-600">
-                            Você
-                          </span>
-                        )}
-                        {userIsAdmin && (
-                          <span className="rounded-full bg-violet-100 px-2 py-0.5 text-[10px] font-bold text-violet-700">
-                            Administradora
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-xs text-violet-400">{user.email}</p>
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="font-medium text-violet-800">
+                        {user.name ?? user.nome}
+                      </p>
+
+                      <span
+                        className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${tipo.classe}`}
+                      >
+                        {tipo.rotulo}
+                      </span>
+
+                      {user.role === 'admin' && (
+                        <span className="rounded-full bg-violet-950 px-2 py-0.5 text-[11px] font-semibold text-white">
+                          Admin
+                        </span>
+                      )}
                     </div>
+
+                    <p className="mt-1 break-all text-xs text-violet-600">
+                      {user.email}
+                    </p>
+
+                    <p className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-violet-600">
+                      {user.city && <span>{user.city}</span>}
+                      {user.crm && (
+                        <span className="font-medium text-fuchsia-600">
+                          CRM: {user.crm}
+                        </span>
+                      )}
+                      <span>Cadastro: {formatarData(user.createdAt)}</span>
+                    </p>
                   </div>
 
-                  <div className="flex items-center gap-3">
-                    <span className="text-xs font-mono text-violet-300">#{user.id}</span>
-                    
-                    {(isCurrent || isAdmin) && (
-                      <button
-                        type="button"
-                        onClick={() => handleEditUser(user)}
-                        className="flex items-center gap-1 rounded-lg border border-purple-200 px-2.5 py-1 text-xs font-medium text-violet-700 hover:bg-purple-100 transition"
-                        title="Editar nome, foto ou senha"
-                      >
-                        <FontAwesomeIcon icon={faPen} className="text-[10px] text-pink-400" />
-                        Editar
-                      </button>
-                    )}
-                  </div>
+                  <span className="text-xs text-violet-300">#{user.id}</span>
                 </div>
               )
             })}
         </div>
 
-        <div className="mt-8 flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-purple-100">
-          <Link to="/" className="text-xs text-violet-600 hover:text-pink-600 underline">
-            Voltar ao início
+        <div className="mt-6 flex flex-wrap gap-3">
+          <Link
+            to="/cadastro"
+            className="rounded-lg bg-pink-700 px-4 py-2 text-sm text-white"
+          >
+            Adicionar conta
           </Link>
-
-          {currentUser && (
-            <button
-              type="button"
-              onClick={sair}
-              className="flex items-center gap-1.5 rounded-xl border border-pink-200 px-4 py-2 text-xs font-medium text-pink-600 hover:bg-pink-50 transition"
-            >
-              <FontAwesomeIcon icon={faRightFromBracket} />
-              Sair da sessão
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={sair}
+            className="rounded-lg border border-purple-200 px-4 py-2 text-sm text-violet-600"
+          >
+            Sair
+          </button>
         </div>
       </section>
-
-      {/* Modal para edição caso o usuário clique em Editar */}
-      {selectedUserToEdit && (
-        <ProfileModal
-          isOpen={editModalOpen}
-          onClose={() => {
-            setEditModalOpen(false)
-            setSelectedUserToEdit(null)
-          }}
-          user={selectedUserToEdit}
-          onUpdateUser={() => {
-            recarregarManualmente()
-          }}
-        />
-      )}
-    </main>
+    </div>
   )
 }

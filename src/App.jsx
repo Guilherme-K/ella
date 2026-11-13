@@ -1,16 +1,16 @@
-import { Route, Routes, Navigate } from 'react-router-dom'
+import { Navigate, Route, Routes } from 'react-router-dom'
 
 import Accounts from './pages/Accounts'
 import Home from './pages/Home'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
-import ContaUser from './pages/ContaUser'
 import Voluntaria from './pages/Voluntaria'
 
 import AgradecimentoVoluntaria from './pages/AgradecimentoVoluntario'
 import DashboardAdmin from './pages/DashboardAdmin'
 import ChatAdmin from './pages/ChatAdmin'
 import PerfilAdmin from './pages/PerfilAdmin'
+import AdminRedesApoio from './pages/AdminRedesApoio'
 import Informacoes from './pages/Informacoes'
 import Chat from './pages/Chat'
 import ChatUsuario from './pages/ChatUsuario'
@@ -22,46 +22,89 @@ import Sobre from './pages/Sobre'
 import MainLayout from './layouts/MainLayout'
 import AdminLayout from './layouts/AdminLayout'
 import RedeApoio from './pages/RedeApoio'
+import RedeApoioDetalhe from './pages/RedeApoioDetalhe'
 import Contato from './pages/Contato'
+import Perfil from './pages/Perfil'
+import NaoEncontrada from './pages/NaoEncontrada'
+
+import RotaProtegida from './components/RotaProtegida'
+import Acessibilidade from './components/Acessibilidade'
+import VLibrasWidget from './components/VLibrasWidget'
+import SaidaRapida from './components/SaidaRapida'
 
 export default function App() {
   return (
-    <Routes>
-      <Route element={<MainLayout />}>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/cadastro" element={<Signup />} />
-        <Route path="/contas" element={<Accounts />} />
-        <Route path="/minha-conta" element={<ContaUser />} />
-        <Route path="/perfil" element={<ContaUser />} />
-        <Route path="/emergencia" element={<Emergencia />} />
-        <Route path="/denuncia" element={<Denuncia />} />
-        <Route path="/informacoes" element={<Informacoes />} />
-        <Route path="/voluntaria" element={<Voluntaria />} />
-        <Route path="/apoio" element={<RedeApoio />} />
-        <Route path="/contato" element={<Contato />} />
+    <>
+      <Routes>
+        <Route element={<MainLayout />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/cadastro" element={<Signup />} />
+          <Route path="/emergencia" element={<Emergencia />} />
+          <Route path="/denuncia" element={<Denuncia />} />
+          <Route path="/informacoes" element={<Informacoes />} />
+          <Route path="/voluntaria" element={<Voluntaria />} />
+          <Route path="/apoio" element={<RedeApoio />} />
+          <Route path="/apoio/:id" element={<RedeApoioDetalhe />} />
+          <Route path="/contato" element={<Contato />} />
+          <Route path="/sobre" element={<Sobre />} />
+          <Route
+            path="/voluntaria/agradecimentovoluntaria"
+            element={<AgradecimentoVoluntaria />}
+          />
+
+          <Route
+            element={
+              <RotaProtegida
+                papeisPermitidos={[
+                  'usuaria',
+                  'voluntaria',
+                  'psicologa',
+                  'admin',
+                ]}
+              />
+            }
+          >
+            <Route path="/perfiluser" element={<Perfil />} />
+            <Route path="/chat" element={<Chat />} />
+          </Route>
+
+          <Route element={<RotaProtegida papeisPermitidos={['usuaria']} />}>
+            <Route path="/chatusuario" element={<ChatUsuario />} />
+          </Route>
+
+          <Route element={<RotaProtegida papeisPermitidos={['voluntaria']} />}>
+            <Route path="/chatvoluntaria" element={<ChatVoluntaria />} />
+          </Route>
+
+          <Route path="*" element={<NaoEncontrada />} />
+        </Route>
+
+        <Route element={<RotaProtegida papeisPermitidos={['admin']} />}>
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<DashboardAdmin />} />
+            <Route path="chats" element={<ChatAdmin />} />
+            <Route path="redes" element={<AdminRedesApoio />} />
+            <Route path="contas" element={<Accounts />} />
+            <Route path="perfil" element={<PerfilAdmin />} />
+          </Route>
+        </Route>
+
         <Route
-          path="/voluntaria/agradecimentovoluntaria"
-          element={<AgradecimentoVoluntaria />}
+          path="/contas"
+          element={<Navigate to="/admin/contas" replace />}
         />
-        <Route path="/sobre" element={<Sobre />} />
-      </Route>
 
-      <Route path="/admin" element={<AdminLayout />}>
-        <Route index element={<DashboardAdmin />} />
-        <Route path="contas" element={<Accounts />} />
-        <Route path="chats" element={<ChatAdmin />} />
-        <Route path="perfil" element={<PerfilAdmin />} />
-      </Route>
+        <Route
+          path="/chatadmin"
+          element={<Navigate to="/admin/chats" replace />}
+        />
+      </Routes>
 
-      {/* Rota legado / compatibilidade para /administrador */}
-      <Route path="/administrador" element={<Navigate to="/admin" replace />} />
-
-      <Route path="/chat" element={<Chat />} />
-      <Route path="/chatusuario" element={<ChatUsuario />} />
-      <Route path="/chatvoluntaria" element={<ChatVoluntaria />} />
-      <Route path="/chatadmin" element={<ChatAdmin />} />
-      <Route path="*" element={<Home />} />
-    </Routes>
+      {/* Fica aqui fora das rotas para aparecer em todas as páginas */}
+      <Acessibilidade />
+      <VLibrasWidget />
+      <SaidaRapida />
+    </>
   )
 }

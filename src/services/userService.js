@@ -4,13 +4,6 @@ const ENDPOINT = '/api/users'
 const TOKEN_KEY = 'ella:token'
 const USER_KEY = 'usuarioLogado'
 
-// Dispara evento para sincronizar componentes na tela (ex.: Header, Accounts, DashboardAdmin)
-function notifyAuthChange() {
-  if (typeof window !== 'undefined') {
-    window.dispatchEvent(new Event('auth-change'))
-  }
-}
-
 // Token JWT salvo após o login.
 function getToken() {
   return localStorage.getItem(TOKEN_KEY)
@@ -26,14 +19,22 @@ function clearToken() {
   localStorage.removeItem(TOKEN_KEY)
 }
 
+// Mantém os apelidos usados pelo frontend (nome, apelido, tipo).
+function normalizeUser(user) {
+  if (!user) return user
+
+  return {
+    ...user,
+    nome: user.name ?? user.nome,
+    apelido: user.nickname ?? user.apelido,
+    tipo: user.role ?? user.tipo,
+    tipoConta: user.accountType ?? user.tipoConta,
+  }
+}
+
 // Usuário logado, usado pelo restante do frontend (ex.: página de chat).
 function saveCurrentUser(user) {
-  if (user) {
-    localStorage.setItem(USER_KEY, JSON.stringify(user))
-  } else {
-    localStorage.removeItem(USER_KEY)
-  }
-  notifyAuthChange()
+  localStorage.setItem(USER_KEY, JSON.stringify(normalizeUser(user)))
 }
 
 function getCurrentUser() {
@@ -47,12 +48,28 @@ function getCurrentUser() {
 function clearSession() {
   clearToken()
   localStorage.removeItem(USER_KEY)
-  notifyAuthChange()
 }
 
 export const userService = {
-  // GET /api/users
-  list: () => httpClient.get(ENDPOINT),
+  // GET /api/users (somente admin — o backend valida o token e o papel)
+  list: () => httpClient.get(ENDPOINT, { token: getToken() }),
+
+  // GET /api/users/me (usuário autenticado)
+  me: async () => {
+    const data = await httpClient.get(`${ENDPOINT}/me`, {
+      token: getToken(),
+    })
+    return data.user
+  },
+
+  // PATCH /api/users/me (atualiza o próprio usuário)
+  updateMe: async (changes) => {
+    const data = await httpClient.patch(`${ENDPOINT}/me`, changes, {
+      token: getToken(),
+    })
+    saveCurrentUser(data.user)
+    return data.user
+  },
 
   // GET /api/users/:id
   getById: (id) => httpClient.get(`${ENDPOINT}/${id}`),
@@ -67,56 +84,19 @@ export const userService = {
     saveToken(data.token)
 
     if (data.user) {
-      const tipo =
-        data.user.tipo ||
-        (data.user.email?.toLowerCase().includes('admin') ? 'admin' : 'usuario')
-
-      saveCurrentUser({
-        ...data.user,
-        nome: data.user.name ?? data.user.nome,
-        name: data.user.name ?? data.user.nome,
-        avatar: data.user.avatar,
-        tipo,
-        papel: tipo === 'admin' ? 'Administradora' : 'Usuária',
-      })
+      saveCurrentUser(data.user)
     }
 
     return data
   },
 
   // PATCH /api/users/:id
-  update: async (id, changes) => {
-    const data = await httpClient.patch(`${ENDPOINT}/${id}`, changes, {
-      token: getToken(),
-    })
-
-    if (data?.user) {
-      const current = getCurrentUser() || {}
-      if (Number(current.id) === Number(id)) {
-        const tipo = data.user.tipo ?? current.tipo ?? 'usuario'
-        saveCurrentUser({
-          ...current,
-          ...data.user,
-          nome: data.user.name ?? data.user.nome ?? current.nome,
-          name: data.user.name ?? data.user.nome ?? current.name,
-          avatar: data.user.avatar ?? current.avatar,
-          tipo,
-          papel: tipo === 'admin' ? 'Administradora' : 'Usuária',
-        })
-      } else {
-        notifyAuthChange()
-      }
-    }
-
-    return data
-  },
+  update: (id, user) =>
+    httpClient.patch(`${ENDPOINT}/${id}`, user, { token: getToken() }),
 
   // DELETE /api/users/:id
-  remove: async (id) => {
-    const res = await httpClient.delete(`${ENDPOINT}/${id}`, { token: getToken() })
-    notifyAuthChange()
-    return res
-  },
+  remove: (id) =>
+    httpClient.delete(`${ENDPOINT}/${id}`, { token: getToken() }),
 
   getToken,
   saveToken,
@@ -124,5 +104,4 @@ export const userService = {
   saveCurrentUser,
   getCurrentUser,
   clearSession,
-  notifyAuthChange,
 }

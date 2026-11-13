@@ -24,17 +24,41 @@ export default function Footer() {
             apoio
             <br className="hidden sm:block" /> e ferramentas de segurança.
           </p>
-          <div className="mt-4 flex gap-4 text-base font-bold text-fuchsia-500">
-            <a href="https://www.facebook.com" aria-label="Facebook">
+          <div className="mt-4 flex gap-1 text-base font-bold text-pink-300">
+            <a
+              href="https://www.facebook.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Facebook (abre em nova aba)"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full transition hover:bg-violet-900 hover:text-pink-100"
+            >
               <i className="fa-brands fa-facebook" aria-hidden="true" />
             </a>
-            <a href="https://www.youtube.com" aria-label="YouTube">
+            <a
+              href="https://www.youtube.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="YouTube (abre em nova aba)"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full transition hover:bg-violet-900 hover:text-pink-100"
+            >
               <i className="fa-brands fa-youtube" aria-hidden="true" />
             </a>
-            <a href="https://www.instagram.com" aria-label="Instagram">
+            <a
+              href="https://www.instagram.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Instagram (abre em nova aba)"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full transition hover:bg-violet-900 hover:text-pink-100"
+            >
               <i className="fa-brands fa-instagram" aria-hidden="true" />
             </a>
-            <a href="https://twitter.com" aria-label="X">
+            <a
+              href="https://twitter.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="X (abre em nova aba)"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full transition hover:bg-violet-900 hover:text-pink-100"
+            >
               <i className="fa-brands fa-x-twitter" aria-hidden="true" />
             </a>
           </div>
@@ -42,21 +66,36 @@ export default function Footer() {
 
         <div className="sm:basis-1/6">
           <h2 className="mb-2 font-semibold">Links úteis</h2>
-          <ul className="space-y-1.5 text-purple-100">
+          <ul className="space-y-1 text-purple-100">
             <li>
-              <Link to="/">Início</Link>
+              <Link to="/" className="inline-block py-1 transition hover:text-pink-200">
+                Início
+              </Link>
             </li>
             <li>
-              <Link to="/sobre">Sobre nós</Link>
+              <Link to="/sobre" className="inline-block py-1 transition hover:text-pink-200">
+                Sobre
+              </Link>
             </li>
             <li>
-              <Link to="/informacoes">Informações</Link>
+              <Link to="/informacoes" className="inline-block py-1 transition hover:text-pink-200">
+                Informações
+              </Link>
             </li>
             <li>
-              <Link to="/apoio">Rede de apoio</Link>
+              <Link to="/apoio" className="inline-block py-1 transition hover:text-pink-200">
+                Rede de Apoio
+              </Link>
             </li>
             <li>
-              <Link to="/contato">Contato</Link>
+              <Link to="/contato" className="inline-block py-1 transition hover:text-pink-200">
+                Contato
+              </Link>
+            </li>
+            <li>
+              <Link to="/voluntaria" className="inline-block py-1 transition hover:text-pink-200">
+                Voluntariado
+              </Link>
             </li>
           </ul>
         </div>
@@ -66,7 +105,12 @@ export default function Footer() {
           <div className="space-y-3 text-purple-100">
             <p>
               <i className="fa-solid fa-phone mr-2" aria-hidden="true" />
-              Disque 180
+              <a
+                href="tel:180"
+                className="-mx-1 inline-block px-1 py-1 transition hover:text-pink-200"
+              >
+                Disque 180
+              </a>
               <br />
               <span className="pl-6 text-purple-200">
                 Central de Atendimento à Mulher
@@ -76,8 +120,29 @@ export default function Footer() {
               <i className="fa-solid fa-phone mr-2" aria-hidden="true" />
               Polícia Militar
               <br />
-              <span className="pl-6 text-purple-200">190</span>
+              <span className="pl-6 text-purple-200">
+                <a
+                  href="tel:190"
+                  className="-mx-1 inline-block px-1 py-1 transition hover:text-pink-200"
+                >
+                  190
+                </a>
+              </span>
             </p>
+            <div className="flex flex-wrap gap-x-3 pt-1 text-purple-200">
+              <Link
+                to="/emergencia"
+                className="inline-block py-1 transition hover:text-pink-200"
+              >
+                Emergência
+              </Link>
+              <Link
+                to="/denuncia"
+                className="inline-block py-1 transition hover:text-pink-200"
+              >
+                Como denunciar
+              </Link>
+            </div>
           </div>
         </div>
 

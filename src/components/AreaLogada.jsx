@@ -6,33 +6,25 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import imagemMulheres from '../assets/mulheres2.png';
 import Avatar from './Avatar';
-import Footer from '../components/Footer';
-import { userService } from '../services/userService';
+import Footer from './Footer';
  
 const menu = [
     { nome: 'Início', icone: faHouse, to: '/' },
-    { nome: 'Chats', icone: faCommentDots, to: '/chat' },
-    { nome: 'Usuárias', icone: faUsers, to: '/contas' },
+    { nome: 'Chats', icone: faCommentDots, to: '/chats' },
+    { nome: 'Usuárias', icone: faUsers },
     { nome: 'Eventos', icone: faCalendarDays },
     { nome: 'Conteúdos', icone: faFileLines },
-    { nome: 'Denúncias', icone: faShieldHalved, to: '/denuncia' },
-    { nome: 'Relatórios', icone: faChartColumn, to: '/administrador' },
+    { nome: 'Denúncias', icone: faShieldHalved },
+    { nome: 'Relatórios', icone: faChartColumn },
     { nome: 'Configurações', icone: faGear, to: '/minha-conta' },
 ];
  
-function AreaLogada({ ativo, usuario: propUsuario, children }) {
+function AreaLogada({ ativo, usuario, children }) {
     const navigate = useNavigate();
-    const usuario = propUsuario || userService.getCurrentUser() || { nome: 'Usuária', papel: 'Usuária' };
-
     const classeItem = (nome) =>
         `flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-white ${
             nome === ativo ? 'bg-[#7e3fc9]' : 'hover:bg-white/10'
         }`;
-
-    function handleLogout() {
-        userService.clearSession();
-        navigate('/');
-    }
  
     return (
         <div className="flex min-h-screen flex-col bg-[#f5f0ff] text-[#2e1065]">
@@ -60,22 +52,14 @@ function AreaLogada({ ativo, usuario: propUsuario, children }) {
                         <FontAwesomeIcon icon={faBell} />
                         <span className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-pink-500" />
                     </button>
-                    <Link
-                        to="/minha-conta"
-                        className="flex items-center gap-2 hover:opacity-80 transition cursor-pointer"
-                        title="Ver meu perfil e configurações"
-                    >
-                        <Avatar
-                            nome={usuario.nome || usuario.name}
-                            avatar={usuario.avatar}
-                            tamanho="h-9 w-9"
-                        />
+                    <div className="flex items-center gap-2">
+                        <Avatar nome={usuario.nome} avatar={usuario.avatar} photo={usuario.photo} tamanho="h-9 w-9" />
                         <div className="hidden leading-tight sm:block">
-                            <p className="text-sm font-semibold">{usuario.nome || usuario.name}</p>
-                            <p className="text-xs text-gray-500">{usuario.papel || 'Usuária'}</p>
+                            <p className="text-sm font-semibold">{usuario.nome}</p>
+                            <p className="text-xs text-gray-500">{usuario.papel}</p>
                         </div>
                         <FontAwesomeIcon icon={faChevronDown} className="text-xs" />
-                    </Link>
+                    </div>
                 </div>
             </header>
  
@@ -97,11 +81,7 @@ function AreaLogada({ ativo, usuario: propUsuario, children }) {
                         )}
                         <hr className="my-3 border-white/20" />
                         
-                        <button
-                            type="button"
-                            onClick={handleLogout}
-                            className={classeItem('Sair')}
-                        >
+                        <button type="button" className={classeItem('Sair')}>
                             <FontAwesomeIcon icon={faRightFromBracket} className="w-4" />
                             Sair
                         </button>

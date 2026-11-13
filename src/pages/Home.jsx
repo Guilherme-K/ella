@@ -1,9 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import womenArtwork from "../assets/mulheres.png";
 import { homeLinks, supportServices, violenceTypes } from "../data/homeData";
+import { BASE_URL } from "../services/httpClient";
+import { supportNetworkService } from "../services/supportNetworkService";
+import { imagemDaRede } from "../constants/supportNetworks";
+import SaidaRapida from "../components/SaidaRapida";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const API_URL = BASE_URL;
 
 const perguntasFrequentes = [
   {
@@ -59,9 +63,28 @@ const perguntasFrequentes = [
 ];
 
 export default function Home() {
+  const [buscaApoio, setBuscaApoio] = useState("");
+  const [redesApoio, setRedesApoio] = useState(supportServices);
   const [perguntaAberta, setPerguntaAberta] = useState(null);
   const [totalAcionamentos, setTotalAcionamentos] = useState(null);
   const [erroContagem, setErroContagem] = useState(false);
+
+  useEffect(() => {
+    let ativo = true;
+
+    supportNetworkService
+      .list()
+      .then((lista) => {
+        if (ativo && Array.isArray(lista) && lista.length > 0) {
+          setRedesApoio(lista);
+        }
+      })
+      .catch(() => {});
+
+    return () => {
+      ativo = false;
+    };
+  }, []);
 
   useEffect(() => {
     let ativo = true;
@@ -87,7 +110,7 @@ export default function Home() {
           setTotalAcionamentos(total);
           setErroContagem(false);
         }
-      } catch (erro) {
+      } catch {
         if (ativo) {
           setErroContagem(true);
         }
@@ -104,8 +127,43 @@ export default function Home() {
     };
   }, []);
 
+  const servicosFiltrados = useMemo(() => {
+    const pesquisa = buscaApoio
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim();
+
+    if (!pesquisa) {
+      return redesApoio.slice(0, 6);
+    }
+
+    return redesApoio.filter((service) => {
+      const nome = String(service.nome || service.title || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase();
+
+      const categoria = String(service.categoria || service.category || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase();
+
+      const descricao = String(service.descricao || service.description || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase();
+
+      return (
+        nome.includes(pesquisa) ||
+        categoria.includes(pesquisa) ||
+        descricao.includes(pesquisa)
+      );
+    });
+  }, [buscaApoio, redesApoio]);
+
   return (
-    <main className="flex-1 bg-white">
+    <main id="conteudo" tabIndex={-1} className="flex-1 bg-white">
       <section
         id="inicio"
         className="relative isolate flex items-center overflow-hidden bg-linear-to-r from-pink-50 via-pink-50 to-purple-100 px-6 py-8 sm:px-10 sm:py-10 lg:px-16"
@@ -133,6 +191,8 @@ export default function Home() {
               e ferramentas de emergência. Juntas, podemos combater a violência
               contra a mulher.
             </p>
+
+            {/* Botão de Emergência */}
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <Link
                 to="/emergencia"
@@ -142,15 +202,15 @@ export default function Home() {
                 Botão de Emergência
               </Link>
             </div>
-            <a
-              href="https://www.youtube.com/receitas"
-              className="mt-6 inline-block rounded-lg bg-purple-100 px-4 py-2 text-xs text-violet-700 underline decoration-violet-400 underline-offset-2 transition hover:bg-purple-200"
-            >
-              Saída Rápida
-            </a>
+{/* Botão Saída Rápida logo abaixo */}
+            <div className="mt-4">
+              <SaidaRapida modo="home" />
+            </div>
           </div>
         </div>
       </section>
+
+
 
       <nav
         aria-label="Acesso rápido"
@@ -233,7 +293,7 @@ export default function Home() {
               <h2 className="font-serif text-2xl text-violet-950 sm:text-3xl">
                 Violência não é amor. É crime.
               </h2>
-              <p className="mt-1 text-sm text-pink-700 sm:text-base">
+              <p className="mt-1 text-sm text-pink-800 sm:text-base">
                 Você tem o direito a uma vida segura, livre e com dignidade.
               </p>
             </div>
@@ -260,36 +320,90 @@ export default function Home() {
           </Link>
 
           <label className="mx-auto mt-7 flex max-w-3xl items-center gap-3 rounded-full border border-stone-400 px-6 py-2 shadow-sm focus-within:border-violet-600 focus-within:ring-2 focus-within:ring-violet-200">
-            <span className="sr-only">Campo de texto da rede de apoio</span>
+            <span className="sr-only">Pesquisar na rede de apoio</span>
+
             <input
               type="text"
+              value={buscaApoio}
+              onChange={(e) => setBuscaApoio(e.target.value)}
               placeholder="Buscar por serviços, cidade ou especialidade..."
               className="min-w-0 flex-1 bg-transparent text-sm text-violet-950 outline-none placeholder:text-violet-300"
             />
+
+            {buscaApoio && (
+              <button
+                type="button"
+                onClick={() => setBuscaApoio("")}
+                aria-label="Limpar pesquisa"
+                className="text-violet-600 hover:text-violet-900"
+              >
+                <i className="fa-solid fa-xmark" />
+              </button>
+            )}
+
             <i
               className="fa-solid fa-magnifying-glass text-lg text-violet-700"
               aria-hidden="true"
             />
           </label>
 
-          <div className="mx-auto mt-8 grid max-w-5xl gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {supportServices.map((service) => (
-              <article
-                key={service.title}
-                className="flex min-h-36 flex-col items-center justify-center rounded-2xl bg-purple-100 px-5 py-6 text-center"
-              >
-                <i
-                  className={`fa-solid ${service.icon} text-2xl text-violet-900`}
-                  aria-hidden="true"
-                />
-                <h3 className="mt-3 font-serif text-base font-bold text-violet-950">
-                  {service.title}
-                </h3>
-                <p className="mt-4 text-xs text-violet-950">
-                  {service.description}
-                </p>
-              </article>
-            ))}
+          <div className="mx-auto mt-8 grid max-w-6xl gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {servicosFiltrados.length > 0 ? (
+              servicosFiltrados.map((rede) => (
+                <Link
+                  key={rede.id || rede.nome || rede.title}
+                  to={`/apoio/${rede.id}`}
+                  className="group flex flex-col overflow-hidden rounded-2xl border border-purple-100 bg-white shadow-sm transition hover:-translate-y-1 hover:border-pink-200 hover:shadow-md"
+                >
+                  <div className="relative h-44 overflow-hidden">
+                    <img
+                      src={imagemDaRede(rede.imagem || rede.image)}
+                      alt={`Imagem ilustrativa de ${rede.nome || rede.title}`}
+                      loading="lazy"
+                      className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                    />
+
+                    {(rede.categoria || rede.category) && (
+                      <span className="absolute left-4 top-4 rounded-full bg-white/95 px-3 py-1 text-xs font-semibold text-pink-700 shadow-sm">
+                        {rede.categoria || rede.category}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="flex flex-1 flex-col p-6">
+                    <h3 className="font-serif text-xl font-bold text-violet-950">
+                      {rede.nome || rede.title}
+                    </h3>
+
+                    <p className="mt-3 flex-1 text-sm leading-7 text-gray-600">
+                      {rede.descricao || rede.description}
+                    </p>
+
+                    <span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-pink-700">
+                      Ver detalhes
+                      <i
+                        className="fa-solid fa-arrow-right text-xs transition group-hover:translate-x-1"
+                        aria-hidden="true"
+                      />
+                    </span>
+                  </div>
+                </Link>
+              ))
+            ) : (
+              <p className="col-span-full py-8 text-center text-sm text-violet-700">
+                Nenhum serviço encontrado. Tente pesquisar por outro nome ou especialidade.
+              </p>
+            )}
+          </div>
+
+          <div className="mt-8 text-center">
+            <Link
+              to="/apoio"
+              className="inline-flex items-center gap-2 rounded-full bg-pink-700 px-6 py-3 text-sm font-semibold text-white transition hover:bg-pink-800"
+            >
+              Ver todas as redes de apoio
+              <i className="fa-solid fa-arrow-right" aria-hidden="true" />
+            </Link>
           </div>
 
           <section
@@ -396,9 +510,8 @@ export default function Home() {
                         </span>
 
                         <i
-                          className={`fa-solid fa-chevron-down shrink-0 text-sm text-pink-600 transition-transform duration-200 ${
-                            aberta ? "rotate-180" : ""
-                          }`}
+                          className={`fa-solid fa-chevron-down shrink-0 text-sm text-pink-600 transition-transform duration-200 ${aberta ? "rotate-180" : ""
+                            }`}
                           aria-hidden="true"
                         />
                       </button>

@@ -1,57 +1,129 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { userService } from '../services/userService'
+import { Link, Navigate, useNavigate } from 'react-router-dom'
+import { destinoPorPapel, obterUsuarioLogado } from '../utils/navegacao'
+import BotaoVoltar from '../components/BotaoVoltar'
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000'
 
 const fields = [
-  { name: 'nome', label: 'Nome', type: 'text' },
-  { name: 'email', label: 'E-mail', type: 'email' },
-  { name: 'password', label: 'Senha', type: 'password' },
+  { name: 'nome', label: 'Nome', type: 'text', autoComplete: 'name' },
+  { name: 'email', label: 'E-mail', type: 'email', autoComplete: 'email' },
+  { name: 'password', label: 'Senha', type: 'password', autoComplete: 'new-password' },
 ]
 
 export default function Signup() {
-  const [form, setForm] = useState({ nome: '', email: '', password: '' })
+  const [form, setForm] = useState({
+    nome: '',
+    email: '',
+    password: '',
+  })
+  const [tipoConta, setTipoConta] = useState('usuaria')
+  const [crm, setCrm] = useState('')
+  const [confirmarSenha, setConfirmarSenha] = useState('')
   const [message, setMessage] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [carregando, setCarregando] = useState(false)
+
   const navigate = useNavigate()
+  const usuarioLogado = obterUsuarioLogado()
 
   async function submit(event) {
     event.preventDefault()
     setMessage('')
-    setLoading(true)
+
+    if (form.password !== confirmarSenha) {
+      setMessage('As senhas não coincidem.')
+      return
+    }
+
+    if (form.password.length < 6) {
+      setMessage('A senha deve ter pelo menos 6 caracteres.')
+      return
+    }
+
+    setCarregando(true)
 
     try {
-      await userService.create({
-        nome: form.nome,
-        email: form.email,
-        password: form.password,
+      const resposta = await fetch(`${API_URL}/cadastro`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          nome: form.nome.trim(),
+          email: form.email.trim(),
+          password: form.password,
+          tipoConta,
+          crm: tipoConta === 'psicologa' ? crm.trim() : undefined,
+        }),
       })
 
-      // Entra automaticamente após o cadastro.
-      await userService.login({
-        email: form.email,
-        password: form.password,
-      })
+      const dados = await resposta.json().catch(() => ({}))
 
-      navigate('/contas')
-    } catch (err) {
-      setMessage(err.message || 'Não foi possível conectar ao servidor.')
+      if (!resposta.ok) {
+        setMessage(
+          dados?.erro ||
+          dados?.error ||
+          'Não foi possível realizar o cadastro.'
+        )
+        return
+      }
+
+      const usuarioRecebido = dados.usuario || dados.user || dados
+
+      if (usuarioRecebido?.id) {
+        const usuario = {
+          ...usuarioRecebido,
+          tipo:
+            usuarioRecebido.tipo ||
+            usuarioRecebido.papel ||
+            usuarioRecebido.role ||
+            'usuaria',
+          tipoConta:
+            usuarioRecebido.tipoConta ||
+            usuarioRecebido.accountType ||
+            tipoConta,
+        }
+
+        localStorage.setItem('usuarioLogado', JSON.stringify(usuario))
+
+        if (dados.token) {
+          localStorage.setItem('ella:token', dados.token)
+        }
+
+        navigate('/perfiluser', { replace: true })
+        return
+      }
+
+      setMessage('Cadastro realizado! Faça login para acessar sua conta.')
+    } catch {
+      setMessage('Não foi possível conectar ao servidor.')
     } finally {
-      setLoading(false)
+      setCarregando(false)
     }
   }
 
   function updateField(event) {
     const { name, value } = event.target
-    setForm({ ...form, [name]: value })
+    setForm((anterior) => ({ ...anterior, [name]: value }))
+  }
+
+  if (usuarioLogado?.id) {
+    return <Navigate to={destinoPorPapel(usuarioLogado)} replace />
   }
 
   return (
-    <main className="flex min-h-screen flex-1 items-center justify-center bg-purple-100 px-4 py-12">
+    <main id="conteudo" tabIndex={-1} className="flex min-h-screen flex-1 items-center justify-center bg-purple-100 px-4 py-12">
       <section className="w-full max-w-md rounded-3xl bg-white p-8 shadow-xl">
+        {/* Botão Voltar no topo do formulário */}
+        <div className="mb-5">
+          <BotaoVoltar />
+        </div>
+
         <h1 className="font-serif text-3xl font-bold text-violet-950">
           Criar conta
         </h1>
-        <p className="mt-2 text-sm text-violet-500">
+
+        <p className="mt-2 text-sm text-violet-600">
           Um espaço seguro começa com você.
         </p>
 
@@ -62,36 +134,89 @@ export default function Signup() {
               className="block text-sm font-medium text-violet-600"
             >
               {field.label}
+
               <input
                 required
                 name={field.name}
                 type={field.type}
-                minLength={field.name === 'password' ? 8 : undefined}
                 value={form[field.name]}
                 onChange={updateField}
+                minLength={field.name === 'password' ? 6 : undefined}
+                autoComplete={field.autoComplete}
                 className="mt-2 block w-full rounded-xl border border-purple-100 bg-purple-50 px-4 py-3 text-sm outline-none focus:border-pink-300"
               />
             </label>
           ))}
+
+          <label className="block text-sm font-medium text-violet-600">
+            Tipo de conta
+
+            <select
+              name="tipoConta"
+              value={tipoConta}
+              onChange={(event) => setTipoConta(event.target.value)}
+              className="mt-2 block w-full rounded-xl border border-purple-100 bg-purple-50 px-4 py-3 text-sm outline-none focus:border-pink-300"
+            >
+              <option value="usuaria">Usuária</option>
+              <option value="voluntaria">Voluntária</option>
+              <option value="psicologa">Psicóloga</option>
+            </select>
+          </label>
+
+          {tipoConta === 'psicologa' && (
+            <label className="block text-sm font-medium text-violet-600">
+              CRM
+
+              <input
+                type="text"
+                name="crm"
+                value={crm}
+                onChange={(event) => setCrm(event.target.value)}
+                placeholder="Informe seu CRM (opcional)"
+                className="mt-2 block w-full rounded-xl border border-purple-100 bg-purple-50 px-4 py-3 text-sm outline-none focus:border-pink-300"
+              />
+
+              <span className="mt-1 block text-xs font-normal text-violet-600">
+                O CRM é apenas informativo e não passa por validação.
+              </span>
+            </label>
+          )}
+
+          <label className="block text-sm font-medium text-violet-600">
+            Confirmar senha
+
+            <input
+              required
+              type="password"
+              value={confirmarSenha}
+              onChange={(event) => setConfirmarSenha(event.target.value)}
+              autoComplete="new-password"
+              className="mt-2 block w-full rounded-xl border border-purple-100 bg-purple-50 px-4 py-3 text-sm outline-none focus:border-pink-300"
+            />
+          </label>
+
           {message && (
-            <p role="status" className="text-sm text-pink-600">
+            <p role="alert" className="text-sm text-pink-700">
               {message}
             </p>
           )}
+
           <button
-            disabled={loading}
-            className="w-full rounded-xl bg-pink-400 py-3 text-sm font-medium text-white hover:bg-pink-500 disabled:cursor-not-allowed disabled:opacity-60"
+            type="submit"
+            disabled={carregando}
+            className="w-full rounded-xl bg-pink-700 py-3 text-sm font-medium text-white hover:bg-pink-800 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {loading ? 'Cadastrando...' : 'Cadastrar'}
+            {carregando ? 'Cadastrando...' : 'Cadastrar'}
           </button>
         </form>
 
-        <Link
-          to="/"
-          className="mt-4 inline-block text-sm text-pink-500 underline"
-        >
-          Voltar ao início
-        </Link>
+        <p className="mt-5 text-sm text-violet-600">
+          Já tem uma conta?{' '}
+          <Link to="/login" className="text-pink-700 underline">
+            Entrar
+          </Link>
+        </p>
+
       </section>
     </main>
   )

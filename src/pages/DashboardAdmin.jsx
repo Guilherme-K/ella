@@ -1,630 +1,718 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-    faArrowDown,
-    faArrowUp,
-    faCalendarDays,
-    faChevronRight,
-    faFileLines,
-    faHeart,
-    faShieldHalved,
-    faUser,
-    faUserPlus,
-    faUsers,
-    faPen,
-    faTrash,
-    faArrowRotateRight,
-    faMagnifyingGlass,
+    faBell, faBrain, faCalendarDays, faChevronRight, faComments, faDownload,
+    faHeart, faRotate, faUserGear, faUserPlus, faUsers,
 } from '@fortawesome/free-solid-svg-icons';
+
 import Avatar from '../components/Avatar';
-import ProfileModal from '../components/ProfileModal';
+import { BASE_URL } from '../services/httpClient';
 import { userService } from '../services/userService';
 
-const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'];
+// Dados reais das contas cadastradas. O projeto ainda não possui eventos,
+// denúncias, conteúdos ou atendimentos persistidos, então o dashboard mostra
+// apenas o que existe hoje no banco: contas, tipos de conta e preenchimento
+// de perfil.
 
-const series = [
-    { nome: 'Usuárias', cor: '#e11d8f', valores: [350, 650, 800, 950, 1150, 1350] },
-    { nome: 'Voluntárias', cor: '#6d28d9', valores: [150, 350, 450, 550, 700, 900] },
-    { nome: 'Eventos', cor: '#f9a8d4', valores: [50, 150, 250, 300, 380, 450] },
+const PAPEIS = {
+    usuaria: { rotulo: 'Usuária', cor: '#e11d8f', classe: 'bg-pink-100 text-pink-700' },
+    voluntaria: { rotulo: 'Voluntária', cor: '#6d28d9', classe: 'bg-violet-100 text-violet-700' },
+    psicologa: { rotulo: 'Psicóloga', cor: '#a21caf', classe: 'bg-fuchsia-100 text-fuchsia-700' },
+    admin: { rotulo: 'Admin', cor: '#2e1065', classe: 'bg-violet-950 text-white' },
+};
+
+const acoesRapidas = [
+    { texto: 'Ver todas as contas', icone: faUsers, to: '/contas' },
+    { texto: 'Abrir chats', icone: faComments, to: '/admin/chats' },
+    { texto: 'Editar meu perfil', icone: faUserGear, to: '/admin/perfil' },
+    { texto: 'Cadastrar nova conta', icone: faUserPlus, to: '/cadastro' },
 ];
 
-const violencia = [
-    { nome: 'Psicológica', pct: 56, cor: '#e11d8f' },
-    { nome: 'Física', pct: 18, cor: '#6d28d9' },
-    { nome: 'Sexual', pct: 12, cor: '#f9a8d4' },
-    { nome: 'Patrimonial', pct: 8, cor: '#a855f7' },
-    { nome: 'Moral', pct: 6, cor: '#d8b4fe' },
-];
+const card = 'rounded-2xl border border-violet-100 bg-white p-6';
+const titulo = 'mb-4 font-serif text-lg text-[#2e1065]';
 
-const card = 'rounded-xl bg-white p-5 shadow-sm';
+function lerData(valor) {
+    const data = new Date(valor);
 
-function GraficoLinhas() {
-    const largura = 560;
-    const altura = 200;
-    const esquerda = 40;
-    const base = 30;
+    return Number.isNaN(data.getTime()) ? null : data;
+}
 
-    const x = (i) => esquerda + (i * (largura - esquerda - 10)) / (meses.length - 1);
-    const y = (v) => altura - base - (v / 1500) * (altura - base - 10);
+function formatarData(valor) {
+    const data = lerData(valor);
 
-    return (
-        <svg
-            viewBox={`0 0 ${largura} ${altura}`}
-            className="w-full"
-            role="img"
-            aria-label="Crescimento de usuárias, voluntárias e eventos nos últimos 6 meses"
-        >
-            {[0, 300, 600, 900, 1200, 1500].map((v) => (
-                <g key={v}>
-                    <line
-                        x1={esquerda}
-                        x2={largura - 10}
-                        y1={y(v)}
-                        y2={y(v)}
-                        stroke="#ede9fe"
-                    />
-                    <text
-                        x={esquerda - 6}
-                        y={y(v) + 3}
-                        textAnchor="end"
-                        fontSize="9"
-                        fill="#6b7280"
-                    >
-                        {v}
-                    </text>
-                </g>
-            ))}
+    return data ? data.toLocaleDateString('pt-BR') : '—';
+}
 
-            {meses.map((m, i) => (
-                <text
-                    key={m}
-                    x={x(i)}
-                    y={altura - 10}
-                    textAnchor="middle"
-                    fontSize="9"
-                    fill="#6b7280"
-                >
-                    {m}
-                </text>
-            ))}
+const formatadorRelativo = new Intl.RelativeTimeFormat('pt-BR', { numeric: 'auto' });
 
-            {series.map((s) => (
-                <g key={s.nome}>
-                    <polyline
-                        fill="none"
-                        stroke={s.cor}
-                        strokeWidth="2"
-                        points={s.valores.map((v, i) => `${x(i)},${y(v)}`).join(' ')}
-                    />
-                    {s.valores.map((v, i) => (
-                        <circle
-                            key={i}
-                            cx={x(i)}
-                            cy={y(v)}
-                            r="3"
-                            fill={s.cor}
-                        />
-                    ))}
-                </g>
-            ))}
-        </svg>
+function tempoRelativo(valor) {
+    const data = lerData(valor);
+
+    if (!data) return '—';
+
+    const diferenca = data.getTime() - Date.now();
+    const minutos = Math.round(diferenca / 60000);
+
+    if (Math.abs(minutos) < 60) return formatadorRelativo.format(minutos, 'minute');
+
+    const horas = Math.round(diferenca / 3600000);
+
+    if (Math.abs(horas) < 24) return formatadorRelativo.format(horas, 'hour');
+
+    const dias = Math.round(diferenca / 86400000);
+
+    if (Math.abs(dias) < 30) return formatadorRelativo.format(dias, 'day');
+
+    const meses = Math.round(diferenca / 2592000000);
+
+    if (Math.abs(meses) < 12) return formatadorRelativo.format(meses, 'month');
+
+    return formatadorRelativo.format(Math.round(diferenca / 31536000000), 'year');
+}
+
+function papelDe(usuario) {
+    // O papel (role) é sempre "usuaria" para as novas voluntárias e
+    // psicólogas; o tipo de conta (accountType) é o que diferencia a exibição
+    // no painel. Contas antigas com role própria continuam sendo reconhecidas.
+    const role = String(usuario.role ?? usuario.tipo ?? '')
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '');
+
+    if (role === 'admin') return 'admin';
+    if (role === 'voluntaria' || role === 'psicologa') return role;
+
+    const tipo = String(usuario.accountType ?? usuario.tipoConta ?? '')
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '');
+
+    if (tipo === 'voluntaria' || tipo === 'psicologa') return tipo;
+
+    return 'usuaria';
+}
+
+function contarPorPapel(usuarios) {
+    return usuarios.reduce(
+        (contagem, usuario) => {
+            contagem[papelDe(usuario)] += 1;
+            return contagem;
+        },
+        { usuaria: 0, voluntaria: 0, psicologa: 0, admin: 0 },
     );
 }
 
-function GraficoRosca() {
-    const raio = 40;
-    const circunferencia = 2 * Math.PI * raio;
-    const inicios = violencia.map((_, i) =>
-        violencia.slice(0, i).reduce((soma, item) => soma + item.pct, 0)
-    );
+function calcularResumo(usuarios) {
+    const total = usuarios.length;
+    const porPapel = contarPorPapel(usuarios);
+    const agora = Date.now();
+    const inicio30 = agora - 30 * 86400000;
+    const inicio60 = agora - 60 * 86400000;
 
-    return (
-        <svg
-            viewBox="0 0 100 100"
-            className="h-36 w-36 shrink-0"
-            role="img"
-            aria-label="Distribuição dos tipos de violência registrados"
-        >
-            <g transform="rotate(-90 50 50)">
-                {violencia.map((v, i) => {
-                    const tamanho = (v.pct / 100) * circunferencia;
-                    return (
-                        <circle
-                            key={v.nome}
-                            cx="50"
-                            cy="50"
-                            r={raio}
-                            fill="none"
-                            stroke={v.cor}
-                            strokeWidth="14"
-                            strokeDasharray={`${tamanho} ${circunferencia - tamanho}`}
-                            strokeDashoffset={-(inicios[i] / 100) * circunferencia}
-                        />
-                    );
-                })}
-            </g>
-            <text
-                x="50"
-                y="50"
-                textAnchor="middle"
-                fontSize="14"
-                fontWeight="bold"
-                fill="#3b1a6e"
-            >
-                {violencia[0].pct}%
-            </text>
-            <text
-                x="50"
-                y="60"
-                textAnchor="middle"
-                fontSize="5"
-                fill="#6b7280"
-            >
-                Total de registros
-            </text>
-        </svg>
-    );
+    const novas30 = usuarios.filter((usuario) => {
+        const data = lerData(usuario.createdAt);
+        return data && data.getTime() >= inicio30;
+    }).length;
+
+    const novas30Anteriores = usuarios.filter((usuario) => {
+        const data = lerData(usuario.createdAt);
+        return data && data.getTime() >= inicio60 && data.getTime() < inicio30;
+    }).length;
+
+    return { total, porPapel, novas30, novas30Anteriores };
 }
 
-export default function DashboardAdmin() {
-    const [currentUser, setCurrentUser] = useState(() => userService.getCurrentUser());
-    const [users, setUsers] = useState([]);
-    const [loadingUsers, setLoadingUsers] = useState(true);
-    const [usersError, setUsersError] = useState('');
-    const [searchFilter, setSearchFilter] = useState('');
-    const [editingUser, setEditingUser] = useState(null);
-    const [profileModalOpen, setProfileModalOpen] = useState(false);
+function percentual(parte, total) {
+    return total > 0 ? Math.round((parte / total) * 100) : 0;
+}
 
-    function carregarUsuarios() {
-        setLoadingUsers(true);
-        userService.list()
-            .then((dados) => {
-                setUsers(Array.isArray(dados) ? dados : []);
-                setUsersError('');
-            })
-            .catch((err) => {
-                setUsersError(err.message || 'Erro ao carregar usuárias.');
-            })
-            .finally(() => {
-                setLoadingUsers(false);
-            });
+function criarSeries(usuarios) {
+    const agora = new Date();
+    const meses = [];
+
+    for (let i = 5; i >= 0; i -= 1) {
+        const inicio = new Date(agora.getFullYear(), agora.getMonth() - i, 1);
+        const fim = new Date(agora.getFullYear(), agora.getMonth() - i + 1, 1);
+
+        meses.push({
+            rotulo: inicio.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', ''),
+            fim,
+        });
     }
 
+    const series = [
+        { nome: 'Contas', cor: '#e11d8f', largura: 2.5, valores: [] },
+        { nome: 'Voluntárias', cor: '#6d28d9', largura: 1.75, valores: [] },
+        { nome: 'Psicólogas', cor: '#d28bb8', largura: 1.75, valores: [] },
+    ];
+
+    for (const mes of meses) {
+        const cadastradasAte = usuarios.filter((usuario) => {
+            const data = lerData(usuario.createdAt);
+            return data && data < mes.fim;
+        });
+
+        series[0].valores.push(cadastradasAte.length);
+        series[1].valores.push(cadastradasAte.filter((usuario) => papelDe(usuario) === 'voluntaria').length);
+        series[2].valores.push(cadastradasAte.filter((usuario) => papelDe(usuario) === 'psicologa').length);
+    }
+
+    return { meses: meses.map((mes) => mes.rotulo), series };
+}
+
+function perfilPreenchido(usuario) {
+    const preenchidos = [
+        Boolean(usuario.bio),
+        Boolean(usuario.city ?? usuario.cidade),
+        Boolean(usuario.phone ?? usuario.telefone),
+    ].filter(Boolean).length;
+
+    if (preenchidos === 3) return { rotulo: 'Completo', classe: 'bg-emerald-500' };
+    if (preenchidos === 0) return { rotulo: 'Incompleto', classe: 'bg-amber-500' };
+
+    return { rotulo: 'Parcial', classe: 'bg-violet-500' };
+}
+
+function calcularPreenchimento(usuarios) {
+    const total = usuarios.length;
+    const itens = [
+        { rotulo: 'Com foto de perfil', quantidade: usuarios.filter((u) => Boolean(u.photo)).length },
+        { rotulo: 'Com bio', quantidade: usuarios.filter((u) => Boolean(u.bio)).length },
+        { rotulo: 'Com cidade', quantidade: usuarios.filter((u) => Boolean(u.city ?? u.cidade)).length },
+        { rotulo: 'Com telefone', quantidade: usuarios.filter((u) => Boolean(u.phone ?? u.telefone)).length },
+    ];
+
+    return itens.map((item) => ({
+        ...item,
+        pct: percentual(item.quantidade, total),
+    }));
+}
+
+function escaparCsv(valor) {
+    return `"${String(valor ?? '').replace(/"/g, '""')}"`;
+}
+
+function exportarContas(usuarios) {
+    const ordenados = [...usuarios].sort(
+        (a, b) => (lerData(b.createdAt)?.getTime() ?? 0) - (lerData(a.createdAt)?.getTime() ?? 0),
+    );
+
+    const linhas = [
+        ['Nome', 'E-mail', 'Tipo', 'CRM', 'Cidade', 'Cadastro', 'Perfil'],
+        ...ordenados.map((usuario) => [
+            usuario.name ?? usuario.nome ?? '',
+            usuario.email ?? '',
+            PAPEIS[papelDe(usuario)].rotulo,
+            usuario.crm ?? '',
+            usuario.city ?? usuario.cidade ?? '',
+            formatarData(usuario.createdAt),
+            perfilPreenchido(usuario).rotulo,
+        ]),
+    ];
+
+    // BOM e ponto e vírgula para abrir corretamente no Excel em português.
+    const csv = `\uFEFF${linhas.map((linha) => linha.map(escaparCsv).join(';')).join('\r\n')}`;
+    const nomeArquivo = `ella-contas-${new Date().toISOString().slice(0, 10)}.csv`;
+
+    try {
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+
+        // Compatibilidade com versões antigas do Edge/IE.
+        if (window.navigator?.msSaveOrOpenBlob) {
+            window.navigator.msSaveOrOpenBlob(blob, nomeArquivo);
+            return;
+        }
+
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+
+        link.href = url;
+        link.download = nomeArquivo;
+        link.rel = 'noopener';
+        link.style.display = 'none';
+
+        document.body.appendChild(link);
+        link.click();
+
+        // Mantém o link e a URL vivos por tempo suficiente para o navegador
+        // concluir o download antes da limpeza.
+        window.setTimeout(() => {
+            link.remove();
+            URL.revokeObjectURL(url);
+        }, 1500);
+    } catch (error) {
+        console.error('Não foi possível exportar o CSV:', error);
+        window.alert('Não foi possível gerar o arquivo CSV. Tente novamente.');
+    }
+}
+
+function GraficoLinhas({ meses, series }) {
+    const largura = 560;
+    const altura = 200;
+    const esquerda = 36;
+    const direita = 16;
+    const base = 28;
+    const maior = Math.max(1, ...series.flatMap((serie) => serie.valores));
+    const topo = Math.max(4, Math.ceil(maior));
+    const passos = 4;
+    const ticks = Array.from({ length: passos + 1 }, (_, i) => Math.round((topo / passos) * i));
+    const x = (i) => esquerda + (i * (largura - esquerda - direita)) / Math.max(1, meses.length - 1);
+    const y = (v) => altura - base - (v / topo) * (altura - base - 12);
+    const ultimo = meses.length - 1;
+
+    return (
+        <>
+            <div className="mb-3 flex flex-wrap gap-4 text-xs text-gray-500">
+                {series.map((serie) => (
+                    <span key={serie.nome} className="flex items-center gap-2">
+                        <span className="h-2 w-2 rounded-full" style={{ backgroundColor: serie.cor }} />
+                        {serie.nome}
+                    </span>
+                ))}
+            </div>
+
+            <svg viewBox={`0 0 ${largura} ${altura}`} className="w-full" role="img"
+                aria-label="Evolução do total de contas, voluntárias e psicólogas nos últimos 6 meses">
+                {ticks.map((valor) => (
+                    <g key={valor}>
+                        <line x1={esquerda} x2={largura - direita} y1={y(valor)} y2={y(valor)} stroke="#ede9fe" strokeDasharray="3 4" />
+                        <text x={esquerda - 6} y={y(valor) + 3} textAnchor="end" fontSize="9" fill="#6b7280">{valor}</text>
+                    </g>
+                ))}
+                {meses.map((mes, i) => (
+                    <text key={`${mes}-${i}`} x={x(i)} y={altura - 8} textAnchor="middle" fontSize="9" fill="#6b7280">{mes}</text>
+                ))}
+                {series.map((serie) => (
+                    <g key={serie.nome}>
+                        <polyline fill="none" stroke={serie.cor} strokeWidth={serie.largura} strokeLinejoin="round"
+                            points={serie.valores.map((valor, i) => `${x(i)},${y(valor)}`).join(' ')} />
+                        <circle cx={x(ultimo)} cy={y(serie.valores[ultimo])} r="3.5" fill={serie.cor} />
+                    </g>
+                ))}
+            </svg>
+        </>
+    );
+}
+
+function AdminDashboard() {
+    const [usuarios, setUsuarios] = useState(null);
+    const [carregando, setCarregando] = useState(true);
+    const [erro, setErro] = useState('');
+    const [recarregar, setRecarregar] = useState(0);
+    const [totalEmergencia, setTotalEmergencia] = useState(null);
+    const [erroEmergencia, setErroEmergencia] = useState(false);
+
     useEffect(() => {
-        let ignore = false;
+        let ativo = true;
 
-        userService.list()
-            .then((dados) => {
-                if (!ignore) {
-                    setUsers(Array.isArray(dados) ? dados : []);
-                    setUsersError('');
-                    setLoadingUsers(false);
-                }
-            })
-            .catch((err) => {
-                if (!ignore) {
-                    setUsersError(err.message || 'Erro ao carregar usuárias.');
-                    setLoadingUsers(false);
-                }
-            });
+        async function carregar() {
+            setCarregando(true);
+            setErro('');
 
-        function handleSync() {
-            if (!ignore) {
-                setCurrentUser(userService.getCurrentUser());
-                userService.list()
-                    .then((dados) => {
-                        if (!ignore) {
-                            setUsers(Array.isArray(dados) ? dados : []);
-                        }
-                    })
-                    .catch(() => {});
+            try {
+                const dados = await userService.list();
+
+                if (ativo) setUsuarios(Array.isArray(dados) ? dados : []);
+            } catch (error) {
+                if (ativo) {
+                    setErro(error.message || 'Não foi possível carregar os dados da plataforma.');
+                }
+            } finally {
+                if (ativo) setCarregando(false);
             }
         }
 
-        window.addEventListener('auth-change', handleSync);
-        window.addEventListener('storage', handleSync);
+        carregar();
 
         return () => {
-            ignore = true;
-            window.removeEventListener('auth-change', handleSync);
-            window.removeEventListener('storage', handleSync);
+            ativo = false;
         };
-    }, []);
+    }, [recarregar]);
 
-    async function handleDeleteUser(userToDelete) {
-        const confirmDelete = window.confirm(
-            `Tem certeza que deseja excluir o usuário "${userToDelete.name || userToDelete.email}"? Esta ação removerá a conta do banco MySQL.`
-        );
-        if (!confirmDelete) return;
+    // Indicador de emergência: mesma informação exibida na Home.
+    useEffect(() => {
+        let ativo = true;
 
-        try {
-            await userService.remove(userToDelete.id);
-            setUsers((prev) => prev.filter((u) => u.id !== userToDelete.id));
-        } catch (err) {
-            alert(err.message || 'Erro ao excluir usuário.');
+        async function carregarEmergencia() {
+            try {
+                const resposta = await fetch(`${BASE_URL}/api/emergencia/acionamentos/total`);
+                const dados = await resposta.json().catch(() => ({}));
+
+                if (!resposta.ok) {
+                    throw new Error(dados?.error || 'Não foi possível consultar os acionamentos.');
+                }
+
+                const total = Number(dados.total);
+
+                if (!Number.isFinite(total)) {
+                    throw new Error('Contagem inválida.');
+                }
+
+                if (ativo) {
+                    setTotalEmergencia(total);
+                    setErroEmergencia(false);
+                }
+            } catch {
+                if (ativo) {
+                    setErroEmergencia(true);
+                }
+            }
         }
-    }
 
-    const filteredUsers = users.filter((u) => {
-        const name = (u.name || u.nome || '').toLowerCase();
-        const email = (u.email || '').toLowerCase();
-        const query = searchFilter.toLowerCase();
-        return name.includes(query) || email.includes(query);
+        carregarEmergencia();
+
+        const intervalo = window.setInterval(carregarEmergencia, 10000);
+
+        return () => {
+            ativo = false;
+            window.clearInterval(intervalo);
+        };
+    }, [recarregar]);
+
+    const lista = useMemo(() => usuarios ?? [], [usuarios]);
+    const resumo = useMemo(() => calcularResumo(lista), [lista]);
+    const grafico = useMemo(() => criarSeries(lista), [lista]);
+    const preenchimento = useMemo(() => calcularPreenchimento(lista), [lista]);
+    const recentes = useMemo(
+        () =>
+            [...lista]
+                .sort((a, b) => (lerData(b.createdAt)?.getTime() ?? 0) - (lerData(a.createdAt)?.getTime() ?? 0))
+                .slice(0, 6),
+        [lista],
+    );
+
+    const distribuicao = Object.entries(PAPEIS).map(([role, config]) => {
+        const quantidade = resumo.porPapel[role] ?? 0;
+
+        return {
+            role,
+            ...config,
+            quantidade,
+            pct: percentual(quantidade, resumo.total),
+        };
     });
 
+    const papelDestaque = [...distribuicao].sort((a, b) => b.quantidade - a.quantidade)[0];
+    const variacao = resumo.novas30Anteriores > 0
+        ? Math.round(((resumo.novas30 - resumo.novas30Anteriores) / resumo.novas30Anteriores) * 100)
+        : null;
+
     const estatisticas = [
-        { icone: faUsers, valor: String(users.length || '12'), rotulo: 'Usuárias cadastradas', variacao: '+12% este mês', sobe: true },
-        { icone: faHeart, valor: '342', rotulo: 'Voluntárias ativas', variacao: '+8% este mês', sobe: true },
-        { icone: faCalendarDays, valor: '86', rotulo: 'Eventos realizados', variacao: '+20% este mês', sobe: true },
-        { icone: faShieldHalved, valor: '23', rotulo: 'Denúncias recebidas', variacao: '-15% este mês', sobe: false },
-    ];
-
-    const acoesRapidas = [
-        { texto: 'Cadastrar nova conta', icone: faUserPlus, to: '/cadastro' },
-        { texto: 'Cadastrar voluntária', icone: faHeart, to: '/voluntaria' },
-        { texto: 'Ver denúncias', icone: faShieldHalved, to: '/denuncia' },
-        { texto: 'Central de informações', icone: faFileLines, to: '/informacoes' },
-    ];
-
-    const atividades = [
         {
-            icone: faUser,
-            titulo: 'Nova usuária no MySQL',
-            detalhe: users[users.length - 1]?.name || 'Usuária recente',
-            tempo: 'Hoje'
+            icone: faUsers,
+            valor: resumo.total,
+            rotulo: 'Contas cadastradas',
+            detalhe: `${resumo.novas30} novas nos últimos 30 dias`,
         },
         {
             icone: faHeart,
-            titulo: 'Voluntária se inscreveu',
-            detalhe: 'Ana Costa',
-            tempo: 'Há 12 minutos'
+            valor: resumo.porPapel.voluntaria,
+            rotulo: 'Voluntárias',
+            detalhe: `${percentual(resumo.porPapel.voluntaria, resumo.total)}% das contas`,
         },
         {
-            icone: faCalendarDays,
-            titulo: 'Evento publicado',
-            detalhe: 'Roda de Conversa - Autocuidado',
-            tempo: 'Há 1 hora'
+            icone: faBrain,
+            valor: resumo.porPapel.psicologa,
+            rotulo: 'Psicólogas',
+            detalhe: `${percentual(resumo.porPapel.psicologa, resumo.total)}% das contas`,
         },
         {
-            icone: faShieldHalved,
-            titulo: 'Nova denúncia recebida',
-            detalhe: 'Relato de violência psicológica',
-            tempo: 'Há 2 horas'
-        },
-        {
-            icone: faFileLines,
-            titulo: 'Conteúdo publicado',
-            detalhe: 'Dicas de segurança',
-            tempo: 'Há 3 horas'
+            icone: faUserPlus,
+            valor: resumo.novas30,
+            rotulo: 'Novas em 30 dias',
+            detalhe: variacao === null
+                ? `${resumo.novas30Anteriores} nos 30 dias anteriores`
+                : `${variacao >= 0 ? '↑' : '↓'} ${Math.abs(variacao)}% em relação aos 30 anteriores`,
         },
     ];
 
+    const hoje = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
+    const usuarioAtual = userService.getCurrentUser();
+    const nomeAdmin = usuarioAtual?.nome || usuarioAtual?.name || 'Admin';
+
+    function atualizar() {
+        setRecarregar((valor) => valor + 1);
+    }
+
     return (
-        <div className="space-y-6">
-            <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+        <>
+            <header className="mb-8 flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold text-violet-950 font-serif">
-                        Olá, {currentUser?.nome || currentUser?.name || 'Admin'}!
-                    </h1>
-                    <p className="text-sm text-gray-500 mt-1">
-                        Aqui você acompanha o que acontece na plataforma ELLA.
-                        <br />
-                        Gerencie usuárias no banco MySQL, voluntárias, eventos e muito mais.
+                    <p className="text-sm text-[#7e22ce] first-letter:uppercase">{hoje}</p>
+                    <h1 className="font-serif text-4xl text-[#2e1065]">Olá, {nomeAdmin}</h1>
+                    <p className="mt-1 max-w-md text-sm text-gray-600">
+                        Aqui você acompanha os dados reais das contas da plataforma ELLA.
                     </p>
                 </div>
 
-                <div className="flex items-center justify-between gap-4 rounded-xl bg-pink-100 px-5 py-4 xl:w-[28rem]">
-                    <div className="mr-auto">
-                        <p className="font-semibold text-violet-950">Juntas somos mais fortes.</p>
-                        <p className="text-xs text-violet-600">
+                <div className="flex flex-wrap items-center gap-4 xl:justify-end">
+                    <p className="border-l-2 border-pink-400 pl-4 font-serif italic text-[#4c1d95]">
+                        Juntas somos mais fortes.
+                        <span className="block font-sans text-xs not-italic text-gray-600">
                             Mais apoio, mais histórias, mais recomeços.
-                        </p>
-                    </div>
+                        </span>
+                    </p>
 
-                    <FontAwesomeIcon
-                        icon={faHeart}
-                        className="text-pink-500 text-xl"
-                    />
-                </div>
-            </div>
-
-            {/* Grid Principal */}
-            <div className="grid gap-6 xl:grid-cols-[1fr_20rem]">
-                <div className="min-w-0 space-y-6">
-                    {/* Estatísticas */}
-                    <section
-                        className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"
-                        aria-label="Resumo"
+                    <button
+                        type="button"
+                        onClick={atualizar}
+                        disabled={carregando}
+                        className="inline-flex items-center gap-2 rounded-full border border-violet-200 bg-white px-4 py-2 text-sm text-[#5b21b6] transition hover:bg-violet-50 disabled:cursor-not-allowed"
                     >
-                        {estatisticas.map((e) => (
-                            <div key={e.rotulo} className={card}>
-                                <span className="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-pink-100 text-pink-600">
-                                    <FontAwesomeIcon icon={e.icone} />
-                                </span>
-                                <p className="text-3xl font-bold">{e.valor}</p>
-                                <p className="text-sm text-gray-600">{e.rotulo}</p>
-                                <p className="mt-3 text-xs font-semibold text-emerald-600">
-                                    <FontAwesomeIcon
-                                        icon={e.sobe ? faArrowUp : faArrowDown}
-                                        className="mr-1"
-                                    />
-                                    {e.variacao}
-                                </p>
-                            </div>
-                        ))}
-                    </section>
+                        <FontAwesomeIcon icon={faRotate} spin={carregando} />
+                        {carregando ? 'Atualizando...' : 'Atualizar'}
+                    </button>
+                </div>
+            </header>
 
-                    {/* Gráficos */}
-                    <div className="grid gap-6 lg:grid-cols-[3fr_2fr]">
-                        <section className={card}>
-                            <h2 className="mb-2 font-bold text-violet-950">
-                                Crescimento da plataforma
-                            </h2>
+            {erro && (
+                <div role="alert" className="mb-6 flex flex-wrap items-center gap-4 rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-700">
+                    <span>{erro}</span>
+                    <button
+                        type="button"
+                        onClick={atualizar}
+                        className="rounded-full border border-red-200 px-3 py-1 text-xs font-semibold text-red-700"
+                    >
+                        Tentar novamente
+                    </button>
+                </div>
+            )}
 
-                            <ul className="mb-2 flex flex-wrap gap-4 text-xs">
-                                {series.map((s) => (
-                                    <li
-                                        key={s.nome}
-                                        className="flex items-center gap-1"
-                                    >
-                                        <span
-                                            className="h-2 w-2 rounded-full"
-                                            style={{ backgroundColor: s.cor }}
-                                        />
-                                        {s.nome}
-                                    </li>
-                                ))}
-                            </ul>
-
-                            <GraficoLinhas />
+            {usuarios === null ? (
+                carregando && <section className={`${card} text-sm text-gray-500`}>Carregando dados da plataforma...</section>
+            ) : (
+                <div className="grid gap-6 xl:grid-cols-[1fr_20rem]">
+                    <div className="min-w-0 space-y-6">
+                        <section aria-label="Resumo"
+                            className="grid grid-cols-2 rounded-2xl border border-violet-100 bg-white xl:grid-cols-4 xl:divide-x xl:divide-violet-100">
+                            {estatisticas.map((estatistica) => (
+                                <div key={estatistica.rotulo} className="p-5">
+                                    <p className="flex items-center gap-2 text-xs uppercase tracking-wide text-gray-500">
+                                        <FontAwesomeIcon icon={estatistica.icone} className="text-pink-500" />
+                                        {estatistica.rotulo}
+                                    </p>
+                                    <p className="mt-2 font-serif text-4xl tabular-nums text-[#2e1065]">
+                                        {estatistica.valor.toLocaleString('pt-BR')}
+                                    </p>
+                                    <p className="mt-1 text-xs text-gray-500">{estatistica.detalhe}</p>
+                                </div>
+                            ))}
                         </section>
 
-                        <section className={`${card} flex flex-col`}>
-                            <h2 className="mb-4 font-bold text-violet-950">
-                                Tipos de violência
-                            </h2>
+                        <div className="grid gap-6 lg:grid-cols-[3fr_2fr]">
+                            <section className={card}>
+                                <h2 className={titulo}>Evolução das contas</h2>
+                                <GraficoLinhas meses={grafico.meses} series={grafico.series} />
+                            </section>
 
-                            <div className="flex flex-1 items-center justify-around gap-4">
-                                <GraficoRosca />
-
-                                <ul className="space-y-1 text-xs">
-                                    {violencia.map((v) => (
-                                        <li
-                                            key={v.nome}
-                                            className="flex items-center gap-2"
-                                        >
-                                            <span
-                                                className="h-2 w-2 rounded-full"
-                                                style={{ backgroundColor: v.cor }}
-                                            />
-                                            <span>{v.nome}</span>
-                                            <strong className="ml-auto">{v.pct}%</strong>
+                            <section className={card}>
+                                <h2 className={titulo}>Contas por tipo</h2>
+                                <ul className="space-y-3">
+                                    {distribuicao.map((item) => (
+                                        <li key={item.role}>
+                                            <div className="mb-1 flex justify-between text-sm">
+                                                <span className="flex items-center gap-2">
+                                                    <span className="h-2 w-2 rounded-full" style={{ backgroundColor: item.cor }} />
+                                                    {item.rotulo}
+                                                </span>
+                                                <span className="tabular-nums text-gray-500">
+                                                    {item.quantidade.toLocaleString('pt-BR')} · {item.pct}%
+                                                </span>
+                                            </div>
+                                            <div className="h-2 rounded-full bg-violet-50">
+                                                <div className="h-2 rounded-full" style={{ width: `${item.pct}%`, backgroundColor: item.cor }} />
+                                            </div>
                                         </li>
                                     ))}
                                 </ul>
-                            </div>
-                        </section>
-                    </div>
-
-                    {/* Seção Contas Cadastradas (Integrada no Dashboard) */}
-                    <section className={card}>
-                        <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-purple-50 pb-3">
-                            <div>
-                                <h2 className="font-bold text-lg text-violet-950">
-                                    Contas Cadastradas no MySQL ({users.length})
-                                </h2>
-                                <p className="text-xs text-gray-500">
-                                    Usuárias e administradoras registradas no banco de dados da plataforma ELLA
+                                <p className="mt-4 text-xs text-gray-500">
+                                    {resumo.total > 0
+                                        ? `${papelDestaque.rotulo} é o tipo mais comum (${papelDestaque.pct}% das contas).`
+                                        : 'Nenhuma conta cadastrada ainda.'}
                                 </p>
-                            </div>
-
-                            <div className="flex items-center gap-2">
-                                <button
-                                    type="button"
-                                    onClick={carregarUsuarios}
-                                    title="Recarregar do banco"
-                                    className="flex h-8 w-8 items-center justify-center rounded-lg border border-purple-200 text-violet-700 hover:bg-purple-50 transition"
-                                >
-                                    <FontAwesomeIcon icon={faArrowRotateRight} className={loadingUsers ? 'animate-spin' : ''} />
-                                </button>
-                                <Link
-                                    to="/cadastro"
-                                    className="flex items-center gap-1.5 rounded-lg bg-pink-400 px-3.5 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-pink-500 transition"
-                                >
-                                    <FontAwesomeIcon icon={faUserPlus} />
-                                    Adicionar Conta
-                                </Link>
-                            </div>
+                            </section>
                         </div>
 
-                        {/* Filtro de Usuárias */}
-                        <div className="mb-4 flex items-center gap-2 rounded-xl bg-purple-50/60 px-3 py-2 text-xs">
-                            <FontAwesomeIcon icon={faMagnifyingGlass} className="text-violet-400" />
-                            <input
-                                type="text"
-                                placeholder="Filtrar usuárias por nome ou e-mail..."
-                                value={searchFilter}
-                                onChange={(e) => setSearchFilter(e.target.value)}
-                                className="w-full bg-transparent text-xs text-violet-900 outline-none placeholder:text-violet-300"
-                            />
-                            {searchFilter && (
-                                <button
-                                    type="button"
-                                    onClick={() => setSearchFilter('')}
-                                    className="text-xs text-pink-500 hover:underline"
-                                >
-                                    Limpar
-                                </button>
-                            )}
-                        </div>
+                        <section className={card}>
+                            <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+                                <h2 className="font-serif text-lg text-[#2e1065]">Contas recentes</h2>
 
-                        {/* Tabela de Contas */}
-                        {loadingUsers && users.length === 0 && (
-                            <div className="py-8 text-center text-sm text-violet-400">
-                                <FontAwesomeIcon icon={faArrowRotateRight} className="animate-spin mr-2" />
-                                Carregando usuárias do banco de dados...
+                                <div className="flex items-center gap-4">
+                                    <button
+                                        type="button"
+                                        onClick={() => exportarContas(lista)}
+                                        disabled={lista.length === 0}
+                                        className="inline-flex items-center gap-2 text-sm text-[#5b21b6] underline underline-offset-4 disabled:cursor-not-allowed disabled:text-gray-300"
+                                    >
+                                        <FontAwesomeIcon icon={faDownload} />
+                                        Exportar CSV
+                                    </button>
+
+                                    <Link to="/contas" className="text-sm text-[#5b21b6] underline underline-offset-4">
+                                        Ver todas
+                                    </Link>
+                                </div>
                             </div>
-                        )}
 
-                        {usersError && (
-                            <div className="my-2 rounded-xl bg-pink-50 border border-pink-200 p-3 text-xs text-pink-700">
-                                {usersError}
-                            </div>
-                        )}
-
-                        {!loadingUsers && filteredUsers.length === 0 && (
-                            <p className="py-8 text-center text-sm text-violet-400">
-                                {searchFilter ? 'Nenhum usuário corresponde à busca.' : 'Nenhuma conta cadastrada.'}
-                            </p>
-                        )}
-
-                        {!loadingUsers && filteredUsers.length > 0 && (
                             <div className="overflow-x-auto">
-                                <table className="w-full min-w-[600px] text-left text-sm">
-                                    <thead className="text-xs text-gray-500 border-b border-purple-100">
+                                <table className="w-full min-w-[720px] text-left text-sm">
+                                    <thead className="text-xs uppercase tracking-wide text-gray-600">
                                         <tr>
-                                            <th className="py-2.5 pl-2">Usuária</th>
-                                            <th>E-mail</th>
-                                            <th>Papel</th>
-                                            <th>ID</th>
-                                            <th className="text-right pr-2">Ações</th>
+                                            <th className="py-2 font-medium">Conta</th>
+                                            <th className="font-medium">E-mail</th>
+                                            <th className="font-medium">Tipo</th>
+                                            <th className="font-medium">CRM</th>
+                                            <th className="font-medium">Cadastro</th>
+                                            <th className="font-medium">Perfil</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-purple-50">
-                                        {filteredUsers.map((u) => {
-                                            const isUserAdmin = u.tipo === 'admin' || u.email?.toLowerCase().includes('admin');
-                                            const isMe = Number(currentUser?.id) === Number(u.id);
-                                            const displayName = u.name ?? u.nome ?? 'Sem nome';
+                                    <tbody>
+                                        {recentes.map((usuario) => {
+                                            const papel = PAPEIS[papelDe(usuario)];
+                                            const perfil = perfilPreenchido(usuario);
 
                                             return (
-                                                <tr key={u.id} className="hover:bg-purple-50/50 transition">
-                                                    <td className="py-2.5 pl-2">
-                                                        <div className="flex items-center gap-2.5">
+                                                <tr key={usuario.id} className="border-t border-violet-100 hover:bg-violet-50/50">
+                                                    <td className="py-3">
+                                                        <span className="flex items-center gap-2">
                                                             <Avatar
-                                                                nome={displayName}
-                                                                avatar={u.avatar}
-                                                                tamanho="h-8 w-8"
+                                                                nome={usuario.name ?? usuario.nome ?? ''}
+                                                                avatar={usuario.avatar}
+                                                                photo={usuario.photo}
+                                                                tamanho="h-8 w-8 text-xs"
                                                             />
-                                                            <p className="font-semibold text-xs text-violet-950 flex items-center gap-1.5">
-                                                                {displayName}
-                                                                {isMe && (
-                                                                    <span className="rounded-full bg-pink-100 px-2 py-0.5 text-[9px] font-bold text-pink-600">
-                                                                        Você
-                                                                    </span>
-                                                                )}
-                                                            </p>
-                                                        </div>
-                                                    </td>
-                                                    <td className="text-xs text-violet-600">{u.email}</td>
-                                                    <td>
-                                                        <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
-                                                            isUserAdmin ? 'bg-violet-100 text-violet-800' : 'bg-pink-100 text-pink-700'
-                                                        }`}>
-                                                            {isUserAdmin ? 'Administradora' : 'Usuária'}
+                                                            <span className="font-medium">
+                                                                {usuario.name ?? usuario.nome ?? 'Sem nome'}
+                                                            </span>
                                                         </span>
                                                     </td>
-                                                    <td className="text-xs font-mono text-violet-400">#{u.id}</td>
-                                                    <td className="text-right pr-2">
-                                                        <div className="flex items-center justify-end gap-1.5">
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => {
-                                                                    setEditingUser(u);
-                                                                    setProfileModalOpen(true);
-                                                                }}
-                                                                className="flex items-center gap-1 rounded-lg border border-purple-200 px-2 py-1 text-xs font-medium text-violet-700 hover:bg-purple-100 transition"
-                                                                title="Editar dados ou senha"
-                                                            >
-                                                                <FontAwesomeIcon icon={faPen} className="text-[10px] text-pink-400" />
-                                                                Editar
-                                                            </button>
-
-                                                            {!isMe && (
-                                                                <button
-                                                                    type="button"
-                                                                    onClick={() => handleDeleteUser(u)}
-                                                                    className="flex items-center gap-1 rounded-lg border border-red-200 px-2 py-1 text-xs font-medium text-red-600 hover:bg-red-50 transition"
-                                                                    title="Excluir do banco"
-                                                                >
-                                                                    <FontAwesomeIcon icon={faTrash} className="text-[10px]" />
-                                                                    Excluir
-                                                                </button>
-                                                            )}
-                                                        </div>
+                                                    <td className="text-gray-600">{usuario.email}</td>
+                                                    <td>
+                                                        <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${papel.classe}`}>
+                                                            {papel.rotulo}
+                                                        </span>
+                                                    </td>
+                                                    <td className="text-xs text-gray-600">
+                                                        {usuario.crm || '—'}
+                                                    </td>
+                                                    <td className="tabular-nums text-gray-600">
+                                                        <span className="block">{formatarData(usuario.createdAt)}</span>
+                                                        <span className="text-xs text-gray-600">{tempoRelativo(usuario.createdAt)}</span>
+                                                    </td>
+                                                    <td>
+                                                        <span className="flex items-center gap-2">
+                                                            <span className={`h-2 w-2 rounded-full ${perfil.classe}`} />
+                                                            {perfil.rotulo}
+                                                        </span>
                                                     </td>
                                                 </tr>
                                             );
                                         })}
                                     </tbody>
                                 </table>
+
+                                {recentes.length === 0 && (
+                                    <p className="py-4 text-sm text-gray-500">Nenhuma conta cadastrada ainda.</p>
+                                )}
                             </div>
-                        )}
-                    </section>
+                        </section>
+                    </div>
+
+                    <div className="space-y-6">
+                        <section className={card}>
+                            <h2 className={titulo}>Ações rápidas</h2>
+                            <ul className="divide-y divide-violet-100">
+                                {acoesRapidas.map((acao) => (
+                                    <li key={acao.texto}>
+                                        <Link
+                                            to={acao.to}
+                                            className="flex w-full items-center gap-3 py-3 text-left text-sm hover:text-[#7e22ce]"
+                                        >
+                                            <FontAwesomeIcon icon={acao.icone} className="w-4 text-pink-500" />
+                                            <span className="mr-auto">{acao.texto}</span>
+                                            <FontAwesomeIcon icon={faChevronRight} className="text-xs text-gray-300" />
+                                        </Link>
+                                    </li>
+                                ))}
+                            </ul>
+                        </section>
+
+                        <section className={card}>
+                            <h2 className={titulo}>Indicador de emergência</h2>
+
+                            <div className="flex items-center gap-4 rounded-2xl bg-pink-50 px-4 py-4">
+                                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white text-pink-600">
+                                    <FontAwesomeIcon icon={faBell} />
+                                </span>
+
+                                <div>
+                                    <p className="font-serif text-3xl tabular-nums text-[#2e1065]">
+                                        {totalEmergencia === null
+                                            ? '—'
+                                            : totalEmergencia.toLocaleString('pt-BR')}
+                                    </p>
+                                    <p className="mt-0.5 text-xs text-gray-600">
+                                        Acionamentos registrados
+                                    </p>
+                                </div>
+                            </div>
+
+                            <p className="mt-3 text-xs text-gray-600">
+                                {totalEmergencia === null
+                                    ? erroEmergencia
+                                        ? 'Não foi possível consultar a contagem agora.'
+                                        : 'Carregando contagem...'
+                                    : 'Mesmo número exibido na Home. Atualizado automaticamente.'}
+                            </p>
+
+                            <Link
+                                to="/emergencia"
+                                className="mt-3 inline-flex items-center gap-2 text-sm text-[#5b21b6] underline underline-offset-4"
+                            >
+                                Abrir página de emergência
+                                <FontAwesomeIcon icon={faChevronRight} className="text-xs" />
+                            </Link>
+                        </section>
+
+                        <section className={card}>
+                            <h2 className={titulo}>Preenchimento dos perfis</h2>
+                            <ul className="space-y-3">
+                                {preenchimento.map((item) => (
+                                    <li key={item.rotulo}>
+                                        <div className="mb-1 flex justify-between text-sm">
+                                            <span>{item.rotulo}</span>
+                                            <span className="tabular-nums text-gray-500">
+                                                {item.quantidade} · {item.pct}%
+                                            </span>
+                                        </div>
+                                        <div className="h-2 rounded-full bg-violet-50">
+                                            <div className="h-2 rounded-full bg-violet-300" style={{ width: `${item.pct}%` }} />
+                                        </div>
+                                    </li>
+                                ))}
+                            </ul>
+                            <p className="mt-4 text-xs text-gray-500">
+                                {resumo.total > 0
+                                    ? `${preenchimento[0].quantidade} de ${resumo.total} contas têm foto de perfil.`
+                                    : 'Cadastre uma conta para acompanhar o preenchimento dos perfis.'}
+                            </p>
+                        </section>
+
+                        <section className={`${card} flex items-start gap-3 bg-pink-50 text-sm`}>
+                            <FontAwesomeIcon icon={faCalendarDays} className="mt-0.5 text-pink-500" />
+                            <p>
+                                <span className="font-semibold text-[#2e1065]">Última atualização</span>
+                                <span className="mt-1 block text-xs text-gray-600">
+                                    Os números são recalculados sempre que você abre o painel ou clica em Atualizar.
+                                </span>
+                            </p>
+                        </section>
+                    </div>
                 </div>
-
-                {/* Coluna Lateral */}
-                <div className="space-y-6">
-                    <section className={card}>
-                        <h2 className="mb-3 font-bold text-violet-950">Ações rápidas</h2>
-                        <ul className="space-y-2">
-                            {acoesRapidas.map((a) => (
-                                <li key={a.texto}>
-                                    <Link
-                                        to={a.to}
-                                        className="flex w-full items-center gap-3 rounded-lg bg-pink-50 px-3 py-3 text-left text-sm hover:bg-pink-100 transition"
-                                    >
-                                        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-pink-100 text-pink-600">
-                                            <FontAwesomeIcon icon={a.icone} />
-                                        </span>
-                                        <span className="mr-auto font-medium text-violet-900">{a.texto}</span>
-                                        <FontAwesomeIcon
-                                            icon={faChevronRight}
-                                            className="text-xs text-gray-400"
-                                        />
-                                    </Link>
-                                </li>
-                            ))}
-                        </ul>
-                    </section>
-
-                    <section className={card}>
-                        <h2 className="mb-3 font-bold text-violet-950">Atividade recente</h2>
-                        <ul className="space-y-4">
-                            {atividades.map((a) => (
-                                <li key={a.titulo} className="flex items-start gap-3">
-                                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-pink-100 text-pink-600">
-                                        <FontAwesomeIcon icon={a.icone} />
-                                    </span>
-                                    <div className="mr-auto">
-                                        <p className="text-sm font-semibold text-violet-950">{a.titulo}</p>
-                                        <p className="text-xs text-gray-500">{a.detalhe}</p>
-                                    </div>
-                                    <span className="text-xs text-gray-400">{a.tempo}</span>
-                                </li>
-                            ))}
-                        </ul>
-                    </section>
-                </div>
-            </div>
-
-            {/* Modal para Edição de Usuárias / Senha */}
-            {editingUser && (
-                <ProfileModal
-                    isOpen={profileModalOpen}
-                    onClose={() => {
-                        setProfileModalOpen(false);
-                        setEditingUser(null);
-                    }}
-                    user={editingUser}
-                    onUpdateUser={(updated) => {
-                        if (Number(currentUser?.id) === Number(updated.id)) {
-                            setCurrentUser(updated);
-                        }
-                        carregarUsuarios();
-                    }}
-                />
             )}
-        </div>
+        </>
     );
 }
+
+export default AdminDashboard;

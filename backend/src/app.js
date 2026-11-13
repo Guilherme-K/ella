@@ -11,15 +11,24 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+// Limite maior para aceitar a foto de perfil em base64 (máx. 2 MB).
+app.use(express.json({ limit: '8mb' }));
+app.use(express.urlencoded({ extended: false, limit: '8mb' }));
 
 // Rotas da aplicação.
 import indexRouter from './routes/index.js';
 import usersRouter from './routes/users.js';
+import legacyAuthRouter from './routes/legacyAuth.js';
+import emergencyRouter from './routes/emergency.js';
+import messagesRouter from './routes/messages.js';
+import supportNetworksRouter from './routes/supportNetworks.js';
 
 app.use('/', indexRouter);
+app.use('/', legacyAuthRouter);
 app.use('/api/users', usersRouter);
+app.use('/api/emergencia', emergencyRouter);
+app.use('/api/mensagens', messagesRouter);
+app.use('/api/redes-apoio', supportNetworksRouter);
 
 // 404
 app.use((req, res) => {
@@ -29,7 +38,7 @@ app.use((req, res) => {
 });
 
 // Tratamento centralizado de erros.
-app.use((err, req, res, next) => {
+app.use((err, req, res, _next) => {
   console.error(err);
 
   const error = prismaErrorHandler(err);
