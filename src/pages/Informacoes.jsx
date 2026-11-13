@@ -411,7 +411,7 @@ export default function Informacoes() {
 <main id="conteudo" tabIndex={-1} className="min-h-screen bg-[#fffafd] pb-16">
       <section className="bg-gradient-to-r from-[#351064] via-[#5c1bb0] to-[#8b1cc7] px-5 pt-8 pb-16 text-white md:pt-10 md:pb-20">
         <div className="mx-auto max-w-6xl">
-          
+
           <div className="mb-8">
             <BotaoVoltar className="text-white hover:text-pink-200" />
           </div>

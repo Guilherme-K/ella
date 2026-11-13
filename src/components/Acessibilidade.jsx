@@ -39,9 +39,9 @@ export default function Acessibilidade() {
 
     if (sublinharLinks) {
       css += `
-        a, button { 
-          text-decoration: underline !important; 
-          outline: 2px solid #8a2be2 !important; 
+        a, button {
+          text-decoration: underline !important;
+          outline: 2px solid #8a2be2 !important;
         }
       `;
     }
@@ -110,12 +110,12 @@ export default function Acessibilidade() {
       window.speechSynthesis.cancel();
       const textoSelecionado = window.getSelection().toString().trim();
       const textoParaLer = textoSelecionado || document.body.innerText;
-      
+
       const fala = new SpeechSynthesisUtterance(textoParaLer);
       fala.lang = 'pt-BR';
       fala.onend = () => setLendo(false);
       fala.onerror = () => setLendo(false);
-      
+
       setLendo(true);
       window.speechSynthesis.speak(fala);
     }

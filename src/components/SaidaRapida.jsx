@@ -8,7 +8,7 @@ export default function SaidaRapida({ modo = 'global', className = '' }) {
     return linkPersonalizado?.trim() ? linkPersonalizado : LINK_PADRAO;
   });
   const [mostrarFlutuante, setMostrarFlutuante] = useState(false);
-  
+
   const ancoraRef = useRef(null);
   const location = useLocation();
 
