@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import SavedChatMessage from '../components/SavedChatMessage'
 import QuickExitLink from '../components/QuickExitLink'
+import VoltarLink from '../components/VoltarLink'
 import { useChatMessages } from '../hooks/useChatMessages'
 
 function ChatUsuario() {
@@ -43,12 +44,7 @@ function ChatUsuario() {
 
                 <div className="flex items-center justify-between px-6 py-4 border-b border-violet-100 flex-wrap gap-3">
 
-                     <button
-          onClick={() => window.history.back()}
-          className="text-purple-900 mb-8"
-        >
-          ← Voltar
-        </button>
+                     <VoltarLink className="text-purple-900 mb-8" />
                     <div className="flex items-center gap-3">
                         <div className="w-12 h-12 rounded-full bg-linear-to-br from-pink-300 to-purple-500 flex items-center justify-center text-white font-bold">
                             M
@@ -61,7 +57,7 @@ function ChatUsuario() {
                     </div>
 
                     <a
-                        href="#"
+                        href="tel:180"
                         className="flex items-center justify-center gap-2 bg-pink-600 text-white rounded-full py-2 px-4 text-sm font-semibold hover:bg-pink-700 transition"
                     >
                         <i className="fa-solid fa-phone" />

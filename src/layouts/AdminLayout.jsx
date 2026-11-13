@@ -32,11 +32,15 @@ const menu = [
         nome: 'Redes de Apoio',
         caminho: '/admin/redes',
         icone: faHandHoldingHeart
+    },
+    {
+        nome: 'Contas',
+        caminho: '/admin/contas',
+        icone: faUsers
     }
 ];
 
 const menuEmDesenvolvimento = [
-    { nome: 'Usuárias', icone: faUsers },
     { nome: 'Voluntárias', icone: faHeart },
     { nome: 'Eventos', icone: faCalendarDays },
     { nome: 'Conteúdos', icone: faFileLines },

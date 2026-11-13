@@ -58,6 +58,9 @@ export default function Footer() {
             <li>
               <Link to="/contato">Contato</Link>
             </li>
+            <li>
+              <Link to="/voluntaria">Voluntariado</Link>
+            </li>
           </ul>
         </div>
 
@@ -66,7 +69,9 @@ export default function Footer() {
           <div className="space-y-3 text-purple-100">
             <p>
               <i className="fa-solid fa-phone mr-2" aria-hidden="true" />
-              Disque 180
+              <a href="tel:180" className="transition hover:text-pink-200">
+                Disque 180
+              </a>
               <br />
               <span className="pl-6 text-purple-200">
                 Central de Atendimento à Mulher
@@ -76,8 +81,23 @@ export default function Footer() {
               <i className="fa-solid fa-phone mr-2" aria-hidden="true" />
               Polícia Militar
               <br />
-              <span className="pl-6 text-purple-200">190</span>
+              <span className="pl-6 text-purple-200">
+                <a href="tel:190" className="transition hover:text-pink-200">
+                  190
+                </a>
+              </span>
             </p>
+            <div className="flex flex-wrap gap-x-3 gap-y-1 pt-1 text-purple-200">
+              <Link
+                to="/emergencia"
+                className="transition hover:text-pink-200"
+              >
+                Emergência
+              </Link>
+              <Link to="/denuncia" className="transition hover:text-pink-200">
+                Como denunciar
+              </Link>
+            </div>
           </div>
         </div>
 

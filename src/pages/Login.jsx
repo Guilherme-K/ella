@@ -1,7 +1,8 @@
 
 import { useState } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import womenArtwork from '../assets/mulheres.png'
+import { destinoPorPapel, obterUsuarioLogado } from '../utils/navegacao'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000'
 
@@ -23,6 +24,7 @@ export default function Login() {
 
   const navigate = useNavigate()
   const location = useLocation()
+  const usuarioLogado = obterUsuarioLogado()
 
   async function submit(event) {
     event.preventDefault()
@@ -89,6 +91,10 @@ export default function Login() {
     } finally {
       setCarregando(false)
     }
+  }
+
+  if (usuarioLogado?.id) {
+    return <Navigate to={destinoPorPapel(usuarioLogado)} replace />
   }
 
   return (

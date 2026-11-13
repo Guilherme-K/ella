@@ -115,7 +115,7 @@ export default function Accounts() {
   }
 
   return (
-    <main className="min-h-screen flex-1 bg-purple-100 px-4 py-12">
+    <div className="min-h-screen flex-1 bg-purple-100 px-4 py-12">
       <section className="mx-auto max-w-3xl rounded-3xl bg-white p-6 shadow-xl sm:p-10">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
@@ -258,6 +258,6 @@ export default function Accounts() {
           </button>
         </div>
       </section>
-    </main>
+    </div>
   )
 }

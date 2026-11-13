@@ -63,10 +63,6 @@ export default function App() {
           <Route path="/chat" element={<Chat />} />
         </Route>
 
-        <Route element={<RotaProtegida papeisPermitidos={['admin']} />}>
-          <Route path="/contas" element={<Accounts />} />
-        </Route>
-
         <Route element={<RotaProtegida papeisPermitidos={['usuaria']} />}>
           <Route path="/chatusuario" element={<ChatUsuario />} />
         </Route>
@@ -81,9 +77,15 @@ export default function App() {
           <Route index element={<DashboardAdmin />} />
           <Route path="chats" element={<ChatAdmin />} />
           <Route path="redes" element={<AdminRedesApoio />} />
+          <Route path="contas" element={<Accounts />} />
           <Route path="perfil" element={<PerfilAdmin />} />
         </Route>
       </Route>
+
+      <Route
+        path="/contas"
+        element={<Navigate to="/admin/contas" replace />}
+      />
 
       <Route
         path="/chatadmin"

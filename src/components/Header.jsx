@@ -3,7 +3,6 @@ import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faBell,
-  faChevronDown,
   faMagnifyingGlass,
 } from '@fortawesome/free-solid-svg-icons'
 import Brand from './Brand'
@@ -63,18 +62,23 @@ export default function Header({ variant = 'public' }) {
           <input
             type="search"
             placeholder="Buscar usuária, voluntária, evento ou conteúdo..."
-            className="w-full rounded-lg bg-[#f3e8ff] py-2 pl-9 pr-4 text-sm outline-none focus:ring-2 focus:ring-purple-300"
+            aria-label="Busca do painel (em breve)"
+            title="Busca em breve"
+            disabled
+            className="w-full cursor-not-allowed rounded-lg bg-[#f3e8ff] py-2 pl-9 pr-4 text-sm opacity-70 outline-none"
           />
         </div>
 
         <div className="ml-auto flex items-center gap-3 sm:gap-5">
           <button
             type="button"
-            aria-label="Notificações"
-            className="relative text-[#4c1d95]"
+            aria-label="Notificações (em breve)"
+            title="Notificações em breve"
+            aria-disabled="true"
+            disabled
+            className="relative cursor-not-allowed text-[#4c1d95] opacity-60"
           >
             <FontAwesomeIcon icon={faBell} />
-            <span className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-pink-500" />
           </button>
 
           <Link
@@ -95,11 +99,6 @@ export default function Header({ variant = 'public' }) {
               </p>
               <p className="text-xs text-gray-500">Administradora</p>
             </div>
-
-            <FontAwesomeIcon
-              icon={faChevronDown}
-              className="text-xs text-[#4c1d95]"
-            />
           </Link>
 
           <button

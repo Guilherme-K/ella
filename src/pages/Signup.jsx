@@ -1,6 +1,7 @@
 
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, Navigate, useNavigate } from 'react-router-dom'
+import { destinoPorPapel, obterUsuarioLogado } from '../utils/navegacao'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000'
 
@@ -23,6 +24,7 @@ export default function Signup() {
   const [carregando, setCarregando] = useState(false)
 
   const navigate = useNavigate()
+  const usuarioLogado = obterUsuarioLogado()
 
   async function submit(event) {
     event.preventDefault()
@@ -103,6 +105,10 @@ export default function Signup() {
   function updateField(event) {
     const { name, value } = event.target
     setForm((anterior) => ({ ...anterior, [name]: value }))
+  }
+
+  if (usuarioLogado?.id) {
+    return <Navigate to={destinoPorPapel(usuarioLogado)} replace />
   }
 
   return (
