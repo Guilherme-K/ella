@@ -5,6 +5,12 @@ import Avatar from '../components/Avatar';
 import AvatarPicker from '../components/AvatarPicker';
 import ProfilePhotoUpload from '../components/ProfilePhotoUpload';
 import { userService } from '../services/userService';
+import {
+    PREFERENCIAS_KEY,
+    SITES_SAIDA_RAPIDA,
+    lerPreferencias,
+    nomeSaidaRapida,
+} from '../constants/saidaRapida';
 
 // ---------------------------------------------------------------------------
 // Página "Minha área".
@@ -14,8 +20,6 @@ import { userService } from '../services/userService';
 // usuária nunca edita o próprio papel.
 // ---------------------------------------------------------------------------
 
-const PREFERENCIAS_KEY = 'ella:preferencias';
-
 const papeis = {
     usuaria: { rotulo: 'Usuária', classe: 'bg-pink-100 text-pink-700' },
     voluntaria: { rotulo: 'Voluntária', classe: 'bg-violet-100 text-violet-700' },
@@ -23,32 +27,12 @@ const papeis = {
     admin: { rotulo: 'Admin', classe: 'bg-[#2e1065] text-white' },
 };
 
-// Só aceita sites desta lista (nunca texto livre), para ninguém salvar um link malicioso.
-const sitesSaidaRapida = [
-    { nome: 'Google', url: 'https://www.google.com.br' },
-    { nome: 'Wikipédia', url: 'https://pt.wikipedia.org' },
-    { nome: 'G1', url: 'https://g1.globo.com' },
-];
-
 const limiteBio = 280;
 
 const card = 'rounded-2xl border border-violet-100 bg-white p-6';
 const titulo = 'mb-4 font-serif text-lg text-[#2e1065]';
 const campo = 'w-full rounded-xl border border-violet-200 bg-[#faf5ff] px-4 py-2 text-sm';
 const botaoSecundario = 'rounded-full border border-violet-200 px-4 py-2 text-sm text-[#5b21b6] hover:bg-violet-50';
-
-function lerPreferencias() {
-    try {
-        const salvo = JSON.parse(localStorage.getItem(PREFERENCIAS_KEY) || 'null');
-
-        return {
-            saidaRapida: salvo?.saidaRapida || sitesSaidaRapida[0].url,
-            mostrarFoto: salvo?.mostrarFoto ?? true,
-        };
-    } catch {
-        return { saidaRapida: sitesSaidaRapida[0].url, mostrarFoto: true };
-    }
-}
 
 function normalizarPerfil(user) {
     const preferencias = lerPreferencias();
@@ -295,9 +279,7 @@ function Perfil() {
 
     const papel = papeis[perfil.tipo] || papeis.usuaria;
     const exibicao = perfil.apelido || perfil.nome || 'Minha conta';
-    const nomeSaida =
-        sitesSaidaRapida.find((site) => site.url === perfil.saidaRapida)?.nome ??
-        'Não definida';
+    const nomeSaida = nomeSaidaRapida(perfil.saidaRapida);
 
     return (
         <main className="mx-auto max-w-5xl space-y-6 px-4 py-8 text-[#2e1065]">
@@ -505,7 +487,7 @@ function Perfil() {
                                             onChange={mudarRascunho}
                                             className={campo}
                                         >
-                                            {sitesSaidaRapida.map((site) => (
+                                            {SITES_SAIDA_RAPIDA.map((site) => (
                                                 <option key={site.url} value={site.url}>
                                                     {site.nome}
                                                 </option>

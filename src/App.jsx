@@ -11,6 +11,7 @@ import AgradecimentoVoluntaria from './pages/AgradecimentoVoluntario'
 import DashboardAdmin from './pages/DashboardAdmin'
 import ChatAdmin from './pages/ChatAdmin'
 import PerfilAdmin from './pages/PerfilAdmin'
+import AdminRedesApoio from './pages/AdminRedesApoio'
 import Informacoes from './pages/Informacoes'
 import Chat from './pages/Chat'
 import ChatUsuario from './pages/ChatUsuario'
@@ -79,6 +80,7 @@ export default function App() {
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<DashboardAdmin />} />
           <Route path="chats" element={<ChatAdmin />} />
+          <Route path="redes" element={<AdminRedesApoio />} />
           <Route path="perfil" element={<PerfilAdmin />} />
         </Route>
       </Route>

@@ -25,6 +25,32 @@ model User {
   city        String?
   phone       String?
   createdAt   DateTime @default(now())
+  messages    ChatMessage[]
+}
+
+// Mensagens salvas localmente pelo próprio usuário.
+// Cada registro pertence apenas a quem o criou: não há entrega em tempo real
+// nem compartilhamento entre contas.
+model ChatMessage {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  chat      String   @default("usuaria")
+  body      String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, chat])
+}
+
+// Cards da Rede de Apoio exibidos em /apoio e administrados pelo painel.
+model SupportNetwork {
+  id          Int      @id @default(autoincrement())
+  name        String   @db.VarChar(120)
+  description String   @db.VarChar(600)
+  image       String?  @db.LongText
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 // Registro dos acionamentos do botão de emergência (ligação para o 190).

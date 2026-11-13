@@ -24,6 +24,8 @@ backend/
 │   ├── middlewares/auth.js
 │   ├── routes/index.js
 │   ├── routes/legacyAuth.js
+│   ├── routes/messages.js
+│   ├── routes/supportNetworks.js
 │   ├── routes/users.js
 │   └── utils/
 ├── .env.example
@@ -131,6 +133,14 @@ A API ficará disponível em `http://127.0.0.1:5000`.
 | DELETE | `/api/users/:id` | Exclui a própria conta | Bearer token |
 | POST | `/api/emergencia/acionamentos` | Registra um acionamento do botão de emergência | Não |
 | GET | `/api/emergencia/acionamentos/total` | Retorna o total de acionamentos | Não |
+| GET | `/api/mensagens?chat=usuaria` | Lista as mensagens salvas do próprio usuário | Bearer token |
+| POST | `/api/mensagens` | Salva uma mensagem do próprio usuário | Bearer token |
+| PATCH | `/api/mensagens/:id` | Edita uma mensagem do próprio usuário | Bearer token |
+| DELETE | `/api/mensagens/:id` | Exclui uma mensagem do próprio usuário | Bearer token |
+| GET | `/api/redes-apoio` | Lista os cards da Rede de Apoio | Não |
+| POST | `/api/redes-apoio` | Cadastra um card da Rede de Apoio | Bearer token (admin) |
+| PATCH | `/api/redes-apoio/:id` | Atualiza um card da Rede de Apoio | Bearer token (admin) |
+| DELETE | `/api/redes-apoio/:id` | Exclui um card da Rede de Apoio | Bearer token (admin) |
 
 ### Cadastro
 
@@ -233,6 +243,69 @@ de 8 MB para comportar o base64). A foto fica salva na coluna `photo`
 Para remover a foto, envie `"photo": null`; para voltar a um preset, envie
 o `avatar` junto com `"photo": null`.
 
+### Mensagens do chat
+
+As mensagens digitadas nas telas de chat são salvas no MySQL e ficam
+**privadas**: cada registro pertence apenas a quem o criou, e todas as
+consultas são filtradas pelo usuário do token. Não existe entrega em tempo
+real nem troca de mensagens entre contas.
+
+```http
+POST /api/mensagens
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "chat": "usuaria",
+  "body": "Estou passando por uma situação difícil."
+}
+```
+
+O campo `chat` identifica a conversa e aceita `usuaria`, `voluntaria` ou
+`admin:<idDaConversa>` (por exemplo, `admin:1`). Mensagens do painel admin
+também são privadas do administrador autenticado. O texto é obrigatório e
+limitado a 2000 caracteres.
+
+```http
+PATCH /api/mensagens/12
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "body": "Texto corrigido."
+}
+```
+
+As rotas `PATCH` e `DELETE` só encontram mensagens do próprio token; qualquer
+outro registro responde `404`.
+
+### Rede de Apoio
+
+Os cards exibidos em `/apoio` vêm de `GET /api/redes-apoio`, que é pública e
+ordena os registros por data de criação. A escrita fica restrita ao papel
+`admin` (tela `/admin/redes`):
+
+```http
+POST /api/redes-apoio
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "name": "Casa da Mulher Brasileira",
+  "description": "Espaço público que reúne acolhimento e atendimento.",
+  "image": "/redes/acolhimento.svg"
+}
+```
+
+- `name` é obrigatório e tem no máximo 120 caracteres.
+- `description` é obrigatória e tem no máximo 30 palavras (600 caracteres).
+- `image` é opcional: aceita uma das artes em `public/redes/*.svg` ou uma
+  data URL PNG/JPEG/WebP de até 2 MB. Sem imagem, o frontend usa a arte
+  padrão.
+- `PATCH` aceita apenas os campos enviados; `DELETE` responde `204`.
+
+O seed cria seis cards iniciais quando a tabela está vazia.
+
 ### Rotas protegidas
 
 Envie o token no cabeçalho:
@@ -266,6 +339,27 @@ model EmergencyCall {
   type      String   @default("ligacao_policial")
   createdAt DateTime @default(now())
 }
+
+model ChatMessage {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  chat      String   @default("usuaria")
+  body      String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, chat])
+}
+
+model SupportNetwork {
+  id          Int      @id @default(autoincrement())
+  name        String   @db.VarChar(120)
+  description String   @db.VarChar(600)
+  image       String?  @db.LongText
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
 ```
 
 ## Integração com o frontend
@@ -280,6 +374,11 @@ As telas de cadastro, login e contas usam a API:
 - `src/pages/PerfilAdmin.jsx` mostra os dados do admin e permite trocar o avatar ou enviar uma foto.
 - `src/pages/Home.jsx` e `src/pages/Emergencia.jsx` usam as rotas
   `/api/emergencia/acionamentos` para contabilizar os acionamentos.
+- `src/pages/ChatUsuario.jsx`, `ChatVoluntaria.jsx` e `ChatAdmin.jsx` usam
+  `/api/mensagens` para salvar, editar e excluir as mensagens privadas de cada
+  conversa.
+- `src/pages/RedeApoio.jsx` (página pública `/apoio`) e
+  `src/pages/AdminRedesApoio.jsx` (`/admin/redes`) usam `/api/redes-apoio`.
 
 As rotas `/cadastro` e `/login` são de compatibilidade com o frontend da
 `main` e usam o Prisma por baixo dos panos. Elas retornam os campos

@@ -9,7 +9,8 @@ import {
     faFileLines,
     faShieldHalved,
     faChartColumn,
-    faGear
+    faGear,
+    faHandHoldingHeart
 } from '@fortawesome/free-solid-svg-icons';
 
 import Header from '../components/Header';
@@ -26,6 +27,11 @@ const menu = [
         nome: 'Chats',
         caminho: '/admin/chats',
         icone: faComments
+    },
+    {
+        nome: 'Redes de Apoio',
+        caminho: '/admin/redes',
+        icone: faHandHoldingHeart
     }
 ];
 

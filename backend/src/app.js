@@ -20,11 +20,15 @@ import indexRouter from './routes/index.js';
 import usersRouter from './routes/users.js';
 import legacyAuthRouter from './routes/legacyAuth.js';
 import emergencyRouter from './routes/emergency.js';
+import messagesRouter from './routes/messages.js';
+import supportNetworksRouter from './routes/supportNetworks.js';
 
 app.use('/', indexRouter);
 app.use('/', legacyAuthRouter);
 app.use('/api/users', usersRouter);
 app.use('/api/emergencia', emergencyRouter);
+app.use('/api/mensagens', messagesRouter);
+app.use('/api/redes-apoio', supportNetworksRouter);
 
 // 404
 app.use((req, res) => {

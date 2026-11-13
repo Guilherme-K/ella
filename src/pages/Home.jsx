@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import womenArtwork from "../assets/mulheres.png";
 import { homeLinks, supportServices, violenceTypes } from "../data/homeData";
 import { BASE_URL } from "../services/httpClient";
+import QuickExitLink from "../components/QuickExitLink";
 
 const API_URL = BASE_URL;
 
@@ -166,12 +167,9 @@ export default function Home() {
                 Botão de Emergência
               </Link>
             </div>
-            <a
-              href="https://www.youtube.com/receitas"
-              className="mt-6 inline-block rounded-lg bg-purple-100 px-4 py-2 text-xs text-violet-700 underline decoration-violet-400 underline-offset-2 transition hover:bg-purple-200"
-            >
+            <QuickExitLink className="mt-6 inline-block rounded-lg bg-purple-100 px-4 py-2 text-xs text-violet-700 underline decoration-violet-400 underline-offset-2 transition hover:bg-purple-200">
               Saída Rápida
-            </a>
+            </QuickExitLink>
           </div>
         </div>
       </section>

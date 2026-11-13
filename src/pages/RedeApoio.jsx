@@ -1,94 +1,10 @@
 
-const servicos = [
-  {
-    titulo: 'Ligue 180',
-    categoria: 'Orientação e atendimento',
-    icone: 'fa-phone',
-    descricao:
-      'A Central de Atendimento à Mulher oferece orientação sobre direitos, informações sobre serviços próximos e recebe e encaminha denúncias de violência contra mulheres.',
-    detalhes: 'Gratuito, disponível 24 horas por dia, todos os dias.',
-    links: [
-      {
-        texto: 'Ligar para 180',
-        url: 'tel:180',
-      },
-      {
-        texto: 'WhatsApp',
-        url: 'https://wa.me/556196100180',
-      },
-    ],
-  },
-  {
-    titulo: 'Delegacias da Mulher',
-    categoria: 'Segurança e proteção',
-    icone: 'fa-shield-halved',
-    descricao:
-      'As Delegacias Especializadas de Atendimento à Mulher (DEAMs) são unidades policiais especializadas no atendimento de mulheres em situação de violência.',
-    detalhes:
-      'Quando não houver uma delegacia especializada disponível, também é possível procurar uma delegacia comum.',
-    links: [
-      {
-        texto: 'Informações sobre atendimento',
-        url: 'https://www.gov.br/mj/pt-br/assuntos/sua-seguranca/seguranca-publica/susp-mulheres/violencia-domestica-e-familiar',
-      },
-    ],
-  },
-  {
-    titulo: 'Casa da Mulher Brasileira',
-    categoria: 'Atendimento integrado',
-    icone: 'fa-house',
-    descricao:
-      'É um espaço público que reúne diferentes serviços especializados, facilitando o acesso ao acolhimento, à orientação e à proteção.',
-    detalhes:
-      'Pode oferecer apoio psicossocial, atendimento policial, jurídico, alojamento de passagem e outros serviços, conforme a unidade.',
-    links: [
-      {
-        texto: 'Conhecer o programa',
-        url: 'https://www.gov.br/mulheres/pt-br/acesso-a-informacao/acoes-e-programas/casa-da-mulher-brasileira',
-      },
-    ],
-  },
-  {
-    titulo: 'Defensoria Pública',
-    categoria: 'Orientação jurídica',
-    icone: 'fa-scale-balanced',
-    descricao:
-      'Oferece orientação e assistência jurídica gratuita a pessoas que não possuem condições de contratar um advogado ou uma advogada.',
-    detalhes:
-      'Pode orientar sobre direitos, medidas protetivas e procedimentos judiciais.',
-    links: [
-      {
-        texto: 'Saiba onde buscar ajuda',
-        url: 'https://www.gov.br/mulheres/pt-br/central-de-conteudos/noticias/2026/agosto-defeso-eleitoral/especial-lei-maria-da-penha-saiba-onde-e-como-buscar-ajuda-em-casos-de-violencia-domestica-e-familiar',
-      },
-    ],
-  },
-  {
-    titulo: 'CREAS',
-    categoria: 'Assistência social',
-    icone: 'fa-people-group',
-    descricao:
-      'O Centro de Referência Especializado de Assistência Social atende pessoas e famílias que vivenciam situações de risco social ou tiveram seus direitos violados.',
-    detalhes:
-      'Pode oferecer acompanhamento especializado, orientação e encaminhamentos para outros serviços públicos.',
-    links: [
-      {
-        texto: 'Conhecer o CREAS',
-        url: 'https://www.gov.br/mds/pt-br/acoes-e-programas/SUAS/unidades-de-atendimento/centro-de-referencia-especializado-de-assistencia-social-creas',
-      },
-    ],
-  },
-  {
-    titulo: 'Serviços de Saúde',
-    categoria: 'Saúde e acolhimento',
-    icone: 'fa-heart-pulse',
-    descricao:
-      'As unidades de saúde podem prestar atendimento às necessidades de saúde da mulher e orientar sobre os serviços disponíveis na rede pública.',
-    detalhes:
-      'Unidades básicas de saúde e hospitais podem fazer parte dos caminhos de atendimento, conforme a necessidade.',
-    links: [],
-  },
-]
+import { useEffect, useMemo, useState } from 'react'
+
+import { supportNetworkService } from '../services/supportNetworkService'
+import { imagemDaRede } from '../constants/supportNetworks'
+
+const REDES_POR_PAGINA = 6
 
 const profissionais = [
   {
@@ -118,6 +34,50 @@ const profissionais = [
 ]
 
 export default function RedeApoio() {
+  const [redes, setRedes] = useState([])
+  const [carregando, setCarregando] = useState(true)
+  const [erro, setErro] = useState('')
+  const [pagina, setPagina] = useState(1)
+
+  useEffect(() => {
+    let ativo = true
+
+    supportNetworkService
+      .list()
+      .then((lista) => {
+        if (ativo) setRedes(lista)
+      })
+      .catch((error) => {
+        if (ativo) {
+          setErro(
+            error.message ||
+              'Não foi possível carregar os serviços da rede agora.',
+          )
+        }
+      })
+      .finally(() => {
+        if (ativo) setCarregando(false)
+      })
+
+    return () => {
+      ativo = false
+    }
+  }, [])
+
+  const totalPaginas = Math.max(
+    1,
+    Math.ceil(redes.length / REDES_POR_PAGINA),
+  )
+  const paginaAtual = Math.min(pagina, totalPaginas)
+  const visiveis = useMemo(
+    () =>
+      redes.slice(
+        (paginaAtual - 1) * REDES_POR_PAGINA,
+        paginaAtual * REDES_POR_PAGINA,
+      ),
+    [redes, paginaAtual],
+  )
+
   return (
     <main className="flex-1 bg-white">
       <section className="bg-gradient-to-br from-pink-50 via-white to-purple-50 px-6 py-20">
@@ -215,54 +175,110 @@ export default function RedeApoio() {
             </p>
           </div>
 
-          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {servicos.map((servico) => (
-              <article
-                key={servico.titulo}
-                className="flex flex-col rounded-2xl border border-purple-100 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
-              >
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-pink-100">
-                  <i
-                    className={`fa-solid ${servico.icone} text-xl text-pink-600`}
-                    aria-hidden="true"
-                  />
-                </div>
+          {carregando && (
+            <p className="mt-12 text-center text-sm text-gray-500">
+              Carregando serviços da rede...
+            </p>
+          )}
 
-                <span className="mt-5 text-xs font-semibold uppercase tracking-wider text-pink-600">
-                  {servico.categoria}
-                </span>
+          {!carregando && erro && (
+            <p
+              role="alert"
+              className="mx-auto mt-12 max-w-2xl rounded-2xl bg-red-50 px-5 py-4 text-center text-sm text-red-700"
+            >
+              {erro}
+            </p>
+          )}
 
-                <h3 className="mt-2 font-serif text-xl font-bold text-violet-950">
-                  {servico.titulo}
-                </h3>
+          {!carregando && !erro && redes.length === 0 && (
+            <p className="mx-auto mt-12 max-w-2xl rounded-2xl bg-purple-50 px-5 py-4 text-center text-sm text-violet-800">
+              Nenhum serviço cadastrado no momento. Em caso de necessidade,
+              ligue para o 180 ou para o 190.
+            </p>
+          )}
 
-                <p className="mt-3 flex-1 text-sm leading-7 text-gray-600">
-                  {servico.descricao}
-                </p>
+          {!carregando && !erro && visiveis.length > 0 && (
+            <>
+              <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {visiveis.map((rede) => (
+                  <article
+                    key={rede.id}
+                    className="flex flex-col overflow-hidden rounded-2xl border border-purple-100 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+                  >
+                    <img
+                      src={imagemDaRede(rede.imagem)}
+                      alt={`Imagem ilustrativa de ${rede.nome}`}
+                      loading="lazy"
+                      className="h-44 w-full object-cover"
+                    />
 
-                <p className="mt-4 rounded-xl bg-purple-50 p-3 text-xs leading-6 text-violet-800">
-                  {servico.detalhes}
-                </p>
+                    <div className="flex flex-1 flex-col p-6">
+                      <span className="text-xs font-semibold uppercase tracking-wider text-pink-600">
+                        Rede de apoio
+                      </span>
 
-                {servico.links.length > 0 && (
-                  <div className="mt-5 flex flex-wrap gap-3">
-                    {servico.links.map((link) => (
-                      <a
-                        key={link.texto}
-                        href={link.url}
-                        target={link.url.startsWith('tel:') ? undefined : '_blank'}
-                        rel={link.url.startsWith('tel:') ? undefined : 'noopener noreferrer'}
-                        className="inline-flex items-center gap-2 text-sm font-semibold text-pink-700 transition hover:text-pink-900"
+                      <h3 className="mt-2 font-serif text-xl font-bold text-violet-950">
+                        {rede.nome}
+                      </h3>
+
+                      <p className="mt-3 flex-1 text-sm leading-7 text-gray-600">
+                        {rede.descricao}
+                      </p>
+                    </div>
+                  </article>
+                ))}
+              </div>
+
+              {totalPaginas > 1 && (
+                <nav
+                  aria-label="Paginação das redes de apoio"
+                  className="mt-10 flex flex-wrap items-center justify-center gap-2"
+                >
+                  <button
+                    type="button"
+                    onClick={() => setPagina(paginaAtual - 1)}
+                    disabled={paginaAtual === 1}
+                    className="rounded-full border border-purple-200 px-4 py-2 text-sm font-semibold text-violet-800 transition hover:bg-purple-50 disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    Anterior
+                  </button>
+
+                  {Array.from({ length: totalPaginas }, (_, indice) => indice + 1).map(
+                    (numero) => (
+                      <button
+                        key={numero}
+                        type="button"
+                        onClick={() => setPagina(numero)}
+                        aria-current={numero === paginaAtual ? 'page' : undefined}
+                        className={`h-10 w-10 rounded-full text-sm font-semibold transition ${
+                          numero === paginaAtual
+                            ? 'bg-pink-600 text-white'
+                            : 'border border-purple-200 text-violet-800 hover:bg-purple-50'
+                        }`}
                       >
-                        {link.texto}
-                        <i className="fa-solid fa-arrow-up-right-from-square text-xs" />
-                      </a>
-                    ))}
-                  </div>
-                )}
-              </article>
-            ))}
-          </div>
+                        {numero}
+                      </button>
+                    ),
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={() => setPagina(paginaAtual + 1)}
+                    disabled={paginaAtual === totalPaginas}
+                    className="rounded-full border border-purple-200 px-4 py-2 text-sm font-semibold text-violet-800 transition hover:bg-purple-50 disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    Próxima
+                  </button>
+                </nav>
+              )}
+
+              <p className="mt-4 text-center text-xs text-gray-500">
+                {redes.length} serviço{redes.length === 1 ? '' : 's'} cadastrado
+                {redes.length === 1 ? '' : 's'} · página {paginaAtual} de{' '}
+                {totalPaginas}
+              </p>
+            </>
+          )}
         </div>
       </section>
 

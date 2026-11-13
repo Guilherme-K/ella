@@ -6,6 +6,8 @@ import {
     faPhone, faShieldHalved, faTriangleExclamation, faUser, faVideo,
 } from '@fortawesome/free-solid-svg-icons';
 import Avatar from '../components/Avatar';
+import SavedChatMessage from '../components/SavedChatMessage';
+import { useChatMessages } from '../hooks/useChatMessages';
 
 const usuario = { nome: 'Mariana Costa', papel: 'Voluntária' };
 
@@ -51,24 +53,40 @@ const classeTag = (tag) =>
 
 function ChatAdmin() {
     const [selecionadoId, setSelecionadoId] = useState(1);
-    const [mensagens, setMensagens] = useState(mensagensIniciais);
+    const [mensagens] = useState(mensagensIniciais);
     const [texto, setTexto] = useState('');
+    const [enviando, setEnviando] = useState(false);
+    const [erroEnvio, setErroEnvio] = useState('');
+    const {
+        mensagens: salvas,
+        carregando,
+        erro,
+        enviar: salvarMensagem,
+        editar,
+        excluir,
+    } = useChatMessages(`admin:${selecionadoId}`);
 
     const conversa = conversas.find((c) => c.id === selecionadoId);
     const lista = mensagens[selecionadoId] ?? [];
 
-    function enviar(e) {
+    async function enviar(e) {
         e.preventDefault();
-        if (!texto.trim()) return;
+        const limpo = texto.trim();
+        if (!limpo || enviando) return;
 
-        const nova = {
-            de: 'voluntaria',
-            texto: texto.trim(),
-            hora: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
-        };
+        setEnviando(true);
+        setErroEnvio('');
 
-        setMensagens((atual) => ({ ...atual, [selecionadoId]: [...(atual[selecionadoId] ?? []), nova] }));
-        setTexto('');
+        try {
+            await salvarMensagem(limpo);
+            setTexto('');
+        } catch (error) {
+            setErroEnvio(
+                error.message || 'Não foi possível salvar a mensagem.',
+            );
+        } finally {
+            setEnviando(false);
+        }
     }
 
     return (
@@ -144,7 +162,37 @@ function ChatAdmin() {
                                 </div>
                             );
                         })}
+
+                        {carregando && (
+                            <p className="text-center text-xs text-gray-500">
+                                Carregando mensagens salvas...
+                            </p>
+                        )}
+
+                        {erro && (
+                            <p role="alert" className="text-center text-xs text-red-600">
+                                {erro}
+                            </p>
+                        )}
+
+                        {salvas.map((m) => (
+                            <SavedChatMessage
+                                key={m.id}
+                                mensagem={m}
+                                alinhadaDireita
+                                classeBalao="bg-pink-100 text-[#4c1d95]"
+                                onEditar={editar}
+                                onExcluir={excluir}
+                                avatar={<Avatar nome={usuario.nome} tamanho="h-8 w-8" />}
+                            />
+                        ))}
                     </div>
+
+                    {erroEnvio && (
+                        <p role="alert" className="px-4 pb-2 text-xs text-red-600">
+                            {erroEnvio}
+                        </p>
+                    )}
 
                     <form onSubmit={enviar} className="flex items-center gap-2 border-t border-violet-100 p-3">
                         <div className="flex min-w-0 flex-1 items-center gap-3 rounded-full bg-violet-50 px-4 py-2">
@@ -152,6 +200,7 @@ function ChatAdmin() {
                                 type="text"
                                 value={texto}
                                 onChange={(e) => setTexto(e.target.value)}
+                                maxLength={2000}
                                 placeholder="Digite sua mensagem..."
                                 aria-label="Mensagem"
                                 className="min-w-0 flex-1 bg-transparent text-sm outline-none"
@@ -159,8 +208,8 @@ function ChatAdmin() {
                             <button type="button" aria-label="Anexar arquivo" className="text-[#5b21b6]"><FontAwesomeIcon icon={faPaperclip} /></button>
                             <button type="button" aria-label="Emojis" className="text-[#5b21b6]"><FontAwesomeIcon icon={faFaceSmile} /></button>
                         </div>
-                        <button type="submit" aria-label="Enviar mensagem"
-                            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-pink-500 text-white">
+                        <button type="submit" aria-label="Enviar mensagem" disabled={enviando}
+                            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-pink-500 text-white disabled:opacity-60">
                             <FontAwesomeIcon icon={faPaperPlane} />
                         </button>
                     </form>
