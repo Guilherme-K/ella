@@ -66,7 +66,7 @@ function Voluntaria() {
     ]
 
     return (
-        <main className="min-h-screen bg-[#f8f3ff]">
+        <main id="conteudo" tabIndex={-1} className="min-h-screen bg-[#f8f3ff]">
 
             <section className="bg-gradient-to-r from-[#fce7f3] via-[#f5eaff] to-[#ede9fe] px-5 py-10 sm:py-14">
                 <div className="mx-auto flex max-w-5xl flex-col items-center gap-5 md:flex-row md:gap-8">
@@ -271,7 +271,7 @@ function Voluntaria() {
                             </div>
 
                             <button
-                                className="mx-auto mt-6 block rounded-full bg-pink-500 px-10 py-3 font-semibold text-white shadow-sm transition hover:bg-pink-600 focus:outline-none focus:ring-2 focus:ring-pink-400 focus:ring-offset-2"
+                                className="mx-auto mt-6 block rounded-full bg-pink-700 px-10 py-3 font-semibold text-white shadow-sm transition hover:bg-pink-800 focus:outline-none focus:ring-2 focus:ring-pink-400 focus:ring-offset-2"
                                 type="submit"
                             >
                                 Quero ser voluntária

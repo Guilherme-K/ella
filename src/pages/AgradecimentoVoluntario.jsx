@@ -17,7 +17,7 @@ function AgradecimentoVoluntaria() {
     }, [segundos, navigate]);
 
     return (
-        <main className="bg-[#f3e8ff] min-h-[60vh] flex items-center justify-center px-4 py-16">
+        <main id="conteudo" tabIndex={-1} className="bg-[#f3e8ff] min-h-[60vh] flex items-center justify-center px-4 py-16">
             <section className="bg-white rounded-3xl shadow-lg max-w-lg w-full p-10 text-center">
                 <FontAwesomeIcon
                     icon={faCircleCheck}
@@ -34,7 +34,7 @@ function AgradecimentoVoluntaria() {
                 <button
                     type="button"
                     onClick={() => navigate('/')}
-                    className="rounded-full text-white bg-pink-400 px-8 py-2 font-semibold"
+                    className="rounded-full text-white bg-pink-700 px-8 py-2 font-semibold"
                 >
                     Voltar ao início
                 </button>

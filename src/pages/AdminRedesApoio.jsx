@@ -245,7 +245,7 @@ export default function AdminRedesApoio() {
                         <h1 className="font-serif text-2xl text-[#2e1065]">
                             Redes de Apoio
                         </h1>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-gray-600">
                             Cards exibidos na página pública /apoio.
                         </p>
                     </div>
@@ -318,7 +318,7 @@ export default function AdminRedesApoio() {
                                     <label htmlFor="rede-descricao" className="text-sm font-semibold text-[#2e1065]">
                                         Breve descrição <span className="text-pink-600">*</span>
                                     </label>
-                                    <span className={`text-xs ${palavras > MAX_PALAVRAS_DESCRICAO ? 'font-semibold text-red-600' : 'text-gray-400'}`}>
+                                    <span className={`text-xs ${palavras > MAX_PALAVRAS_DESCRICAO ? 'font-semibold text-red-600' : 'text-gray-600'}`}>
                                         {palavras}/{MAX_PALAVRAS_DESCRICAO} palavras
                                     </span>
                                 </div>
@@ -381,12 +381,12 @@ export default function AdminRedesApoio() {
                                 className="hidden"
                             />
 
-                            <p className="text-xs text-gray-400">
+                            <p className="text-xs text-gray-600">
                                 PNG, JPEG ou WebP, até 2 MB. Sem envio, a imagem padrão é usada.
                             </p>
 
                             <div>
-                                <p className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                                <p className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-gray-600">
                                     <FontAwesomeIcon icon={faImage} />
                                     Imagens prontas
                                 </p>
@@ -423,7 +423,7 @@ export default function AdminRedesApoio() {
                                 </div>
                             </div>
 
-                            <p className="text-xs text-gray-400">
+                            <p className="text-xs text-gray-600">
                                 A primeira arte é usada quando nenhuma imagem é enviada.
                             </p>
                         </div>
@@ -449,7 +449,7 @@ export default function AdminRedesApoio() {
             )}
 
             {carregando ? (
-                <p className={`${card} text-sm text-gray-500`}>
+                <p className={`${card} text-sm text-gray-600`}>
                     Carregando redes de apoio...
                 </p>
             ) : erro ? (

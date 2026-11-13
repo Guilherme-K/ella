@@ -122,7 +122,7 @@ export default function Accounts() {
             <h1 className="font-serif text-3xl font-bold text-violet-950">
               Contas cadastradas
             </h1>
-            <p className="mt-2 text-sm text-violet-500">
+            <p className="mt-2 text-sm text-violet-600">
               Contas registradas no banco de dados da plataforma.
             </p>
           </div>
@@ -138,7 +138,7 @@ export default function Accounts() {
         <div className="mt-6 flex flex-wrap items-center gap-3">
           <div className="relative flex-1">
             <i
-              className="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-xs text-violet-400"
+              className="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-xs text-violet-600"
               aria-hidden="true"
             />
 
@@ -156,19 +156,19 @@ export default function Accounts() {
             type="button"
             onClick={carregarContas}
             disabled={loading}
-            className="rounded-lg border border-purple-200 px-4 py-2 text-sm text-violet-600 transition hover:bg-violet-50 disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-lg border border-purple-200 px-4 py-2 text-sm text-violet-600 transition hover:bg-violet-50 disabled:cursor-not-allowed"
           >
             Atualizar
           </button>
         </div>
 
-        <p className="mt-3 text-xs text-violet-400">
+        <p className="mt-3 text-xs text-violet-600">
           {usuariosFiltrados.length} de {users.length} conta(s) exibida(s).
         </p>
 
         <div className="mt-4 divide-y divide-purple-100">
           {loading && (
-            <p className="py-5 text-sm text-violet-400">Carregando contas...</p>
+            <p className="py-5 text-sm text-violet-600">Carregando contas...</p>
           )}
 
           {error && (
@@ -178,7 +178,7 @@ export default function Accounts() {
           )}
 
           {!loading && !error && users.length === 0 && (
-            <p className="py-5 text-sm text-violet-400">
+            <p className="py-5 text-sm text-violet-600">
               Nenhuma conta cadastrada ainda.
             </p>
           )}
@@ -187,7 +187,7 @@ export default function Accounts() {
             !error &&
             users.length > 0 &&
             usuariosFiltrados.length === 0 && (
-              <p className="py-5 text-sm text-violet-400">
+              <p className="py-5 text-sm text-violet-600">
                 Nenhuma conta encontrada para “{busca}”.
               </p>
             )}
@@ -221,11 +221,11 @@ export default function Accounts() {
                       )}
                     </div>
 
-                    <p className="mt-1 break-all text-xs text-violet-400">
+                    <p className="mt-1 break-all text-xs text-violet-600">
                       {user.email}
                     </p>
 
-                    <p className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-violet-400">
+                    <p className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-violet-600">
                       {user.city && <span>{user.city}</span>}
                       {user.crm && (
                         <span className="font-medium text-fuchsia-600">
@@ -245,7 +245,7 @@ export default function Accounts() {
         <div className="mt-6 flex flex-wrap gap-3">
           <Link
             to="/cadastro"
-            className="rounded-lg bg-pink-400 px-4 py-2 text-sm text-white"
+            className="rounded-lg bg-pink-700 px-4 py-2 text-sm text-white"
           >
             Adicionar conta
           </Link>

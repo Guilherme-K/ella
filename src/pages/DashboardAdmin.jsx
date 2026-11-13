@@ -449,7 +449,7 @@ function AdminDashboard() {
                 <div className="flex flex-wrap items-center gap-4 xl:justify-end">
                     <p className="border-l-2 border-pink-400 pl-4 font-serif italic text-[#4c1d95]">
                         Juntas somos mais fortes.
-                        <span className="block font-sans text-xs not-italic text-gray-500">
+                        <span className="block font-sans text-xs not-italic text-gray-600">
                             Mais apoio, mais histórias, mais recomeços.
                         </span>
                     </p>
@@ -458,7 +458,7 @@ function AdminDashboard() {
                         type="button"
                         onClick={atualizar}
                         disabled={carregando}
-                        className="inline-flex items-center gap-2 rounded-full border border-violet-200 bg-white px-4 py-2 text-sm text-[#5b21b6] transition hover:bg-violet-50 disabled:cursor-not-allowed disabled:opacity-60"
+                        className="inline-flex items-center gap-2 rounded-full border border-violet-200 bg-white px-4 py-2 text-sm text-[#5b21b6] transition hover:bg-violet-50 disabled:cursor-not-allowed"
                     >
                         <FontAwesomeIcon icon={faRotate} spin={carregando} />
                         {carregando ? 'Atualizando...' : 'Atualizar'}
@@ -557,7 +557,7 @@ function AdminDashboard() {
 
                             <div className="overflow-x-auto">
                                 <table className="w-full min-w-[720px] text-left text-sm">
-                                    <thead className="text-xs uppercase tracking-wide text-gray-400">
+                                    <thead className="text-xs uppercase tracking-wide text-gray-600">
                                         <tr>
                                             <th className="py-2 font-medium">Conta</th>
                                             <th className="font-medium">E-mail</th>
@@ -598,7 +598,7 @@ function AdminDashboard() {
                                                     </td>
                                                     <td className="tabular-nums text-gray-600">
                                                         <span className="block">{formatarData(usuario.createdAt)}</span>
-                                                        <span className="text-xs text-gray-400">{tempoRelativo(usuario.createdAt)}</span>
+                                                        <span className="text-xs text-gray-600">{tempoRelativo(usuario.createdAt)}</span>
                                                     </td>
                                                     <td>
                                                         <span className="flex items-center gap-2">
@@ -652,13 +652,13 @@ function AdminDashboard() {
                                             ? '—'
                                             : totalEmergencia.toLocaleString('pt-BR')}
                                     </p>
-                                    <p className="mt-0.5 text-xs text-gray-500">
+                                    <p className="mt-0.5 text-xs text-gray-600">
                                         Acionamentos registrados
                                     </p>
                                 </div>
                             </div>
 
-                            <p className="mt-3 text-xs text-gray-500">
+                            <p className="mt-3 text-xs text-gray-600">
                                 {totalEmergencia === null
                                     ? erroEmergencia
                                         ? 'Não foi possível consultar a contagem agora.'
@@ -703,7 +703,7 @@ function AdminDashboard() {
                             <FontAwesomeIcon icon={faCalendarDays} className="mt-0.5 text-pink-500" />
                             <p>
                                 <span className="font-semibold text-[#2e1065]">Última atualização</span>
-                                <span className="mt-1 block text-xs text-gray-500">
+                                <span className="mt-1 block text-xs text-gray-600">
                                     Os números são recalculados sempre que você abre o painel ou clica em Atualizar.
                                 </span>
                             </p>

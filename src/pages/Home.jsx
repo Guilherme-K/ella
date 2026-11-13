@@ -130,7 +130,7 @@ export default function Home() {
   });
 
   return (
-    <main className="flex-1 bg-white">
+    <main id="conteudo" tabIndex={-1} className="flex-1 bg-white">
       <section
         id="inicio"
         className="relative isolate flex items-center overflow-hidden bg-linear-to-r from-pink-50 via-pink-50 to-purple-100 px-6 py-8 sm:px-10 sm:py-10 lg:px-16"
@@ -255,7 +255,7 @@ export default function Home() {
               <h2 className="font-serif text-2xl text-violet-950 sm:text-3xl">
                 Violência não é amor. É crime.
               </h2>
-              <p className="mt-1 text-sm text-pink-700 sm:text-base">
+              <p className="mt-1 text-sm text-pink-800 sm:text-base">
                 Você tem o direito a uma vida segura, livre e com dignidade.
               </p>
             </div>

@@ -119,7 +119,7 @@ function ProfilePhotoUpload({
                     )}
                 </div>
 
-                <p className="text-xs text-gray-400">
+                <p className="text-xs text-gray-600">
                     PNG, JPEG ou WebP, até 2 MB. A foto substitui o avatar
                     escolhido.
                 </p>

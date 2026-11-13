@@ -267,7 +267,7 @@ function SecaoViolencia({ forma }) {
         </div>
 
         <div>
-          <p className="text-xs font-bold uppercase tracking-wider text-pink-600">
+          <p className="text-xs font-bold uppercase tracking-wider text-pink-700">
             Lei Maria da Penha
           </p>
           <h3 className="text-2xl font-bold text-[#351064]">
@@ -360,7 +360,7 @@ export default function Informacoes() {
   }, [hash])
 
   return (
-    <main className="min-h-screen bg-[#fffafd] pb-16">
+    <main id="conteudo" tabIndex={-1} className="min-h-screen bg-[#fffafd] pb-16">
       <section className="bg-gradient-to-r from-[#351064] via-[#5c1bb0] to-[#8b1cc7] px-5 py-16 text-white md:py-20">
         <div className="mx-auto max-w-6xl">
           <p className="mb-3 text-sm font-bold uppercase tracking-[0.2em] text-pink-200">
@@ -392,7 +392,7 @@ export default function Informacoes() {
       <div className="mx-auto max-w-6xl space-y-14 px-5 py-12">
         <section id="o-que-e" className="scroll-mt-24">
           <div className="mb-6">
-            <p className="text-sm font-bold uppercase tracking-wider text-pink-600">
+            <p className="text-sm font-bold uppercase tracking-wider text-pink-700">
               Entenda o assunto
             </p>
             <h2 className="mt-2 text-3xl font-bold text-[#351064]">
@@ -438,7 +438,7 @@ export default function Informacoes() {
 
         <section id="fatores" className="scroll-mt-24">
           <div className="mb-6">
-            <p className="text-sm font-bold uppercase tracking-wider text-pink-600">
+            <p className="text-sm font-bold uppercase tracking-wider text-pink-700">
               Compreender para prevenir
             </p>
             <h2 className="mt-2 text-3xl font-bold text-[#351064]">
@@ -520,7 +520,7 @@ export default function Informacoes() {
 
         <section id="formas-legais" className="scroll-mt-24">
           <div className="mb-7">
-            <p className="text-sm font-bold uppercase tracking-wider text-pink-600">
+            <p className="text-sm font-bold uppercase tracking-wider text-pink-700">
               Lei Maria da Penha
             </p>
             <h2 className="mt-2 text-3xl font-bold text-[#351064]">
@@ -563,7 +563,7 @@ export default function Informacoes() {
 
         <section id="outras-manifestacoes" className="scroll-mt-24">
           <div className="mb-7">
-            <p className="text-sm font-bold uppercase tracking-wider text-pink-600">
+            <p className="text-sm font-bold uppercase tracking-wider text-pink-700">
               Outros contextos e manifestações
             </p>
             <h2 className="mt-2 text-3xl font-bold text-[#351064]">
@@ -607,7 +607,7 @@ export default function Informacoes() {
 
         <section id="procurar-ajuda" className="scroll-mt-24">
           <div className="mb-7">
-            <p className="text-sm font-bold uppercase tracking-wider text-pink-600">
+            <p className="text-sm font-bold uppercase tracking-wider text-pink-700">
               Você não precisa enfrentar isso sozinha
             </p>
             <h2 className="mt-2 text-3xl font-bold text-[#351064]">

@@ -112,9 +112,9 @@ function ChatAdmin() {
                                     <span className="min-w-0 flex-1">
                                         <span className="flex justify-between gap-2">
                                             <span className="text-sm font-semibold">{c.nome}</span>
-                                            <span className="text-xs text-gray-400">{c.hora}</span>
+                                            <span className="text-xs text-gray-600">{c.hora}</span>
                                         </span>
-                                        <span className="block truncate text-xs text-gray-500">{c.previa}</span>
+                                        <span className="block truncate text-xs text-gray-600">{c.previa}</span>
                                         <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] ${classeTag(c.tag)}`}>{c.tag}</span>
                                     </span>
                                 </button>
@@ -145,7 +145,7 @@ function ChatAdmin() {
                     <div className="flex-1 space-y-4 overflow-y-auto p-4">
                         <p className="mx-auto w-fit rounded-full bg-violet-100 px-3 py-1 text-xs">Hoje, 10 de maio de 2025</p>
                         {lista.length === 0 && (
-                            <p className="text-center text-sm text-gray-500">Nenhuma mensagem nesta conversa de exemplo.</p>
+                            <p className="text-center text-sm text-gray-600">Nenhuma mensagem nesta conversa de exemplo.</p>
                         )}
                         {lista.map((m, i) => {
                             const minha = m.de === 'voluntaria';
@@ -154,7 +154,7 @@ function ChatAdmin() {
                                     <Avatar nome={minha ? usuario.nome : conversa.nome} tamanho="h-8 w-8" />
                                     <div className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm ${minha ? 'bg-pink-100' : 'bg-violet-100'}`}>
                                         <p>{m.texto}</p>
-                                        <p className="mt-1 text-right text-[10px] text-gray-500">
+                                        <p className="mt-1 text-right text-[10px] text-gray-600">
                                             {m.hora}
                                             {minha && <FontAwesomeIcon icon={faCheckDouble} className="ml-1 text-violet-500" />}
                                         </p>
@@ -164,7 +164,7 @@ function ChatAdmin() {
                         })}
 
                         {carregando && (
-                            <p className="text-center text-xs text-gray-500">
+                            <p className="text-center text-xs text-gray-600">
                                 Carregando mensagens salvas...
                             </p>
                         )}
@@ -223,7 +223,7 @@ function ChatAdmin() {
                                 <h2 className="font-bold">{conversa.nome}</h2>
                                 <p className="flex items-center gap-1 text-xs"><span className="h-2 w-2 rounded-full bg-emerald-500" />Online</p>
                                 
-                                <p className="text-xs text-gray-500">26 anos · São Paulo - SP</p>
+                                <p className="text-xs text-gray-600">26 anos · São Paulo - SP</p>
                                 <span className="rounded-full bg-violet-100 px-2 py-0.5 text-[10px]">Usuária</span>
                             </div>
                         </div>

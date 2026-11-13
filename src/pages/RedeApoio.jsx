@@ -79,7 +79,7 @@ export default function RedeApoio() {
   )
 
   return (
-    <main className="flex-1 bg-white">
+    <main id="conteudo" tabIndex={-1} className="flex-1 bg-white">
       <section className="bg-gradient-to-br from-pink-50 via-white to-purple-50 px-6 py-20">
         <div className="mx-auto max-w-5xl text-center">
           <span className="inline-block rounded-full bg-pink-100 px-4 py-2 text-sm font-semibold text-pink-700">
@@ -119,7 +119,7 @@ export default function RedeApoio() {
       <section className="px-6 py-16">
         <div className="mx-auto grid max-w-5xl gap-10 md:grid-cols-2 md:items-center">
           <div>
-            <span className="text-sm font-semibold uppercase tracking-wider text-pink-600">
+            <span className="text-sm font-semibold uppercase tracking-wider text-pink-700">
               Entenda a rede
             </span>
 
@@ -161,7 +161,7 @@ export default function RedeApoio() {
       <section id="servicos" className="scroll-mt-8 bg-gray-50 px-6 py-16">
         <div className="mx-auto max-w-6xl">
           <div className="text-center">
-            <span className="text-sm font-semibold uppercase tracking-wider text-pink-600">
+            <span className="text-sm font-semibold uppercase tracking-wider text-pink-700">
               Onde procurar ajuda
             </span>
 
@@ -213,7 +213,7 @@ export default function RedeApoio() {
                     />
 
                     <div className="flex flex-1 flex-col p-6">
-                      <span className="text-xs font-semibold uppercase tracking-wider text-pink-600">
+                      <span className="text-xs font-semibold uppercase tracking-wider text-pink-700">
                         Rede de apoio
                       </span>
 
@@ -285,7 +285,7 @@ export default function RedeApoio() {
       <section className="px-6 py-16">
         <div className="mx-auto max-w-6xl">
           <div className="text-center">
-            <span className="text-sm font-semibold uppercase tracking-wider text-pink-600">
+            <span className="text-sm font-semibold uppercase tracking-wider text-pink-700">
               Quem atua nessa rede?
             </span>
 
@@ -326,7 +326,7 @@ export default function RedeApoio() {
       <section className="bg-pink-50 px-6 py-16">
         <div className="mx-auto max-w-5xl">
           <div className="text-center">
-            <span className="text-sm font-semibold uppercase tracking-wider text-pink-600">
+            <span className="text-sm font-semibold uppercase tracking-wider text-pink-700">
               Encontre atendimento
             </span>
 

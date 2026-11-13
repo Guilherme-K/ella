@@ -40,7 +40,7 @@ export default function Emergencia() {
   }
 
   return (
-    <main className="min-h-screen bg-[#c91d70] px-5 py-10 text-white">
+    <main id="conteudo" tabIndex={-1} className="min-h-screen bg-[#c91d70] px-5 py-10 text-white">
       <section className="mx-auto flex w-full max-w-md flex-col items-center">
 
         <i className="fa-solid fa-triangle-exclamation mb-3 text-5xl" />

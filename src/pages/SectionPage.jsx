@@ -29,7 +29,7 @@ export default function SectionPage() {
             <div className="mt-5 flex flex-wrap gap-3">
               <a
                 href="tel:180"
-                className="rounded-full bg-pink-500 px-5 py-2 text-sm font-semibold text-white transition hover:bg-pink-600"
+                className="rounded-full bg-pink-700 px-5 py-2 text-sm font-semibold text-white transition hover:bg-pink-800"
               >
                 Ligar 180
               </a>

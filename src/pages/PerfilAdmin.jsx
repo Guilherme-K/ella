@@ -125,7 +125,7 @@ export default function PerfilAdmin() {
     if (carregando) {
         return (
             <div className="mx-auto max-w-5xl">
-                <p className="rounded-2xl bg-white p-6 text-sm text-gray-500 shadow-sm">
+                <p className="rounded-2xl bg-white p-6 text-sm text-gray-600 shadow-sm">
                     Carregando dados da administradora...
                 </p>
             </div>
@@ -166,7 +166,7 @@ export default function PerfilAdmin() {
                     <h1 className="text-2xl font-bold text-violet-950">
                         Meu perfil
                     </h1>
-                    <p className="mt-1 text-sm text-gray-500">
+                    <p className="mt-1 text-sm text-gray-600">
                         Visualize suas informações administrativas.
                     </p>
                 </div>
@@ -204,7 +204,7 @@ export default function PerfilAdmin() {
                             <h2 className="text-xl font-bold text-gray-800">
                                 {nome}
                             </h2>
-                            <p className="text-sm text-gray-500">
+                            <p className="text-sm text-gray-600">
                                 Administradora
                             </p>
                         </div>
@@ -234,7 +234,7 @@ export default function PerfilAdmin() {
 
                     <div className="grid gap-5 sm:grid-cols-2">
                         <div>
-                            <p className="mb-2 text-xs font-medium text-gray-400">
+                            <p className="mb-2 text-xs font-medium text-gray-600">
                                 Nome
                             </p>
                             <p className="flex items-center gap-2 font-medium text-gray-800">
@@ -247,7 +247,7 @@ export default function PerfilAdmin() {
                         </div>
 
                         <div>
-                            <p className="mb-2 text-xs font-medium text-gray-400">
+                            <p className="mb-2 text-xs font-medium text-gray-600">
                                 Tipo de conta
                             </p>
                             <p className="font-medium text-gray-800">
@@ -256,7 +256,7 @@ export default function PerfilAdmin() {
                         </div>
 
                         <div>
-                            <p className="mb-2 text-xs font-medium text-gray-400">
+                            <p className="mb-2 text-xs font-medium text-gray-600">
                                 E-mail
                             </p>
                             <p className="flex items-center gap-2 break-all font-medium text-gray-800">
@@ -269,7 +269,7 @@ export default function PerfilAdmin() {
                         </div>
 
                         <div>
-                            <p className="mb-2 text-xs font-medium text-gray-400">
+                            <p className="mb-2 text-xs font-medium text-gray-600">
                                 Data de cadastro
                             </p>
                             <p className="flex items-center gap-2 font-medium text-gray-800">
@@ -299,7 +299,7 @@ export default function PerfilAdmin() {
                             <p className="text-sm font-semibold text-gray-800">
                                 Senha
                             </p>
-                            <p className="mt-1 text-xs text-gray-500">
+                            <p className="mt-1 text-xs text-gray-600">
                                 Proteção da conta administrativa.
                             </p>
                         </div>
@@ -308,7 +308,7 @@ export default function PerfilAdmin() {
                             <p className="text-sm font-semibold text-gray-800">
                                 Acesso administrativo
                             </p>
-                            <p className="mt-1 text-xs text-gray-500">
+                            <p className="mt-1 text-xs text-gray-600">
                                 Conta com permissões de gerenciamento.
                             </p>
                         </div>
@@ -326,7 +326,7 @@ export default function PerfilAdmin() {
                     <h3 className="font-bold text-violet-950">
                         Avatar
                     </h3>
-                    <span className="text-xs text-gray-400">
+                    <span className="text-xs text-gray-600">
                         {salvandoAvatar ? 'Salvando...' : 'A escolha fica salva na sua conta.'}
                     </span>
                 </div>
@@ -341,7 +341,7 @@ export default function PerfilAdmin() {
 
                 <div className="my-5 border-t border-gray-100" />
 
-                <p className="mb-3 text-xs text-gray-400">
+                <p className="mb-3 text-xs text-gray-600">
                     Ou escolha um avatar pré-setado. Ao escolher um avatar, a
                     foto enviada é removida.
                 </p>
@@ -364,7 +364,7 @@ export default function PerfilAdmin() {
                     </h3>
                 </div>
 
-                <p className="mb-4 text-sm text-gray-500">
+                <p className="mb-4 text-sm text-gray-600">
                     Ações disponíveis para o perfil administrativo.
                 </p>
 

@@ -69,7 +69,7 @@ function formatarData(valor) {
 function Linha({ rotulo, children }) {
     return (
         <div className="grid gap-1 py-3 sm:grid-cols-[9rem_1fr]">
-            <dt className="text-xs uppercase tracking-wide text-gray-400">{rotulo}</dt>
+            <dt className="text-xs uppercase tracking-wide text-gray-600">{rotulo}</dt>
             <dd className="text-sm">{children}</dd>
         </div>
     );
@@ -248,7 +248,7 @@ function Perfil() {
 
     if (carregando) {
         return (
-            <main className="mx-auto max-w-5xl px-4 py-8 text-[#2e1065]">
+            <main id="conteudo" tabIndex={-1} className="mx-auto max-w-5xl px-4 py-8 text-[#2e1065]">
                 <p className={`${card} text-sm text-gray-500`}>
                     Carregando seus dados...
                 </p>
@@ -258,7 +258,7 @@ function Perfil() {
 
     if (erro || !perfil) {
         return (
-            <main className="mx-auto max-w-5xl px-4 py-8 text-[#2e1065]">
+            <main id="conteudo" tabIndex={-1} className="mx-auto max-w-5xl px-4 py-8 text-[#2e1065]">
                 <section className={`${card} space-y-4`}>
                     <h1 className="font-serif text-2xl">Não foi possível abrir sua área</h1>
                     <p role="alert" className="text-sm text-red-600">
@@ -267,7 +267,7 @@ function Perfil() {
                     <button
                         type="button"
                         onClick={() => setRecarregar((valor) => valor + 1)}
-                        className="rounded-full bg-pink-500 px-5 py-2 text-sm font-semibold text-white"
+                        className="rounded-full bg-pink-700 px-5 py-2 text-sm font-semibold text-white"
                     >
                         <FontAwesomeIcon icon={faRotate} className="mr-2" />
                         Tentar novamente
@@ -282,7 +282,7 @@ function Perfil() {
     const nomeSaida = nomeSaidaRapida(perfil.saidaRapida);
 
     return (
-        <main className="mx-auto max-w-5xl space-y-6 px-4 py-8 text-[#2e1065]">
+        <main id="conteudo" tabIndex={-1} className="mx-auto max-w-5xl space-y-6 px-4 py-8 text-[#2e1065]">
             {aviso && (
                 <p
                     role="status"
@@ -314,7 +314,7 @@ function Perfil() {
                     <p className="mt-1 text-sm text-gray-500">
                         {perfil.email} · membro desde {formatarData(perfil.criadoEm)}
                     </p>
-                    <p className="mt-2 text-xs text-gray-400">
+                    <p className="mt-2 text-xs text-gray-600">
                         Nome completo: {perfil.nome || '—'}
                     </p>
                 </div>
@@ -323,7 +323,7 @@ function Perfil() {
                     <button
                         type="button"
                         onClick={iniciarEdicao}
-                        className="self-start rounded-full bg-pink-500 px-5 py-2 text-sm font-semibold text-white sm:self-center"
+                        className="self-start rounded-full bg-pink-700 px-5 py-2 text-sm font-semibold text-white sm:self-center"
                     >
                         <FontAwesomeIcon icon={faPen} className="mr-2" />
                         Editar perfil
@@ -334,7 +334,7 @@ function Perfil() {
             <section className={card}>
                 <div className="mb-4 flex flex-wrap items-baseline justify-between gap-2">
                     <h2 className={`${titulo} mb-0`}>Avatar</h2>
-                    <span className="text-xs text-gray-400">
+                    <span className="text-xs text-gray-600">
                         {salvandoAvatar ? 'Salvando...' : 'A escolha fica salva na sua conta.'}
                     </span>
                 </div>
@@ -349,7 +349,7 @@ function Perfil() {
 
                 <div className="my-5 border-t border-violet-100" />
 
-                <p className="mb-3 text-xs text-gray-400">
+                <p className="mb-3 text-xs text-gray-600">
                     Ou escolha um avatar pré-setado. Ao escolher um avatar, a
                     foto enviada é removida.
                 </p>
@@ -378,7 +378,7 @@ function Perfil() {
                                     className={campo}
                                     placeholder="Conte um pouco sobre você (não coloque dados que te identifiquem se não quiser)."
                                 />
-                                <p className="mt-1 text-right text-xs text-gray-400">
+                                <p className="mt-1 text-right text-xs text-gray-600">
                                     {rascunho.bio.length}/{limiteBio}
                                 </p>
                             </>
@@ -398,7 +398,7 @@ function Perfil() {
                         <dl className="divide-y divide-violet-100">
                             <Linha rotulo="Nome">
                                 {perfil.nome}
-                                <span className="ml-2 text-xs text-gray-400">
+                                <span className="ml-2 text-xs text-gray-600">
                                     (definido no cadastro)
                                 </span>
                             </Linha>
@@ -453,7 +453,7 @@ function Perfil() {
                                 ) : (
                                     perfil.telefone || '—'
                                 )}
-                                <p className="mt-1 text-xs text-gray-400">
+                                <p className="mt-1 text-xs text-gray-600">
                                     <FontAwesomeIcon icon={faLock} className="mr-1" />
                                     Visível só para você.
                                 </p>
@@ -470,7 +470,7 @@ function Perfil() {
                                 <span className={`rounded-full px-3 py-1 text-xs font-semibold ${papel.classe}`}>
                                     {papel.rotulo}
                                 </span>
-                                <p className="mt-1 text-xs text-gray-400">
+                                <p className="mt-1 text-xs text-gray-600">
                                     Definido pela equipe da ELLA.
                                 </p>
                             </Linha>
@@ -497,7 +497,7 @@ function Perfil() {
                                 ) : (
                                     nomeSaida
                                 )}
-                                <p className="mt-1 text-xs text-gray-400">
+                                <p className="mt-1 text-xs text-gray-600">
                                     Para onde o botão leva você num clique.
                                 </p>
                             </Linha>
@@ -517,7 +517,7 @@ function Perfil() {
                             />
                             <span>
                                 Mostrar meu avatar nas conversas
-                                <span className="block text-xs text-gray-400">
+                                <span className="block text-xs text-gray-600">
                                     Se desmarcado, aparecem só as suas iniciais.
                                 </span>
                             </span>
@@ -530,7 +530,7 @@ function Perfil() {
                         <button
                             type="submit"
                             disabled={salvando}
-                            className="rounded-full bg-pink-500 px-6 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+                            className="rounded-full bg-pink-700 px-6 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
                         >
                             {salvando ? 'Salvando...' : 'Salvar alterações'}
                         </button>

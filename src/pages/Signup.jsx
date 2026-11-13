@@ -6,9 +6,9 @@ import { destinoPorPapel, obterUsuarioLogado } from '../utils/navegacao'
 const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000'
 
 const fields = [
-  { name: 'nome', label: 'Nome', type: 'text' },
-  { name: 'email', label: 'E-mail', type: 'email' },
-  { name: 'password', label: 'Senha', type: 'password' },
+  { name: 'nome', label: 'Nome', type: 'text', autoComplete: 'name' },
+  { name: 'email', label: 'E-mail', type: 'email', autoComplete: 'email' },
+  { name: 'password', label: 'Senha', type: 'password', autoComplete: 'new-password' },
 ]
 
 export default function Signup() {
@@ -112,13 +112,13 @@ export default function Signup() {
   }
 
   return (
-    <main className="flex min-h-screen flex-1 items-center justify-center bg-purple-100 px-4 py-12">
+    <main id="conteudo" tabIndex={-1} className="flex min-h-screen flex-1 items-center justify-center bg-purple-100 px-4 py-12">
       <section className="w-full max-w-md rounded-3xl bg-white p-8 shadow-xl">
         <h1 className="font-serif text-3xl font-bold text-violet-950">
           Criar conta
         </h1>
 
-        <p className="mt-2 text-sm text-violet-500">
+        <p className="mt-2 text-sm text-violet-600">
           Um espaço seguro começa com você.
         </p>
 
@@ -137,11 +137,7 @@ export default function Signup() {
                 value={form[field.name]}
                 onChange={updateField}
                 minLength={field.name === 'password' ? 6 : undefined}
-                autoComplete={
-                  field.name === 'password'
-                    ? 'new-password'
-                    : field.name
-                }
+                autoComplete={field.autoComplete}
                 className="mt-2 block w-full rounded-xl border border-purple-100 bg-purple-50 px-4 py-3 text-sm outline-none focus:border-pink-300"
               />
             </label>
@@ -175,7 +171,7 @@ export default function Signup() {
                 className="mt-2 block w-full rounded-xl border border-purple-100 bg-purple-50 px-4 py-3 text-sm outline-none focus:border-pink-300"
               />
 
-              <span className="mt-1 block text-xs font-normal text-violet-400">
+              <span className="mt-1 block text-xs font-normal text-violet-600">
                 O CRM é apenas informativo e não passa por validação.
               </span>
             </label>
@@ -195,7 +191,7 @@ export default function Signup() {
           </label>
 
           {message && (
-            <p role="alert" className="text-sm text-pink-600">
+            <p role="alert" className="text-sm text-pink-700">
               {message}
             </p>
           )}
@@ -203,22 +199,22 @@ export default function Signup() {
           <button
             type="submit"
             disabled={carregando}
-            className="w-full rounded-xl bg-pink-400 py-3 text-sm font-medium text-white hover:bg-pink-500 disabled:cursor-not-allowed disabled:opacity-60"
+            className="w-full rounded-xl bg-pink-700 py-3 text-sm font-medium text-white hover:bg-pink-800 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {carregando ? 'Cadastrando...' : 'Cadastrar'}
           </button>
         </form>
 
-        <p className="mt-5 text-sm text-violet-500">
+        <p className="mt-5 text-sm text-violet-600">
           Já tem uma conta?{' '}
-          <Link to="/login" className="text-pink-500 underline">
+          <Link to="/login" className="text-pink-700 underline">
             Entrar
           </Link>
         </p>
 
         <Link
           to="/"
-          className="mt-3 inline-block text-sm text-pink-500 underline"
+          className="mt-3 inline-block text-sm text-pink-700 underline"
         >
           Voltar ao início
         </Link>

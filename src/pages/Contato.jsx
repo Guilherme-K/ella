@@ -22,7 +22,7 @@ const equipe = [
 
 export default function Contato() {
   return (
-    <main className="min-h-screen bg-slate-50 px-6 py-16">
+    <main id="conteudo" tabIndex={-1} className="min-h-screen bg-slate-50 px-6 py-16">
       <div className="mx-auto max-w-5xl">
         <section className="mb-14 text-center">
           <span className="mb-4 inline-flex items-center gap-2 rounded-full bg-pink-100 px-4 py-2 text-sm font-semibold text-pink-700">

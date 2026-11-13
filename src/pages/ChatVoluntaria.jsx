@@ -38,7 +38,7 @@ function ChatVoluntaria() {
     }
 
     return (
-        <main className="bg-[#f3e8ff] min-h-screen py-10 px-4">
+        <main id="conteudo" tabIndex={-1} className="bg-[#f3e8ff] min-h-screen py-10 px-4">
             <section className="bg-white rounded-3xl shadow-lg max-w-3xl mx-auto overflow-hidden">
 
                 <div className="px-6 pt-5">
@@ -52,7 +52,7 @@ function ChatVoluntaria() {
 
                     <div>
                         <h2 className="font-bold text-[#4c1d95]">Juliana</h2>
-                        <p className="text-xs text-gray-500">● Online</p>
+                        <p className="text-xs text-gray-600">● Online</p>
                     </div>
                 </div>
 
@@ -91,7 +91,7 @@ function ChatVoluntaria() {
                     </div>
 
                     {carregando && (
-                        <p className="text-center text-xs text-gray-500">
+                        <p className="text-center text-xs text-gray-600">
                             Carregando mensagens salvas...
                         </p>
                     )}

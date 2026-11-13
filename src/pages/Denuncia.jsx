@@ -2,7 +2,7 @@ import VoltarLink from '../components/VoltarLink'
 
 export default function Denuncia() {
   return (
-    <main className="min-h-screen bg-[#fff5ff] px-6 py-10">
+    <main id="conteudo" tabIndex={-1} className="min-h-screen bg-[#fff5ff] px-6 py-10">
 
       <div className="max-w-5xl mx-auto">
 

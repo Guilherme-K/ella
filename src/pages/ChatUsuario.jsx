@@ -39,7 +39,7 @@ function ChatUsuario() {
     }
 
     return (
-        <main className="bg-[#f3e8ff] min-h-screen py-10 px-4">
+        <main id="conteudo" tabIndex={-1} className="bg-[#f3e8ff] min-h-screen py-10 px-4">
             <section className="bg-white rounded-3xl shadow-lg max-w-3xl mx-auto overflow-hidden">
 
                 <div className="flex items-center justify-between px-6 py-4 border-b border-violet-100 flex-wrap gap-3">
@@ -52,7 +52,7 @@ function ChatUsuario() {
 
                         <div>
                             <h2 className="font-bold text-[#4c1d95]">Maria</h2>
-                            <p className="text-xs text-gray-500">● Online</p>
+                            <p className="text-xs text-gray-600">● Online</p>
                         </div>
                     </div>
 
@@ -66,7 +66,7 @@ function ChatUsuario() {
                 </div>
 
                 <div className="px-6 py-2 border-b border-violet-100">
-                    <QuickExitLink className="text-sm text-gray-500 hover:text-[#9d174d] underline">
+                    <QuickExitLink className="text-sm text-gray-600 hover:text-[#9d174d] underline">
                         Saída Rápida
                     </QuickExitLink>
                 </div>
@@ -98,7 +98,7 @@ function ChatUsuario() {
                     </div>
 
                     {carregando && (
-                        <p className="text-center text-xs text-gray-500">
+                        <p className="text-center text-xs text-gray-600">
                             Carregando mensagens salvas...
                         </p>
                     )}

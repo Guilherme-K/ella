@@ -46,7 +46,7 @@ export default function Header({ variant = 'public' }) {
       <header className="flex h-16 items-center gap-4 bg-white px-4 shadow-sm sm:px-6">
         <Link
           to="/"
-          className="flex shrink-0 items-center gap-2 text-pink-500"
+          className="flex shrink-0 items-center gap-2 text-pink-700"
           aria-label="ELLA — página inicial"
         >
           <Brand className="h-9 w-9" />
@@ -83,7 +83,6 @@ export default function Header({ variant = 'public' }) {
 
           <Link
             to="/admin/perfil"
-            aria-label="Abrir perfil da administradora"
             className="flex items-center gap-2 rounded-lg p-1 transition hover:bg-purple-50"
           >
             <Avatar
@@ -104,7 +103,7 @@ export default function Header({ variant = 'public' }) {
           <button
             type="button"
             onClick={sair}
-            className="text-xs font-medium text-pink-500 hover:text-pink-700 sm:text-sm"
+            className="text-xs font-medium text-pink-700 hover:text-pink-900 sm:text-sm"
           >
             Sair
           </button>
@@ -117,7 +116,7 @@ export default function Header({ variant = 'public' }) {
     <header className="relative z-20 grid w-full grid-cols-3 grid-rows-2 items-center gap-x-3 gap-y-2 rounded-b-xl border border-purple-100 bg-white px-4 py-2 shadow-sm sm:flex sm:h-16 sm:justify-between sm:gap-5 sm:px-6 sm:py-0">
       <Link
         to="/"
-        className="flex shrink-0 items-center gap-2 text-xs text-pink-500"
+        className="flex shrink-0 items-center gap-2 text-xs text-pink-700"
         aria-label="ELLA — início"
       >
         <Brand className="h-9 w-9" />
@@ -125,7 +124,7 @@ export default function Header({ variant = 'public' }) {
       </Link>
 
       <nav
-        className="col-span-3 row-start-2 flex items-center justify-center gap-3 text-xs text-pink-500 sm:col-span-1 sm:row-auto sm:flex-1 sm:gap-7 sm:text-sm"
+        className="col-span-3 row-start-2 flex items-center justify-center gap-3 text-xs text-pink-700 sm:col-span-1 sm:row-auto sm:flex-1 sm:gap-7 sm:text-sm"
         aria-label="Navegação principal"
       >
         {[
@@ -138,8 +137,8 @@ export default function Header({ variant = 'public' }) {
             key={to}
             to={to}
             className={({ isActive }) =>
-              `whitespace-nowrap transition hover:text-pink-700 ${
-                isActive ? 'font-semibold text-pink-600' : ''
+              `whitespace-nowrap transition hover:text-pink-900 ${
+                isActive ? 'font-semibold text-pink-900' : ''
               }`
             }
           >
@@ -153,7 +152,7 @@ export default function Header({ variant = 'public' }) {
           <>
             <Link
               to={destinos[papel] || '/perfiluser'}
-              className="flex items-center gap-2 whitespace-nowrap rounded-full py-1 pl-1 pr-3 text-xs text-pink-500 transition hover:bg-pink-50 sm:pr-4 sm:text-sm"
+              className="flex items-center gap-2 whitespace-nowrap rounded-full py-1 pl-1 pr-3 text-xs text-pink-700 transition hover:bg-pink-50 sm:pr-4 sm:text-sm"
             >
               <Avatar
                 nome={usuario?.nome || 'Usuária'}
@@ -167,7 +166,7 @@ export default function Header({ variant = 'public' }) {
             <button
               type="button"
               onClick={sair}
-              className="rounded-full bg-pink-400 px-3 py-1.5 text-xs text-white transition hover:bg-pink-500 sm:px-4 sm:text-sm"
+              className="rounded-full bg-pink-700 px-3 py-1.5 text-xs text-white transition hover:bg-pink-800 sm:px-4 sm:text-sm"
             >
               Sair
             </button>
@@ -176,14 +175,14 @@ export default function Header({ variant = 'public' }) {
           <>
             <Link
               to="/login"
-              className="rounded-full px-2 py-1 text-xs text-pink-500 transition hover:bg-pink-50 sm:px-4 sm:text-sm"
+              className="rounded-full px-2 py-1 text-xs text-pink-700 transition hover:bg-pink-50 hover:text-pink-900 sm:px-4 sm:text-sm"
             >
               Login
             </Link>
 
             <Link
               to="/cadastro"
-              className="whitespace-nowrap rounded-full bg-pink-400 px-3 py-1.5 text-xs text-white transition hover:bg-pink-500 sm:px-4 sm:text-sm"
+              className="whitespace-nowrap rounded-full bg-pink-700 px-3 py-1.5 text-xs text-white transition hover:bg-pink-800 sm:px-4 sm:text-sm"
             >
               Cadastre-se
             </Link>
