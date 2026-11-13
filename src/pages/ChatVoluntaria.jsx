@@ -78,7 +78,7 @@ function ChatVoluntaria() {
                 </div>
 
                 <form onSubmit={enviarMensagem} className="flex items-center gap-2 px-4 py-3 border-t border-violet-100">
-                    <div className="flex items-center flex-1 bg-[#faf8ff] border border-violet-200 rounded-full px-4 py-2 gap-3">
+                    <div className="flex min-w-0 items-center flex-1 bg-[#faf8ff] border border-violet-200 rounded-full px-4 py-2 gap-3">
                         <input
                             type="text"
                             placeholder="Digite sua mensagem..."
@@ -91,7 +91,7 @@ function ChatVoluntaria() {
                         <i className="fa-regular fa-face-smile" aria-hidden="true" />
                     </div>
 
-                    <button type="submit" className="text-[#ee41c6] hover:text-pink-600 transition px-2">
+                    <button type="submit" className="shrink-0 text-[#ee41c6] hover:text-pink-600 transition px-2">
                         <i className="fa-solid fa-paper-plane" aria-hidden="true" />
                     </button>
                 </form>
