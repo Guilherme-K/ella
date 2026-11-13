@@ -8,6 +8,7 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
+    "preserver": "npm --prefix backend run db:setup",
     "server": "nodemon backend/server.js"
   },
   "dependencies": {

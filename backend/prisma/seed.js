@@ -6,9 +6,11 @@ import bcrypt from 'bcryptjs';
 import { prisma } from '../src/lib/prisma.js';
 import { DEFAULT_AVATAR } from '../src/constants/user.js';
 
-const ADMIN_EMAIL = 'elladmin@email.com';
-const ADMIN_PASSWORD = '12345678';
-const ADMIN_NAME = 'Admin ELLA';
+const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || 'elladmin@email.com')
+  .trim()
+  .toLowerCase();
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+const ADMIN_NAME = process.env.ADMIN_NAME || 'Admin ELLA';
 
 const REDES_PADRAO = [
   {
@@ -151,19 +153,30 @@ const REDES_PADRAO = [
 ];
 
 async function main() {
-  const password = await bcrypt.hash(ADMIN_PASSWORD, 10);
+  const existente = await prisma.user.findUnique({
+    where: { email: ADMIN_EMAIL },
+    select: { id: true },
+  });
+
+  if (!existente && !ADMIN_PASSWORD) {
+    throw new Error(
+      'Defina ADMIN_PASSWORD no arquivo .env para criar a conta administrativa.',
+    );
+  }
+
+  const password = ADMIN_PASSWORD
+    ? await bcrypt.hash(ADMIN_PASSWORD, 10)
+    : undefined;
 
   const admin = await prisma.user.upsert({
     where: { email: ADMIN_EMAIL },
     update: {
-      name: ADMIN_NAME,
-      password,
       role: 'admin',
     },
     create: {
       email: ADMIN_EMAIL,
       name: ADMIN_NAME,
-      password,
+      ...(password ? { password } : {}),
       role: 'admin',
       avatar: DEFAULT_AVATAR,
     },

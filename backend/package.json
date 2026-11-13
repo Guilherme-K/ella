@@ -9,7 +9,11 @@
     "dev": "nodemon src/server.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
+    "prisma:migrate:deploy": "prisma migrate deploy",
     "prisma:seed": "node prisma/seed.js",
+    "db:setup": "npm run prisma:generate && npm run prisma:migrate:deploy && npm run prisma:seed",
+    "prestart": "npm run db:setup",
+    "predev": "npm run db:setup",
     "prisma:studio": "prisma studio"
   },
   "dependencies": {

@@ -50,7 +50,8 @@ O mesmo comando está em [`database/create-database.sql`](./database/create-data
 
 ## 2. Configurar as variáveis de ambiente
 
-Copie `.env.example` para `.env` e ajuste usuário, senha e nome do banco:
+Copie `.env.example` para `.env` e ajuste a conexão MySQL e a senha da conta
+administrativa:
 
 ```powershell
 Copy-Item .env.example .env
@@ -66,20 +67,28 @@ do projeto (`npm run server`).
 npm install
 ```
 
-## 4. Criar as tabelas com o Prisma
+## 4. Preparar o banco e a conta administrativa
 
-Com o MySQL em execução e o `.env` configurado:
+Com o MySQL em execução, o schema `backend_db` criado e o `.env` configurado,
+rode:
 
 ```powershell
-# Gera o Prisma Client em src/generated/prisma
-npm run prisma:generate
-
-# Aplica a migration inicial (cria a tabela User)
-npx prisma migrate deploy
+npm run db:setup
 ```
 
-Se preferir criar uma nova migration a partir do schema durante o
-desenvolvimento:
+Esse comando gera o Prisma Client, aplica as migrations e cria a conta
+administrativa e os dados iniciais. Ele também é executado automaticamente ao
+iniciar a API com `npm run dev` ou `npm start` dentro de `backend/`, ou com
+`npm run server` na raiz do projeto. Assim, um clone novo recebe a conta no
+banco configurado sem precisar executar o seed separadamente.
+
+Defina `ADMIN_PASSWORD` no `.env` antes do primeiro início. A senha não é
+versionada; escolha uma senha forte e mantenha o `.env` privado. Se a conta já
+existir, o seed mantém a senha atual e apenas garante o papel `admin`.
+Se a conta administrativa existente usar outro e-mail, configure também
+`ADMIN_EMAIL` com esse endereço.
+
+Para criar uma nova migration a partir do schema durante o desenvolvimento:
 
 ```powershell
 npm run prisma:migrate
@@ -93,14 +102,14 @@ npm run prisma:studio
 
 ### Usuário administrador
 
-O seed cria (ou atualiza) a conta administrativa de forma idempotente:
+O seed cria a conta administrativa de forma idempotente:
 
 ```powershell
 npm run prisma:seed
 ```
 
 - E-mail: `elladmin@email.com`
-- Senha: `12345678`
+- Senha: valor definido em `ADMIN_PASSWORD` no `.env`
 - Papel: `admin` (acesso à rota `/admin`)
 
 O cadastro público sempre cria o papel `usuaria`; os demais papéis

@@ -50,7 +50,7 @@ informar um **CRM**, que é apenas exibido (não há validação de formato).
 A conta administrativa é criada pelo seed:
 
 - **E-mail:** `elladmin@email.com`
-- **Senha:** `12345678`
+- **Senha:** definida como `ADMIN_PASSWORD` em `backend/.env`
 - Acesso em `/admin`
 
 A rota `/contas` e a listagem `GET /api/users` são restritas ao admin. A logo
@@ -69,11 +69,17 @@ salva no banco no campo `photo`; enquanto existir, ela substitui o avatar
 pré-setado. Escolher um preset ou usar **Remover foto** volta a exibir o
 avatar escolhido.
 
-Para iniciar a API a partir da raiz do projeto:
+Para iniciar a API a partir da raiz do projeto, configure o MySQL e o
+`backend/.env` conforme [`backend/README.md`](./backend/README.md). Instale as
+dependências do backend (`npm install` dentro de `backend/`) e então execute:
 
 ```powershell
 npm run server
 ```
+
+Antes de iniciar a API, o script gera o Prisma Client, aplica as migrations e
+cria a conta administrativa caso ainda não exista. O schema do MySQL precisa
+estar criado e a senha `ADMIN_PASSWORD` deve ser definida no `backend/.env`.
 
 ## React + Vite
 
