@@ -3,6 +3,7 @@ import Campo from '../components/Campo'
 
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { lerUsuarioLogado } from '../services/useChat'
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
@@ -14,16 +15,23 @@ import {
     faUsers
 } from '@fortawesome/free-solid-svg-icons'
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+
 function Voluntaria() {
-    const [dados, setDados] = useState({
-        nome: '',
-        email: '',
-        telefone: '',
-        cidade: '',
+    const [dados, setDados] = useState(() => {
+        const logado = lerUsuarioLogado()
+
+        return {
+            nome: logado?.nome || '',
+            email: logado?.email || '',
+            telefone: '',
+            cidade: '',
+        }
     })
 
     const [ajuda, setAjuda] = useState([])
     const [erro, setErro] = useState('')
+    const [enviando, setEnviando] = useState(false)
     const navigate = useNavigate()
 
     function handleChange(e) {
@@ -46,16 +54,64 @@ function Voluntaria() {
 
 
 
-    function handleSubmit(e) {
+    async function handleSubmit(e) {
         e.preventDefault()
+        setErro('')
 
         if (ajuda.length === 0) {
             setErro('Escolha pelo menos uma forma de ajudar.')
             return
         }
 
-        console.log({ ...dados, areas: ajuda })
-        navigate('/voluntaria/agradecimentovoluntaria')
+        const token = localStorage.getItem('ella:token')
+
+        if (!token) {
+            setErro('Para se inscrever, crie sua conta ou entre nela primeiro.')
+            return
+        }
+
+        setEnviando(true)
+
+        try {
+            const resposta = await fetch(`${API_URL}/voluntaria/inscricao`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    email: dados.email.trim(),
+                    telefone: dados.telefone.trim(),
+                    cidade: dados.cidade.trim(),
+                    areas: ajuda,
+                }),
+            })
+
+            const resultado = await resposta.json().catch(() => ({}))
+
+            if (!resposta.ok) {
+                setErro(resultado?.erro || 'Não foi possível enviar a inscrição.')
+                return
+            }
+
+            localStorage.setItem(
+                'usuarioLogado',
+                JSON.stringify({
+                    ...lerUsuarioLogado(),
+                    tipo: resultado.tipo,
+                    accountType: resultado.accountType,
+                    telefone: dados.telefone.trim() || null,
+                    cidade: dados.cidade.trim(),
+                    areas_atuacao: ajuda.join(', '),
+                }),
+            )
+
+            navigate('/voluntaria/agradecimentovoluntaria')
+        } catch {
+            setErro('Não foi possível conectar ao servidor.')
+        } finally {
+            setEnviando(false)
+        }
     }
 
     const opcoes = [
@@ -271,10 +327,11 @@ function Voluntaria() {
                             </div>
 
                             <button
-                                className="mx-auto mt-6 block rounded-full bg-pink-500 px-10 py-3 font-semibold text-white shadow-sm transition hover:bg-pink-600 focus:outline-none focus:ring-2 focus:ring-pink-400 focus:ring-offset-2"
+                                className="mx-auto mt-6 block rounded-full bg-pink-500 px-10 py-3 font-semibold text-white shadow-sm transition hover:bg-pink-600 focus:outline-none focus:ring-2 focus:ring-pink-400 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
                                 type="submit"
+                                disabled={enviando}
                             >
-                                Quero ser voluntária
+                                {enviando ? 'Enviando...' : 'Quero ser voluntária'}
                             </button>
 
                         </form>

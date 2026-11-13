@@ -1,8 +1,5 @@
-// Schema do banco de dados da plataforma ELLA.
-// Documentação: https://pris.ly/d/prisma-schema
-
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
   output   = "../src/generated/prisma"
 }
 
@@ -10,9 +7,67 @@ datasource db {
   provider = "mysql"
 }
 
-model User {
-  id       Int     @id @default(autoincrement())
-  email    String  @unique
-  name     String?
-  password String?
+model conversas {
+  id                                         Int               @id @default(autoincrement())
+  usuaria_id                                 Int
+  voluntaria_id                              Int?
+  status                                     conversas_status? @default(aberta)
+  criada_em                                  DateTime?         @default(now()) @db.Timestamp(0)
+  usuarios_conversas_usuaria_idTousuarios    usuarios          @relation("conversas_usuaria_idTousuarios", fields: [usuaria_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "conversas_ibfk_1")
+  usuarios_conversas_voluntaria_idTousuarios usuarios?         @relation("conversas_voluntaria_idTousuarios", fields: [voluntaria_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "conversas_ibfk_2")
+  mensagens                                  mensagens[]
+
+  @@index([usuaria_id], map: "usuaria_id")
+  @@index([voluntaria_id], map: "voluntaria_id")
+}
+
+model mensagens {
+  id           Int       @id @default(autoincrement())
+  conversa_id  Int
+  remetente_id Int
+  mensagem     String    @db.Text
+  enviada_em   DateTime? @default(now()) @db.Timestamp(0)
+  conversas    conversas @relation(fields: [conversa_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "mensagens_ibfk_1")
+  usuarios     usuarios  @relation(fields: [remetente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "mensagens_ibfk_2")
+
+  @@index([conversa_id], map: "conversa_id")
+  @@index([remetente_id], map: "remetente_id")
+}
+
+model usuarios {
+  id                                          Int           @id @default(autoincrement())
+  nome                                        String        @db.VarChar(100)
+  email                                       String        @unique(map: "email") @db.VarChar(150)
+  senha_hash                                  String        @db.VarChar(255)
+  criado_em                                   DateTime?     @default(now()) @db.Timestamp(0)
+
+  tipo                                        usuarios_tipo @default(usuaria)
+  accountType                                 account_type  @default(usuaria)
+
+  telefone                                    String?       @db.VarChar(20)
+  cidade                                      String?       @db.VarChar(100)
+  areas_atuacao                               String?       @db.Text
+  crm                                         String?       @db.VarChar(30)
+
+  conversas_conversas_usuaria_idTousuarios    conversas[]   @relation("conversas_usuaria_idTousuarios")
+  conversas_conversas_voluntaria_idTousuarios conversas[]   @relation("conversas_voluntaria_idTousuarios")
+  mensagens                                   mensagens[]
+}
+
+enum account_type {
+  usuaria
+  voluntaria
+  psicologa
+}
+
+enum conversas_status {
+  aberta
+  encerrada
+}
+
+enum usuarios_tipo {
+  usuaria
+  voluntaria
+  psicologa
+  admin
 }
