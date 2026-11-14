@@ -1,5 +1,54 @@
 import { useState, useEffect } from 'react';
 
+// Busca as vozes disponíveis. Em alguns navegadores (Chrome) a lista vem vazia
+// na primeira chamada e só é preenchida depois do evento "voiceschanged".
+function carregarVozes() {
+  return new Promise((resolve) => {
+    if (!('speechSynthesis' in window)) {
+      resolve([]);
+      return;
+    }
+
+    const sintese = window.speechSynthesis;
+    const vozes = sintese.getVoices();
+
+    if (vozes.length) {
+      resolve(vozes);
+      return;
+    }
+
+    let concluido = false;
+
+    const finalizar = () => {
+      if (concluido) return;
+      concluido = true;
+      try {
+        sintese.removeEventListener('voiceschanged', finalizar);
+      } catch {
+        sintese.onvoiceschanged = null;
+      }
+      resolve(sintese.getVoices());
+    };
+
+    try {
+      sintese.addEventListener('voiceschanged', finalizar);
+    } catch {
+      sintese.onvoiceschanged = finalizar;
+    }
+
+    // Não deixa a leitura travada se o navegador nunca disparar o evento.
+    setTimeout(finalizar, 1500);
+  });
+}
+
+function escolherVozPortugues(vozes) {
+  return (
+    vozes.find((voz) => /^pt[-_]BR$/i.test(voz.lang)) ||
+    vozes.find((voz) => /^pt([-_]|$)/i.test(voz.lang)) ||
+    null
+  );
+}
+
 export default function Acessibilidade() {
   const [aberto, setAberto] = useState(false);
   const [tamanhoFonte, setTamanhoFonte] = useState(100);
@@ -13,6 +62,16 @@ export default function Acessibilidade() {
   const [guiaLeitura, setGuiaLeitura] = useState(false);
   const [mousePos, setMousePos] = useState({ x: -100, y: -100 });
   const [lendo, setLendo] = useState(false);
+  const [erroVoz, setErroVoz] = useState('');
+
+  // Cancela qualquer leitura pendente ao sair da página.
+  useEffect(() => {
+    return () => {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
 
   useEffect(() => {
     document.documentElement.style.fontSize = `${tamanhoFonte}%`;
@@ -97,28 +156,96 @@ export default function Acessibilidade() {
     return () => window.removeEventListener('mousemove', moverMouse);
   }, [guiaLeitura, cursorGrande]);
 
-  const alternarLeituraVoz = () => {
-    if (!('speechSynthesis' in window)) {
-      alert('Seu navegador não suporta leitura em voz alta.');
+  const alternarLeituraVoz = async () => {
+    setErroVoz('');
+
+    if (
+      !('speechSynthesis' in window) ||
+      typeof window.SpeechSynthesisUtterance !== 'function'
+    ) {
+      setErroVoz('Seu navegador não suporta leitura em voz alta.');
       return;
     }
 
+    const sintese = window.speechSynthesis;
+
     if (lendo) {
-      window.speechSynthesis.cancel();
+      sintese.cancel();
       setLendo(false);
-    } else {
-      window.speechSynthesis.cancel();
-      const textoSelecionado = window.getSelection().toString().trim();
-      const textoParaLer = textoSelecionado || document.body.innerText;
-
-      const fala = new SpeechSynthesisUtterance(textoParaLer);
-      fala.lang = 'pt-BR';
-      fala.onend = () => setLendo(false);
-      fala.onerror = () => setLendo(false);
-
-      setLendo(true);
-      window.speechSynthesis.speak(fala);
+      return;
     }
+
+    const textoSelecionado =
+      (window.getSelection?.()?.toString() || '').trim();
+    const textoParaLer = (textoSelecionado || document.body.innerText || '').trim();
+
+    if (!textoParaLer) {
+      setErroVoz('Não há texto nesta página para ler.');
+      return;
+    }
+
+    // Cancela uma fala anterior que possa ter ficado presa.
+    sintese.cancel();
+
+    const vozes = await carregarVozes();
+    const voz = escolherVozPortugues(vozes);
+
+    const fala = new window.SpeechSynthesisUtterance(textoParaLer.slice(0, 32000));
+    fala.lang = 'pt-BR';
+    fala.rate = 1;
+    fala.pitch = 1;
+
+    if (voz) {
+      fala.voice = voz;
+    }
+
+    let iniciou = false;
+
+    fala.onstart = () => {
+      iniciou = true;
+      setLendo(true);
+    };
+
+    fala.onend = () => {
+      setLendo(false);
+    };
+
+    fala.onerror = (evento) => {
+      setLendo(false);
+
+      if (evento?.error === 'canceled' || evento?.error === 'interrupted') {
+        return;
+      }
+
+      if (evento?.error === 'not-allowed') {
+        setErroVoz('O navegador bloqueou a leitura. Toque em "Ouvir Texto" novamente.');
+        return;
+      }
+
+      setErroVoz(
+        voz
+          ? 'Não foi possível iniciar a leitura em voz alta.'
+          : 'Nenhuma voz em português foi encontrada. Verifique as vozes instaladas no sistema.'
+      );
+    };
+
+    setLendo(true);
+    sintese.speak(fala);
+
+    // O Chrome às vezes deixa a fala em pausa até receber um "resume".
+    sintese.resume();
+
+    // Se nada começou, devolve o botão ao normal e avisa a usuária.
+    setTimeout(() => {
+      if (!iniciou && !sintese.speaking && !sintese.pending) {
+        setLendo(false);
+        setErroVoz(
+          voz
+            ? 'A leitura não iniciou. Toque em "Ouvir Texto" novamente.'
+            : 'Nenhuma voz em português foi encontrada neste navegador.'
+        );
+      }
+    }, 1500);
   };
 
   const resetarTudo = () => {
@@ -131,6 +258,7 @@ export default function Acessibilidade() {
     setCursorGrande(false);
     setSobreClicavel(false);
     setGuiaLeitura(false);
+    setErroVoz('');
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
       setLendo(false);
@@ -214,6 +342,12 @@ export default function Acessibilidade() {
             <button onClick={alternarLeituraVoz} style={getEstiloBotao(lendo, '#fee2e2')}>
               <i className={`fa-solid ${lendo ? 'fa-stop' : 'fa-volume-high'}`}></i> {lendo ? 'Parar Leitura' : 'Ouvir Texto'}
             </button>
+
+            {erroVoz && (
+              <p role="alert" style={{ margin: 0, fontSize: '12px', lineHeight: 1.4, color: '#b91c1c' }}>
+                {erroVoz}
+              </p>
+            )}
 
             <button onClick={() => setTamanhoFonte(t => Math.min(t + 10, 150))} style={getEstiloBotao(tamanhoFonte > 100)}>
               <i className="fa-solid fa-magnifying-glass-plus"></i> Aumentar Texto ({tamanhoFonte}%)

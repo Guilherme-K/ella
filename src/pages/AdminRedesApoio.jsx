@@ -74,7 +74,7 @@ export default function AdminRedesApoio() {
         setErro('');
 
         try {
-            setRedes(await supportNetworkService.list());
+            setRedes(await supportNetworkService.list({ fallback: false }));
         } catch (error) {
             setErro(
                 error.message || 'Não foi possível carregar as redes de apoio.'
@@ -92,7 +92,7 @@ export default function AdminRedesApoio() {
             setErro('');
 
             try {
-                const lista = await supportNetworkService.list();
+                const lista = await supportNetworkService.list({ fallback: false });
                 if (ativo) setRedes(lista);
             } catch (error) {
                 if (ativo) {

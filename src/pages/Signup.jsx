@@ -1,6 +1,10 @@
 import { useState } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
-import { destinoPorPapel, obterUsuarioLogado } from '../utils/navegacao'
+import {
+  destinoPorPapel,
+  obterUsuarioLogado,
+  temSessaoAtiva,
+} from '../utils/navegacao'
 import BotaoVoltar from '../components/BotaoVoltar'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000'
@@ -84,13 +88,18 @@ export default function Signup() {
             tipoConta,
         }
 
-        localStorage.setItem('usuarioLogado', JSON.stringify(usuario))
+        const usuarioSessao = { ...usuario }
+        delete usuarioSessao.token
+
+        localStorage.setItem('usuarioLogado', JSON.stringify(usuarioSessao))
 
         if (dados.token) {
           localStorage.setItem('ella:token', dados.token)
+          navigate(destinoPorPapel(usuario), { replace: true })
+          return
         }
 
-        navigate('/perfiluser', { replace: true })
+        setMessage('Cadastro realizado! Faça login para acessar sua conta.')
         return
       }
 
@@ -107,7 +116,11 @@ export default function Signup() {
     setForm((anterior) => ({ ...anterior, [name]: value }))
   }
 
-  if (usuarioLogado?.id) {
+  if (!temSessaoAtiva(usuarioLogado) && usuarioLogado?.id) {
+    localStorage.removeItem('usuarioLogado')
+  }
+
+  if (temSessaoAtiva(usuarioLogado)) {
     return <Navigate to={destinoPorPapel(usuarioLogado)} replace />
   }
 

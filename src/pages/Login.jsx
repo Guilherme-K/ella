@@ -1,10 +1,11 @@
 import { useState } from 'react'
-import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
+import { Link, Navigate, useNavigate } from 'react-router-dom'
 import womenArtwork from '../assets/mulheres.png'
 import {
   destinoPorPapel,
   normalizarPapel,
   obterUsuarioLogado,
+  temSessaoAtiva,
 } from '../utils/navegacao'
 import BotaoVoltar from '../components/BotaoVoltar'
 
@@ -18,7 +19,6 @@ export default function Login() {
   const [carregando, setCarregando] = useState(false)
 
   const navigate = useNavigate()
-  const location = useLocation()
   const usuarioLogado = obterUsuarioLogado()
 
   async function submit(event) {
@@ -65,19 +65,17 @@ export default function Login() {
 
       const papel = normalizarPapel(usuario)
 
-      const destinos = {
-        admin: '/admin',
-        voluntaria: '/chatvoluntaria',
-        psicologa: '/perfiluser',
-        usuaria: '/perfiluser',
-      }
-
-      if (!destinos[papel]) {
+      if (!['admin', 'voluntaria', 'psicologa', 'usuaria'].includes(papel)) {
         setMessage('O tipo de acesso desta conta não foi identificado.')
         return
       }
 
-      localStorage.setItem('usuarioLogado', JSON.stringify(usuario))
+      // Guarda o usuário sem o token dentro do objeto (o token fica na chave
+      // própria usada pelo httpClient).
+      const usuarioSessao = { ...usuario }
+      delete usuarioSessao.token
+
+      localStorage.setItem('usuarioLogado', JSON.stringify(usuarioSessao))
 
       // Já deixa pronto para sincronizar o link de Saída Rápida vindo do banco no futuro
       const linkSaidaBanco = usuario.saidaRapida || usuario.linkSaida
@@ -85,13 +83,11 @@ export default function Login() {
         localStorage.setItem('ella_link_saida_rapida', linkSaidaBanco)
       }
 
-      if (dados.token) {
-        localStorage.setItem('ella:token', dados.token)
-      }
+      localStorage.setItem('ella:token', token)
 
-      const destinoAnterior = location.state?.from
-
-      navigate(destinoAnterior || destinos[papel], {
+      // Sempre segue o destino do papel. Não reutiliza a página anterior para
+      // que uma usuária não caia automaticamente no chat ao entrar.
+      navigate(destinoPorPapel(usuario), {
         replace: true,
       })
     } catch {
@@ -101,7 +97,13 @@ export default function Login() {
     }
   }
 
-  if (usuarioLogado?.id) {
+  // Só considera a sessão válida quando existe token. Dados antigos sem token
+  // são descartados para não criar um ciclo /login ↔ /perfiluser.
+  if (!temSessaoAtiva(usuarioLogado) && usuarioLogado?.id) {
+    localStorage.removeItem('usuarioLogado')
+  }
+
+  if (temSessaoAtiva(usuarioLogado)) {
     return <Navigate to={destinoPorPapel(usuarioLogado)} replace />
   }
 

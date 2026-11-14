@@ -8,18 +8,21 @@ export function obterUsuarioLogado() {
   }
 }
 
-export function normalizarPapel(usuario) {
-  // O administrador é identificado tanto por "tipo" quanto por "accountType":
-  // o backend devolve ambos para manter compatibilidade com o frontend antigo.
-  if (usuario?.tipo === 'admin' || usuario?.accountType === 'admin') {
-    return 'admin'
-  }
+// Uma sessão só é válida com o usuário E o token salvos. Isso evita que dados
+// antigos no localStorage (sem token) criem um ciclo entre /login e /perfiluser.
+export function temSessaoAtiva(usuario = obterUsuarioLogado()) {
+  return Boolean(usuario?.id && localStorage.getItem('ella:token'))
+}
 
+export function normalizarPapel(usuario) {
+  // `role` é o papel de autorização usado pelo backend. `accountType` é apenas
+  // o tipo escolhido no cadastro e pode divergir (ex.: role "usuaria" com
+  // accountType "voluntaria"), por isso ele é só o último fallback.
   const papel =
-    usuario?.accountType ||
+    usuario?.role ||
     usuario?.tipo ||
     usuario?.papel ||
-    usuario?.role ||
+    usuario?.accountType ||
     ''
 
   return papel
@@ -28,13 +31,8 @@ export function normalizarPapel(usuario) {
     .replace(/[\u0300-\u036f]/g, '')
 }
 
+// "Minha área" e o pós-login levam ao perfil para todas as contas que não são
+// administradoras. O chat deve ser aberto de propósito, nunca automaticamente.
 export function destinoPorPapel(usuario) {
-  const destinos = {
-    admin: '/admin',
-    voluntaria: '/chatvoluntaria',
-    usuaria: '/perfiluser',
-    psicologa: '/perfiluser',
-  }
-
-  return destinos[normalizarPapel(usuario)] || '/perfiluser'
+  return normalizarPapel(usuario) === 'admin' ? '/admin' : '/perfiluser'
 }
