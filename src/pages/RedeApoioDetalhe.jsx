@@ -104,7 +104,7 @@ function DetalheRede({ id }) {
 
   return (
     <main id="conteudo" tabIndex={-1} className="flex-1 bg-white">
-      <section className="bg-gradient-to-br from-pink-50 via-white to-purple-50 px-6 py-12">
+      <section className="bg-linear-to-br from-pink-50 via-white to-purple-50 px-6 py-12">
         <div className="mx-auto max-w-6xl">
           <nav aria-label="Você está em" className="text-xs text-gray-600">
             <Link to="/" className="underline underline-offset-4 hover:text-pink-700">
@@ -217,7 +217,7 @@ function DetalheRede({ id }) {
       </section>
 
       <section className="px-6 py-14">
-        <div className="mx-auto max-w-5xl rounded-3xl bg-gradient-to-br from-violet-950 to-violet-700 px-7 py-10 text-white sm:px-12">
+        <div className="mx-auto max-w-5xl rounded-3xl bg-linear-to-br from-violet-950 to-violet-700 px-7 py-10 text-white sm:px-12">
           <div className="flex flex-col items-center gap-5 text-center sm:flex-row sm:text-left">
             <i
               className="fa-solid fa-triangle-exclamation text-4xl text-pink-200"

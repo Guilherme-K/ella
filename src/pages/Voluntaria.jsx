@@ -98,7 +98,7 @@ function Voluntaria() {
     return (
         <main id="conteudo" tabIndex={-1} className="min-h-screen bg-[#f8f3ff]">
 
-                        <section className="bg-gradient-to-r from-[#fce7f3] via-[#f5eaff] to-[#ede9fe] px-5 pt-6 pb-10 sm:pt-8 sm:pb-14">
+                        <section className="bg-linear-to-r from-[#fce7f3] via-[#f5eaff] to-[#ede9fe] px-5 pt-6 pb-10 sm:pt-8 sm:pb-14">
                 <div className="mx-auto max-w-5xl">
                     {/* Botão Voltar alinhado à esquerda no topo */}
                     <div className="mb-6 text-left">

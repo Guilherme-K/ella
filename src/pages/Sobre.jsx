@@ -24,7 +24,7 @@ const equipe = [
 export default function Sobre() {
   return (
 <main id="conteudo" tabIndex={-1} className="flex-1 bg-white">
-      <section className="bg-gradient-to-br from-pink-50 via-white to-purple-50 px-6 pt-8 pb-20">
+      <section className="bg-linear-to-br from-pink-50 via-white to-purple-50 px-6 pt-8 pb-20">
         {/* Botão Voltar alinhado à esquerda no topo */}
         <div className="mx-auto mb-8 max-w-5xl text-left">
           <BotaoVoltar />
@@ -74,7 +74,7 @@ export default function Sobre() {
             </p>
           </div>
 
-          <div className="rounded-3xl bg-gradient-to-br from-pink-100 to-purple-100 p-8">
+          <div className="rounded-3xl bg-linear-to-br from-pink-100 to-purple-100 p-8">
             <div className="rounded-2xl bg-white p-7 shadow-sm">
               <FontAwesomeIcon
                 icon={faHeart}
@@ -149,7 +149,7 @@ export default function Sobre() {
       </section>
 
       <section className="px-6 py-16">
-        <div className="mx-auto max-w-4xl rounded-3xl bg-gradient-to-r from-pink-600 to-purple-600 px-8 py-12 text-center text-white">
+        <div className="mx-auto max-w-4xl rounded-3xl bg-linear-to-r from-pink-600 to-purple-600 px-8 py-12 text-center text-white">
           <h2 className="text-2xl font-bold md:text-3xl">
             Tecnologia também pode transformar realidades.
           </h2>

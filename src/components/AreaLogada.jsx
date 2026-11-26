@@ -64,7 +64,7 @@ function AreaLogada({ ativo, usuario, children }) {
             </header>
  
             <div className="flex flex-1">
-                <aside className="relative hidden w-60 shrink-0 overflow-hidden bg-gradient-to-b from-[#3b1a6e] to-[#2e0a63] lg:block">
+                <aside className="relative hidden w-60 shrink-0 overflow-hidden bg-linear-to-b from-[#3b1a6e] to-[#2e0a63] lg:block">
                     <nav className="relative z-10 space-y-1 p-3">
                         {menu.map((item) =>
                             item.to ? (

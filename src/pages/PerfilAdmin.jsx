@@ -193,7 +193,7 @@ export default function PerfilAdmin() {
             )}
 
             <section className="overflow-hidden rounded-2xl bg-white shadow-sm">
-                <div className="h-32 bg-gradient-to-r from-violet-950 to-purple-700" />
+                <div className="h-32 bg-linear-to-r from-violet-950 to-purple-700" />
 
                 <div className="px-6 pb-6">
                     <div className="-mt-12 flex flex-col gap-4 sm:flex-row sm:items-end">

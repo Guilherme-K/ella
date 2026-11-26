@@ -82,7 +82,7 @@ export default function RedeApoio() {
 
   return (
 <main id="conteudo" tabIndex={-1} className="flex-1 bg-white">
-      <section className="bg-gradient-to-br from-pink-50 via-white to-purple-50 px-6 pt-8 pb-20">
+      <section className="bg-linear-to-br from-pink-50 via-white to-purple-50 px-6 pt-8 pb-20">
         {/* Botão Voltar alinhado à esquerda no topo */}
         <div className="mx-auto mb-8 max-w-5xl text-left">
           <BotaoVoltar />
@@ -147,7 +147,7 @@ export default function RedeApoio() {
             </p>
           </div>
 
-          <div className="rounded-3xl bg-gradient-to-br from-pink-100 to-purple-100 p-8">
+          <div className="rounded-3xl bg-linear-to-br from-pink-100 to-purple-100 p-8">
             <div className="rounded-2xl bg-white p-7 shadow-sm">
               <i className="fa-solid fa-people-group text-3xl text-pink-600" />
 
@@ -411,7 +411,7 @@ export default function RedeApoio() {
       </section>
 
       <section className="px-6 py-16">
-        <div className="mx-auto max-w-5xl rounded-3xl bg-gradient-to-br from-violet-950 to-violet-700 px-7 py-10 text-white sm:px-12">
+        <div className="mx-auto max-w-5xl rounded-3xl bg-linear-to-br from-violet-950 to-violet-700 px-7 py-10 text-white sm:px-12">
           <div className="flex flex-col items-center gap-5 text-center sm:flex-row sm:text-left">
             <i className="fa-solid fa-triangle-exclamation text-4xl text-pink-200" />
 

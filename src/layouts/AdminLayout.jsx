@@ -63,7 +63,7 @@ export default function AdminLayout() {
             <Header variant="admin" />
 
             <div className="flex flex-1 bg-[#f5f0ff]">
-                <aside className="w-20 shrink-0 bg-gradient-to-b from-violet-950 to-purple-900 py-6 text-white md:w-64">
+                <aside className="w-20 shrink-0 bg-linear-to-b from-violet-950 to-purple-900 py-6 text-white md:w-64">
                     <div className="mb-8 hidden px-6 md:block">
                         <h2 className="text-xl font-bold">
                             Painel Admin

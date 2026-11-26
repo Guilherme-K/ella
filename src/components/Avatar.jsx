@@ -20,7 +20,7 @@ function Avatar({ nome = '', avatar, photo, tamanho = 'h-10 w-10', online = fals
     return (
         <span
             title={photo ? 'Foto de perfil' : preset ? preset.label : nome}
-            className={`relative flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br font-semibold text-white ${src ? 'from-pink-100 to-violet-100' : 'from-pink-300 to-violet-400'} ${tamanho}`}
+            className={`relative flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-linear-to-br font-semibold text-white ${src ? 'from-pink-100 to-violet-100' : 'from-pink-300 to-violet-400'} ${tamanho}`}
         >
             {src ? (
                 <img

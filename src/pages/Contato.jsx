@@ -70,7 +70,7 @@ export default function Contato() {
                 key={integrante.usuario}
                 className="rounded-2xl border border-slate-200 p-6 transition hover:-translate-y-1 hover:border-pink-200 hover:shadow-md"
               >
-                <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-pink-200 to-violet-200 text-2xl text-white">
+                <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-linear-to-br from-pink-200 to-violet-200 text-2xl text-white">
                   <FontAwesomeIcon icon={faGithub} />
                 </div>
 
@@ -100,7 +100,7 @@ export default function Contato() {
           </div>
         </section>
 
-        <section className="rounded-3xl bg-gradient-to-br from-pink-100 to-violet-100 px-8 py-10 text-center">
+        <section className="rounded-3xl bg-linear-to-br from-pink-100 to-violet-100 px-8 py-10 text-center">
           <FontAwesomeIcon
             icon={faHeart}
             className="mb-4 text-3xl text-pink-600"
