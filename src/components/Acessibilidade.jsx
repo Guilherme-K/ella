@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 // Busca as vozes disponíveis. Em alguns navegadores (Chrome) a lista vem vazia
 // na primeira chamada e só é preenchida depois do evento "voiceschanged".
@@ -248,6 +248,41 @@ export default function Acessibilidade() {
     }, 1500);
   };
 
+  const animacaoTopo = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      if (animacaoTopo.current) cancelAnimationFrame(animacaoTopo.current);
+    };
+  }, []);
+
+  const voltarAoTopo = () => {
+    if (animacaoTopo.current) cancelAnimationFrame(animacaoTopo.current);
+
+    const inicio = window.scrollY;
+    if (inicio === 0) return;
+
+    // Animação própria: o scroll nativo "smooth" é ignorado quando o sistema
+    // está com "reduzir movimento", e a volta precisa ser gradual.
+    const duracao = Math.min(800, Math.max(300, inicio / 2));
+    const inicioTempo = performance.now();
+
+    const passo = (agora) => {
+      const progresso = Math.min((agora - inicioTempo) / duracao, 1);
+      const suavizado = 1 - Math.pow(1 - progresso, 3);
+
+      window.scrollTo(0, Math.round(inicio * (1 - suavizado)));
+
+      if (progresso < 1) {
+        animacaoTopo.current = requestAnimationFrame(passo);
+      } else {
+        animacaoTopo.current = null;
+      }
+    };
+
+    animacaoTopo.current = requestAnimationFrame(passo);
+  };
+
   const resetarTudo = () => {
     setTamanhoFonte(100);
     setAltoContraste(false);
@@ -394,6 +429,30 @@ export default function Acessibilidade() {
             </button>
           </div>
         )}
+
+        <button
+          onClick={voltarAoTopo}
+          aria-label="Voltar ao início da página"
+          title="Voltar ao início da página"
+          style={{
+            width: '48px',
+            height: '48px',
+            borderRadius: '50%',
+            backgroundColor: '#ffffff',
+            color: '#5b21b6',
+            border: '2px solid #7c3aed',
+            cursor: 'pointer',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.18)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '22px',
+            marginLeft: 'auto',
+            marginBottom: '10px'
+          }}
+        >
+          <i className="fa-solid fa-arrow-up" aria-hidden="true" />
+        </button>
 
         <button
           onClick={() => setAberto(!aberto)}
