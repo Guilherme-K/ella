@@ -36,13 +36,18 @@ function toPayload(network) {
 }
 
 export const supportNetworkService = {
-  // Leitura pública, usada pela Home e pela página /apoio.
-  list: async () => {
+  // Leitura pública, usada pela Home e pela página /apoio. Quando a API falha,
+  // as páginas públicas usam os cards locais como reserva; o painel admin passa
+  // `fallback: false` para nunca exibir dados locais como se fossem do MySQL.
+  list: async ({ fallback = true } = {}) => {
     try {
       const data = await httpClient.get(ENDPOINT);
       const items = (data ?? []).map(normalize);
-      return items.length > 0 ? items : supportServices.map(normalize);
-    } catch {
+      return items.length > 0 || !fallback
+        ? items
+        : supportServices.map(normalize);
+    } catch (error) {
+      if (!fallback) throw error;
       return supportServices.map(normalize);
     }
   },

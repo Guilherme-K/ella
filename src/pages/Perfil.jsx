@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLock, faPen, faRotate } from '@fortawesome/free-solid-svg-icons';
 import Avatar from '../components/Avatar';
@@ -76,6 +77,7 @@ function Linha({ rotulo, children }) {
 }
 
 function Perfil() {
+    const navigate = useNavigate();
     const [perfil, setPerfil] = useState(null);
     const [rascunho, setRascunho] = useState(null);
     const [carregando, setCarregando] = useState(true);
@@ -102,12 +104,20 @@ function Perfil() {
                 setPerfil(normalizado);
                 setRascunho(normalizado);
             } catch (error) {
-                if (ativo) {
-                    setErro(
-                        error.message ||
-                            'Não foi possível carregar os dados da sua conta.',
-                    );
+                if (!ativo) return;
+
+                // Token vencido/inválido: encerra a sessão e volta ao login
+                // em vez de deixar a tela presa em um erro sem saída.
+                if (error.status === 401) {
+                    userService.clearSession();
+                    navigate('/login', { replace: true });
+                    return;
                 }
+
+                setErro(
+                    error.message ||
+                        'Não foi possível carregar os dados da sua conta.',
+                );
             } finally {
                 if (ativo) setCarregando(false);
             }
@@ -118,7 +128,7 @@ function Perfil() {
         return () => {
             ativo = false;
         };
-    }, [recarregar]);
+    }, [recarregar, navigate]);
 
     function mostrarAviso(texto, erroAviso = false) {
         setAviso({ texto, erro: erroAviso });

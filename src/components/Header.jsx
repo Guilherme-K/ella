@@ -6,19 +6,13 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 import Brand from './Brand'
 import Avatar from './Avatar'
-import { normalizarPapel, obterUsuarioLogado } from '../utils/navegacao'
+import { destinoPorPapel, obterUsuarioLogado, temSessaoAtiva } from '../utils/navegacao'
 
 export default function Header({ variant = 'public' }) {
   const navigate = useNavigate()
   const usuario = obterUsuarioLogado()
-  const papel = normalizarPapel(usuario)
-
-  const destinos = {
-    usuaria: '/perfiluser',
-    voluntaria: '/chatvoluntaria',
-    psicologa: '/perfiluser',
-    admin: '/admin',
-  }
+  const usuarioAtivo = temSessaoAtiva(usuario)
+  const destinoMinhaArea = destinoPorPapel(usuario)
 
   function sair() {
     localStorage.removeItem('usuarioLogado')
@@ -133,10 +127,10 @@ export default function Header({ variant = 'public' }) {
       </nav>
 
       <div className="col-start-3 row-start-1 flex items-center justify-end gap-2 sm:gap-3">
-        {usuario ? (
+        {usuarioAtivo ? (
           <>
             <Link
-              to={destinos[papel] || '/perfiluser'}
+              to={destinoMinhaArea}
               className="flex items-center gap-2 whitespace-nowrap rounded-full py-1 pl-1 pr-3 text-xs text-pink-700 transition hover:bg-pink-50 sm:pr-4 sm:text-sm"
             >
               <Avatar

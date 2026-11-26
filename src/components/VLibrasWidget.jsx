@@ -1,5 +1,8 @@
 import { useEffect } from 'react';
 
+const VLIBRAS_SCRIPT = 'https://vlibras.gov.br/app/vlibras-plugin.js';
+const VLIBRAS_APP = 'https://vlibras.gov.br/app';
+
 export default function VLibrasWidget() {
   useEffect(() => {
     if (document.getElementById('vlibras-script')) return;
@@ -17,13 +20,12 @@ export default function VLibrasWidget() {
 
     const script = document.createElement('script');
     script.id = 'vlibras-script';
-    // Usa o espelho oficial do pacote NPM do VLibras no JSDelivr
-    script.src = 'https://jsdelivr.net';
+    script.src = VLIBRAS_SCRIPT;
     script.async = true;
 
     script.onload = () => {
       if (window.VLibras) {
-        new window.VLibras.Widget('https://vlibras.gov.br');
+        new window.VLibras.Widget(VLIBRAS_APP);
       }
     };
 
