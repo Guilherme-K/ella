@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useLocation } from 'react-router-dom';
 
 export default function SaidaRapida({ modo = 'global', className = '' }) {
@@ -50,6 +51,21 @@ export default function SaidaRapida({ modo = 'global', className = '' }) {
     return () => observador.disconnect();
   }, [modo]);
 
+  // O botão flutuante precisa viver diretamente no <body>: dentro do hero da
+  // home existe um `isolate`, que cria um contexto de empilhamento e fazia o
+  // botão passar por trás dos cards e do footer ao rolar a página.
+  const botaoFlutuante = () =>
+    createPortal(
+      <button
+        onClick={acionarSaida}
+        title="Sair imediatamente do site (ou aperte ESC duas vezes)"
+        className="fixed bottom-5 left-5 z-[9990] rounded-lg bg-purple-100 px-4 py-2 text-xs font-semibold text-violet-700 underline decoration-violet-400 underline-offset-2 shadow-lg transition hover:bg-purple-200 cursor-pointer"
+      >
+        Saída Rápida
+      </button>,
+      document.body,
+    );
+
   if (modo === 'global' && location.pathname === '/') {
     return null;
   }
@@ -68,26 +84,10 @@ export default function SaidaRapida({ modo = 'global', className = '' }) {
           </button>
         </div>
 
-        {mostrarFlutuante && (
-          <button
-            onClick={acionarSaida}
-            title="Sair imediatamente do site (ou aperte ESC duas vezes)"
-            className="fixed bottom-5 left-5 z-50 rounded-lg bg-purple-100 px-4 py-2 text-xs font-semibold text-violet-700 underline decoration-violet-400 underline-offset-2 shadow-lg transition hover:bg-purple-200 cursor-pointer"
-          >
-            Saída Rápida
-          </button>
-        )}
+        {mostrarFlutuante && botaoFlutuante()}
       </>
     );
   }
 
-  return (
-    <button
-      onClick={acionarSaida}
-      title="Sair imediatamente do site (ou aperte ESC duas vezes)"
-      className="fixed bottom-5 left-5 z-50 rounded-lg bg-purple-100 px-4 py-2 text-xs font-semibold text-violet-700 underline decoration-violet-400 underline-offset-2 shadow-lg transition hover:bg-purple-200 cursor-pointer"
-    >
-      Saída Rápida
-    </button>
-  );
+  return botaoFlutuante();
 }
