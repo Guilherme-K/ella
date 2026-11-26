@@ -10,7 +10,7 @@ const equipe = [
     funcao: 'Desenvolvedora',
   },
   {
-    nome: 'Guilherme Kendy',
+    nome: 'Guilherme Kendy Kikuti',
     usuario: 'Guilherme-K',
     funcao: 'Desenvolvedor',
   },
@@ -114,7 +114,7 @@ export default function Sobre() {
             {equipe.map((integrante) => (
               <article
                 key={integrante.usuario}
-                className="rounded-2xl border border-gray-100 bg-white p-7 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+                className="flex flex-col items-center rounded-2xl border border-gray-100 bg-white p-7 text-center shadow-sm transition hover:-translate-y-1 hover:shadow-md"
               >
                 <img
                   src={`https://github.com/${integrante.usuario}.png`}
@@ -130,16 +130,18 @@ export default function Sobre() {
                   {integrante.funcao}
                 </p>
 
-                <a
-                  href={`https://github.com/${integrante.usuario}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={`Visitar GitHub de ${integrante.nome}`}
-                  className="mt-5 inline-flex items-center gap-2 rounded-full bg-gray-900 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-pink-600"
-                >
-                  <FontAwesomeIcon icon={faGithub} />
-                  GitHub
-                </a>
+                <div className="mt-auto pt-5">
+                  <a
+                    href={`https://github.com/${integrante.usuario}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`Visitar GitHub de ${integrante.nome}`}
+                    className="inline-flex items-center gap-2 rounded-full bg-gray-900 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-pink-600"
+                  >
+                    <FontAwesomeIcon icon={faGithub} />
+                    GitHub
+                  </a>
+                </div>
               </article>
             ))}
           </div>

@@ -18,12 +18,12 @@ export default function Denuncia() {
 
         <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-          <div className="bg-pink-100 rounded-2xl p-6">
+          <div className="flex flex-col bg-pink-100 rounded-2xl p-6">
             <h2 className="text-xl font-bold text-purple-950 mb-3">
               Ligue 180
             </h2>
 
-            <p className="text-purple-900 mb-6">
+            <p className="flex-1 text-purple-900 mb-6">
               Central de Atendimento à Mulher. Receba orientações e registre denúncias.
             </p>
 
@@ -31,18 +31,18 @@ export default function Denuncia() {
               href="https://www.gov.br/mulheres/pt-br/ligue180"
               target="_blank"
               rel="noreferrer"
-              className="block text-center bg-pink-600 text-white rounded-full py-3"
+              className="mt-auto block w-full text-center bg-pink-600 text-white rounded-full py-3"
             >
               Acessar
             </a>
           </div>
 
-          <div className="bg-purple-100 rounded-2xl p-6">
+          <div className="flex flex-col bg-purple-100 rounded-2xl p-6">
             <h2 className="text-xl font-bold text-purple-950 mb-3">
               Delegacia da Mulher
             </h2>
 
-            <p className="text-purple-900 mb-6">
+            <p className="flex-1 text-purple-900 mb-6">
               Procure uma delegacia especializada para registrar uma ocorrência.
             </p>
 
@@ -50,24 +50,24 @@ export default function Denuncia() {
               href="https://www.google.com/maps/search/delegacia+da+mulher/"
               target="_blank"
               rel="noreferrer"
-              className="block text-center bg-purple-800 text-white rounded-full py-3"
+              className="mt-auto block w-full text-center bg-purple-800 text-white rounded-full py-3"
             >
               Encontrar
             </a>
           </div>
 
-          <div className="bg-pink-100 rounded-2xl p-6">
+          <div className="flex flex-col bg-pink-100 rounded-2xl p-6">
             <h2 className="text-xl font-bold text-purple-950 mb-3">
               Emergência – 190
             </h2>
 
-            <p className="text-purple-900 mb-6">
+            <p className="flex-1 text-purple-900 mb-6">
               Em situações de perigo imediato, ligue para a Polícia Militar.
             </p>
 
             <a
               href="tel:190"
-              className="block text-center bg-pink-600 text-white rounded-full py-3"
+              className="mt-auto block w-full text-center bg-pink-600 text-white rounded-full py-3"
             >
               Ligar
             </a>

@@ -106,7 +106,7 @@ export default function AdminLayout() {
                             <div
                                 key={item.nome}
                                 title={`${item.nome} - Em desenvolvimento`}
-                                className="flex cursor-not-allowed items-center justify-center gap-3 rounded-xl px-3 py-3 text-violet-300 opacity-60 md:justify-start"
+                                className="flex cursor-not-allowed items-center justify-center gap-3 rounded-xl border border-dashed border-violet-300/40 bg-white/5 px-3 py-3 text-violet-200 md:justify-start"
                                 aria-disabled="true"
                             >
                                 <FontAwesomeIcon
