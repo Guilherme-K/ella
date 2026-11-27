@@ -45,7 +45,7 @@ export default function Footer() {
               <i className="fa-brands fa-youtube" aria-hidden="true" />
             </a>
             <a
-              href="https://www.instagram.com"
+              href="https://www.instagram.com/empresa_ella?evlk=MXdvbXNscjVlMmtmcQ=="
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Instagram (abre em nova aba)"
